@@ -145,6 +145,8 @@ NeoBundleLazy 'joedicastro/vim-markdown'
 NeoBundleLazy 'joedicastro/vim-markdown-extra-preview'
 " reStructuredText в vim. Персональная Wiki на RST
 NeoBundleLazy 'Rykka/riv.vim', {'autoload': {'filetypes': ['rst']}} 
+" VimWiKi
+NeoBundle 'vim-scripts/vimwiki'
 
 " }}}
 
@@ -179,12 +181,6 @@ NeoBundleLazy 'alfredodeza/coveragepy.vim', {'autoload': {'filetypes': ['python'
 NeoBundle 'SirVer/ultisnips'
 " Сниппеты для Ultisnips
 NeoBundle 'honza/vim-snippets'
-
-" }}}
-
-" VimWiKi {{{
-
-NeoBundleLazy 'vim-scripts/vimwiki'
 
 " }}}
 
@@ -235,6 +231,8 @@ NeoBundleLazy 'salsifis/vim-transpose', { 'autoload' :
             \ { 'commands' : 'Transpose'}}
 " Плагин для установки, переключения и показа меток
 NeoBundle 'kshenoy/vim-signature'
+" Форматирование текста в виде таблицы
+NeoBundle 'dhruvasagar/vim-table-mode'
 
 " Текстовые объекты {{{
 

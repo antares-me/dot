@@ -1,0 +1,2021 @@
+"
+"                       __   _(_)_ __ ___  _ __ ___
+"                       \ \ / / | '_ ` _ \| '__/ __|
+"                        \ V /| | | | | | | | | (__
+"                       (_)_/ |_|_| |_| |_|_|  \___|
+"
+" Автор: Antares <antares@antares.me>
+" Источник: https://github.com/antares-me/.vim
+"
+" Установка языка {{{ =========================================================
+
+" language en_US.UTF-8     " Решает проблемы несовместимости некоторых плагинов
+
+" }}}
+
+" NEOBUNDLE {{{ ===============================================================
+
+set nocompatible            " Не соблюдать совместимость с древними версиями vi
+
+" NeoBundle автоустановка  {{{
+
+" Автоустановка NeoBundle
+let iCanHazNeoBundle=1
+let neobundle_readme=expand($HOME.'/.vim/bundle/neobundle.vim/README.md')
+if !filereadable(neobundle_readme)
+    echo "Установка NeoBundle.."
+    echo ""
+    silent !mkdir -p $HOME/.vim/bundle
+    silent !git clone https://github.com/Shougo/neobundle.vim $HOME/.vim/bundle/neobundle.vim
+    let iCanHazNeoBundle=0
+endif
+
+" Запуск NeoBundle
+if has('vim_starting')
+    set rtp+=$HOME/.vim/bundle/neobundle.vim/
+endif
+call neobundle#begin(expand($HOME.'/.vim/bundle/'))
+
+" Добавление NeoBundle для обновления
+NeoBundle 'Shougo/neobundle.vim'
+" }}}
+
+" BUNDLES (плагины, администрируемые NeoBundle) {{{
+
+" Путь Shougo {{{
+
+" Vimproc для асинхронного выполнения команд (NeoBundle, Unite)
+NeoBundle 'Shougo/vimproc', {
+      \ 'build' : {
+      \     'windows' : 'make -f make_mingw32.mak',
+      \     'cygwin' : 'make -f make_cygwin.mak',
+      \     'mac' : 'make -f make_mac.mak',
+      \     'unix' : 'make -f make_unix.mak',
+      \    },
+      \ }
+
+" Unite. Плагин быстрого поиска и управления файлами и буферами
+NeoBundle 'Shougo/unite.vim'
+
+" Источники Unite
+
+" Извлечение заголовков буфера
+NeoBundleLazy 'Shougo/unite-outline', {'autoload':{'unite_sources':'outline'}}
+" Работа со справкой
+NeoBundleLazy 'tsukkee/unite-help', {'autoload':{'unite_sources':'help'}}
+" Изменение цветовых схем
+NeoBundleLazy 'ujihisa/unite-colorscheme', {'autoload':{'unite_sources':
+            \ 'colorscheme'}}
+" Плагин для поиска и открытия файлов, используя компнду locate
+NeoBundleLazy 'ujihisa/unite-locate', {'autoload':{'unite_sources':'locate'}}
+" Плагин для работы с историей
+NeoBundleLazy 'thinca/vim-unite-history', { 'autoload' : { 'unite_sources' :
+            \ ['history/command', 'history/search']}}
+" Плагин для работы с типами файлов
+NeoBundleLazy 'osyo-manga/unite-filetype', { 'autoload' : {'unite_sources' :
+            \ 'filetype', }}
+" Плагин для использования quickfix списков в качестве источников
+NeoBundleLazy 'osyo-manga/unite-quickfix', {'autoload':{'unite_sources':
+            \ ['quickfix', 'location_list']}}
+" Плагин для работы со складками
+NeoBundleLazy 'osyo-manga/unite-fold', {'autoload':{'unite_sources':'fold'}}
+" Плагин для создания меток с файлах
+NeoBundleLazy 'tacroe/unite-mark', {'autoload':{'unite_sources':'mark'}}
+" Плагин для просмотра mru файлов
+NeoBundleLazy 'Shougo/neomru.vim', {'autoload':{'unite_sources': 
+            \['file_mru', 'directory_mru']}}
+" Плагин для навигации по файлам (нужен если недоступен ranger)
+NeoBundleLazy 'Shougo/vimfiler', {'autoload' : { 'commands' : ['VimFiler']}}
+" Плагин для работы с временными файлами
+NeoBundleLazy 'Shougo/junkfile.vim', {'autoload':{'commands':'JunkfileOpen',
+            \ 'unite_sources':['junkfile','junkfile/new']}}
+" Плагин для автодополнения командной строки
+NeoBundle 'joedicastro/unite-cmdmatch'
+" Плагин для проверки правописания
+NeoBundle 'kopischke/unite-spell-suggest'
+" }}}
+
+" Цветовые схемы {{{
+
+" Тёмные схемы
+" Улучшенная версия терминала Molokai
+NeoBundle 'joedicastro/vim-molokai256'
+" Цветовая схема Molokai
+NeoBundle 'tomasr/molokai'
+" Цветовая схема Bad Wolf
+NeoBundleLazy 'sjl/badwolf', { 'autoload' :
+        \ { 'unite_sources' : 'colorscheme', }}
+" Цветовая схема harlequin
+NeoBundleLazy 'nielsmadan/harlequin', { 'autoload' :
+        \ { 'unite_sources' : 'colorscheme', }}
+
+" Светлые схемы
+" Цветовая схема summerfruit256
+NeoBundleLazy 'summerfruit256.vim', { 'autoload' :
+        \ { 'unite_sources' : 'colorscheme', }}
+" Цветовая схема github256
+NeoBundleLazy 'joedicastro/vim-github256', { 'autoload' :
+        \ { 'unite_sources' : 'colorscheme', }}
+
+" Тема терминала из GUI
+NeoBundleLazy 'godlygeek/csapprox', { 'autoload' :
+        \ { 'commands' : ['CSApprox', 'CSApproxSnapshot']}}
+
+" }}}
+
+" DCVS {{{
+
+" Администрирование Git
+NeoBundle 'tpope/vim-fugitive'
+" Показ изменений git репозитория в текущем файле
+NeoBundle 'airblade/vim-gitgutter'
+" Просмотр Git
+NeoBundleLazy 'gregsexton/gitv', {'depends':['tpope/vim-fugitive'],
+            \ 'autoload':{'commands':'Gitv'}}
+" Просмотр событий GitHub в Vim
+NeoBundle 'joedicastro/vim-github-dashboard'
+
+" }}}
+
+" Markdown & reStructuredText {{{
+
+" Markdown синтаксис
+NeoBundleLazy 'joedicastro/vim-markdown'
+" Создание предпросмотра Markdown в браузере
+NeoBundleLazy 'joedicastro/vim-markdown-extra-preview'
+" reStructuredText в vim. Персональная Wiki на RST
+NeoBundleLazy 'Rykka/riv.vim', {'autoload': {'filetypes': ['rst']}} 
+
+" }}}
+
+" Linux утилиты {{{
+
+" diff утилита для каталогов
+NeoBundleLazy 'joedicastro/DirDiff.vim', { 'autoload': { 'commands' : 'DirDiff'}}
+" Шестнадцатеричный редактор
+NeoBundle 'Shougo/vinarise.vim'
+
+" }}}
+
+" Python {{{
+
+" Автодополнение
+NeoBundle 'Shougo/neocomplete.vim'
+" Python плагин
+NeoBundleLazy 'klen/python-mode', {'autoload': {'filetypes': ['python']}}
+" Администрирование virtualenvs
+NeoBundle 'jmcantrell/vim-virtualenv'
+" Показ отступов строк
+NeoBundleLazy 'Yggdroot/indentLine', {'autoload': {'filetypes': ['python']}}
+" Показ сообщений из coverage.py
+NeoBundleLazy 'alfredodeza/coveragepy.vim', {'autoload': {'filetypes': ['python']}}
+" Сортировка импортов
+ NeoBundle 'fisadev/vim-isort', {'autoload': {'filetypes': ['python']}}
+" }}}
+
+" Сниппеты {{{
+
+" Мощний ниструмент сниппетов
+NeoBundle 'SirVer/ultisnips'
+" Сниппеты для Ultisnips
+NeoBundle 'honza/vim-snippets'
+
+" }}}
+
+" VimWiKi {{{
+
+NeoBundleLazy 'vim-scripts/vimwiki'
+
+" }}}
+
+" Синтаксис {{{
+
+" JSON
+NeoBundleLazy 'elzr/vim-json', {'filetypes' : 'json'}
+" PO
+NeoBundleLazy 'po.vim--gray', {'autoload': {'filetypes': ['po']}}
+" Pentadactyl
+NeoBundleLazy 'joedicastro/vim-pentadactyl', {
+            \ 'autoload': {'filetypes': ['pentadactyl']}}
+" Плагин проверки синтаксиса (поддерживает множество языков)
+NeoBundle 'scrooloose/syntastic'
+
+" }}}
+
+" Внешние ссылки {{{
+
+" Открытие URL в браузере или другого файла в связанном приложении
+NeoBundle 'utl.vim'
+
+" }}}
+
+" Редактирование текста {{{
+
+" Автозакрытие скобок и кавычек (, [, {, ', ", ...
+NeoBundle 'delimitMate.vim'
+" Быстрое и умное изменение дат
+NeoBundle 'tpope/vim-speeddating'
+" Изменеие начала и конца текста, к которому применяется плагин
+NeoBundle 'tpope/vim-surround'
+" Увеличивает повторения команд клавишей <.>
+NeoBundle 'tpope/vim-repeat'
+" Переключает коментарии
+NeoBundle 'tpope/vim-commentary'
+" Умная вставка спецсимволов
+NeoBundle 'Rykka/easydigraph.vim'
+" Просмотр дерева отмены
+NeoBundleLazy 'sjl/gundo.vim', { 'autoload' : {'commands': 'GundoToggle'}}
+" Вставка блоков lorem ipsum
+NeoBundleLazy 'loremipsum', { 'autoload' :
+            \ { 'commands' : 'Loremipsum'}}
+" Показ знаков мнемоники
+NeoBundle 'tpope/vim-characterize'
+" Перенос строк и текстовых блоков
+NeoBundleLazy 'salsifis/vim-transpose', { 'autoload' :
+            \ { 'commands' : 'Transpose'}}
+" Плагин для установки, переключения и показа меток
+NeoBundle 'kshenoy/vim-signature'
+
+" Текстовые объекты {{{
+
+" Выбор всего содержимого буфера
+NeoBundle 'kana/vim-textobj-entire' " ae, ie
+" Выбор блока строк с одинаковым отступом
+NeoBundle 'kana/vim-textobj-indent' " ai, ii, aI, iI
+" Выбор области текста по поисковому паттерну
+NeoBundle 'kana/vim-textobj-lastpat' " a/, i/, a?, i?
+" Выбор области текста в строке
+NeoBundle 'kana/vim-textobj-line' " al, il
+" Создание двух текстовых объектов из одного по символу подчёркивания
+NeoBundle 'kana/vim-textobj-underscore' " a_, i_
+" Создание собственных текстовых объектов
+NeoBundle 'kana/vim-textobj-user'
+
+" }}}
+
+" }}}
+
+" HTML/CSS {{{
+
+" Мощный инструмент управления цветом
+NeoBundleLazy 'Rykka/colorv.vim', {'autoload' : {
+            \ 'commands' : [
+                             \ 'ColorV', 'ColorVView', 'ColorVPreview',
+                             \ 'ColorVPicker', 'ColorVEdit', 'ColorVEditAll',
+                             \ 'ColorVInsert', 'ColorVList', 'ColorVName',
+                             \ 'ColorVScheme', 'ColorVSchemeFav',
+                             \ 'ColorVSchemeNew', 'ColorVTurn2'],
+            \ }}
+" Автопоподсказка HTML5
+NeoBundleLazy 'othree/html5.vim', {'autoload':
+            \ {'filetypes': ['html', 'xhttml', 'css']}}
+" Emmet
+NeoBundleLazy 'mattn/emmet-vim', {'autoload':
+            \ {'filetypes': ['html', 'xhttml', 'css', 'xml', 'xls', 'markdown']}}
+" Поддержка CoffeeScript
+NeoBundle 'kchmck/vim-coffee-script',{'autoload' : {
+            \ 'commands' : [
+                             \ 'CoffeeCompile', 'CoffeeLint', 'CoffeeMake',
+                             \ 'CoffeeRun', 'CoffeeWatch'],
+            \ 'filetypes' : ['coffee']
+            \ }}
+
+" }}}
+
+" GUI {{{
+
+" Красивая строка статуса
+NeoBundle 'bling/vim-airline'
+" Увеличение окна
+NeoBundleLazy 'zoomwintab.vim', {'autoload' :
+            \{'commands' : 'ZoomWinTabToggle'}}
+" Изменение размера окна
+NeoBundle 'jimsei/winresizer'
+
+" Стартовое меню
+NeoBundle 'mhinz/vim-startify'
+
+" Скринсейвер матрица
+" NeoBundle 'uguu-org/vim-matrix-screensaver'
+
+" Подсказки (фортунки) vim при старте
+"NeoBundle 'hobbestigrou/vimtips-fortune', {'build':{
+"				\'unix' : 'strfile fortunes/vimtips',
+"				\'linux' : 'strfile fortunes/vimtips',
+"				\ }}
+"
+" }}}
+
+" Tmux {{{
+
+" Взаимодействие с Tmux
+NeoBundle 'benmills/vimux'
+" Синтаксис конфига Tmux
+NeoBundleLazy 'vimez/vim-tmux', { 'autoload' : { 'filetypes' : 'conf'}}
+
+" }}}
+
+" API Web {{{
+
+" Интерфейс к WEB API
+NeoBundle 'mattn/webapi-vim'
+
+" }}}
+
+" Система управления базами данных {{{
+
+" Доступ к базам данных
+NeoBundleLazy 'joedicastro/dbext.vim', { 'autoload' : { 'filetypes' : 'sql'}}
+
+" }}}
+
+" END BUNDLES }}}
+
+call neobundle#end()
+
+" Автоустановка плагинов {{{
+
+" Установка плагинов при первом запуске
+if iCanHazNeoBundle == 0
+    echo "Установка плагинов. Пожалуйста игнорируйте ошибки маппинга клавиш."
+    echo ""
+    set nomore
+    NeoBundleInstall
+endif
+
+" Если при старте найдены новые плагины, будет предложено установить их.
+NeoBundleCheck
+
+" }}}
+
+filetype plugin indent on                   " Включение определения типа файлов
+
+" }}}
+
+" Функции {{{ =================================================================
+
+" Создание папки если её не существует {{{
+
+function! MakeDirIfNoExists(path)
+    if !isdirectory(expand(a:path))
+        call mkdir(expand(a:path), "p")
+    endif
+endfunction
+
+" }}}
+
+" Переключение переноса строк и подсветки столбца переноса {{{
+
+function! ToggleWrap()
+    let s:nowrap_cc_bg = [22, '#005f00']
+    redir => s:curr_cc_hi
+    silent hi ColorColumn
+    redir END
+    let s:curr_cc_ctermbg = matchstr(s:curr_cc_hi, 'ctermbg=\zs.\{-}\s\ze\1')
+    let s:curr_cc_guibg = matchstr(s:curr_cc_hi, 'guibg=\zs.\{-}\_$\ze\1')
+    if s:curr_cc_ctermbg != s:nowrap_cc_bg[0]
+        let g:curr_cc_ctermbg = s:curr_cc_ctermbg
+    endif
+    if s:curr_cc_guibg != s:nowrap_cc_bg[1]
+        let g:curr_cc_guibg = s:curr_cc_guibg
+    endif
+    if &textwidth == 80
+        set textwidth=0
+        exec 'hi ColorColumn ctermbg='.s:nowrap_cc_bg[0].
+                    \' guibg='.s:nowrap_cc_bg[1]
+    elseif &textwidth == 0
+        set textwidth=80
+        exec 'hi ColorColumn ctermbg='.g:curr_cc_ctermbg.
+                    \' guibg='.g:curr_cc_guibg
+    endif
+endfunction
+
+" }}}
+
+" Переключение типа нумерации строк {{{
+
+function! ToggleRelativeAbsoluteNumber()
+  if !&number && !&relativenumber
+      set number
+      set norelativenumber
+  elseif &number && !&relativenumber
+      set nonumber
+      set relativenumber
+  elseif !&number && &relativenumber
+      set number
+      set relativenumber
+  elseif &number && &relativenumber
+      set nonumber
+      set norelativenumber
+  endif
+endfunction
+
+" }}}
+
+" Выбор файлов через ranger {{{
+
+fun! RangerChooser()
+    exec "silent !ranger --choosefile=/tmp/chosenfile " . expand("%:p:h")
+    if filereadable('/tmp/chosenfile')
+        exec 'edit ' . system('cat /tmp/chosenfile')
+        call system('rm /tmp/chosenfile')
+    endif
+    redraw!
+endfun
+
+" }}}
+
+" Переключение окна быстрых правок {{{
+
+function! s:QuickfixToggle()
+    for i in range(1, winnr('$'))
+        let bnum = winbufnr(i)
+        if getbufvar(bnum, '&buftype') == 'quickfix'
+            cclose
+            lclose
+            return
+        endif
+    endfor
+    copen
+endfunction
+
+" }}}
+
+" Получение частоты слов в тексте {{{
+
+function! WordFrequency() range
+  let all = split(join(getline(a:firstline, a:lastline)), '\A\+')
+  let frequencies = {}
+  for word in all
+    let frequencies[word] = get(frequencies, word, 0) + 1
+  endfor
+  let lst = []
+  for [key,value] in items(frequencies)
+    call add(lst, value."\t".key."\n")
+  endfor
+  call sort(lst)
+  echo join(lst)
+endfunction
+
+" }}}
+
+" Количество строк кода {{{
+
+function! LinesOfCode()
+    echo system('cloc --quiet '.bufname("%"))
+endfunction
+
+" }}}
+
+" Переключение между окнами Tmux и Vim {{{
+
+function! TmuxOrSplitSwitch(wincmd, tmuxdir)
+  let previous_winnr = winnr()
+  execute "wincmd " . a:wincmd
+  if previous_winnr == winnr()
+    " sleep и & дают время, чтобы вернуться обратно в vim и обойти
+    " слежение за фокусом tmux, который может нас кикнуть и послать ^[[O
+    execute "silent !sh -c 'sleep 0.01; tmux select-pane -" . a:tmuxdir . "' &"
+    redraw!
+  endif
+endfunction
+
+" }}}
+
+"  GitHub dashboard в строку статуса {{{
+
+function! GHDashboard (...)
+  if &filetype == 'github-dashboard'
+    " первая переменная- statusline builder
+    let builder = a:1
+
+    call builder.add_section('airline_a', 'GitHub ')
+    call builder.add_section('airline_b',
+                \ ' %{get(split(get(split(github_dashboard#statusline(), " "),
+                \ 1, ""), ":"), 0, "")} ')
+    call builder.add_section('airline_c',
+                \ ' %{get(split(get(split(github_dashboard#statusline(), " "),
+                \ 2, ""), "]"), 0, "")} ')
+
+    " указываем ядру использовать контент builder
+    return 1
+  endif
+endfunction
+
+" }}}
+
+" Переключение функции автовыбора {{{
+function! ToggleNeoComplete()
+  if !g:neocomplete#disable_auto_complete && g:neocomplete#enable_auto_select
+      let g:neocomplete#disable_auto_complete = 0
+      let g:neocomplete#enable_auto_select = 0
+  elseif !g:neocomplete#disable_auto_complete && !g:neocomplete#enable_auto_select
+      let g:neocomplete#disable_auto_complete = 1
+      let g:neocomplete#enable_auto_select = 0
+  elseif g:neocomplete#disable_auto_complete && !g:neocomplete#enable_auto_select
+      let g:neocomplete#disable_auto_complete = 0
+      let g:neocomplete#enable_auto_select = 1
+  endif
+endfunction
+
+" }}}
+
+" }}}
+
+" Настройки VIM {{{ ===========================================================
+
+" <Leader> и <LocalLeader> маппинг {{{
+
+let mapleader=','
+let maplocalleader= ' '
+
+" }}}
+
+" Основные настройки {{{
+
+scriptencoding utf-8
+set encoding=utf-8              " установка кодировки в UTF-8
+set ls=2                        " всегда показывать строку статуса
+set go-=T                       " скрыть панель инструментов
+set go-=m                       " скрыть меню
+" Следующие две строки довольно сложны, но если не сделать этого, то в Gvim
+" вертикальная полоса прокрутки будет показываться даже если скрыть все полосы
+" прокрутки
+set go+=rRlLbh                  " показать все  полосы прокрутки
+set go-=rRlLbh                  " скрыть все полосы прокрутки
+set visualbell                  " включить визуальные оповещения
+set cursorline                  " подсвечивать строку под курсором
+set fillchars+=vert:│           " улучшенный вид разделителя окон
+set ttyfast                     " улучшенная перерисовка окон
+set title                       " показывать название файла в заголовке консоли
+set showcmd                     " показывать частично набранные команды
+set hidden                      " скрыть неактивные буферы
+set ruler                       " всегда отображать полосы прокрутки
+set lazyredraw                  " перерисовка экрана только если это необходимо
+set autoread                    " обновить открытый файл при изменении вне Vim
+set ttimeoutlen=0               " преключать режимы мгновенно
+set backspace=indent,eol,start  " определить поведение кнопки <backspace>
+set virtualedit=all             " редактировать при отсутствии фактических символов
+set more                        " Показывать страницы, используя `more` при выводе команд
+
+" }}}
+
+" Поиск {{{
+
+set incsearch                   " инкрементальный поиск
+set showmatch                   " показывать пары совпадений
+set hlsearch                    " подсветить результаты поиска
+set smartcase                   " умное игнорирование регистра
+set ignorecase                  " игнорирование регистра букв
+
+" }}}
+
+" История и постоянные уровни отмены {{{
+
+set history=1000
+set undofile
+set undoreload=1000
+
+" }}}
+
+" Бэкапы {{{
+
+set backup
+set noswapfile
+set backupdir=$HOME/.vim/tmp/backup/
+set undodir=$HOME/.vim/tmp/undo/
+set directory=$HOME/.vim/tmp/swap/
+set viminfo+=n$HOME/.vim/tmp/viminfo
+
+" Создание директорий, если они ранее не были созданы
+silent! call MakeDirIfNoExists(&undodir)
+silent! call MakeDirIfNoExists(&backupdir)
+silent! call MakeDirIfNoExists(&directory)
+
+" }}}
+
+" Всплывающее меню {{{
+
+set wildmenu                        " Автозавершение командной строки
+set wildmode=list:longest,full      " Показать все варианты
+
+set wildignore+=*.sw?                            " Своп-файлы Vim
+set wildignore+=*.bak,*.?~,*.??~,*.???~,*.~      " Файлы резервных копий
+set wildignore+=*.luac                           " Байт-код Lua
+set wildignore+=*.jar                            " Архивы java
+set wildignore+=*.pyc                            " Байт-код Python
+set wildignore+=*.stats                          " Статистика Pylint
+
+" }}}
+
+" Табы, пробелы и перенос {{{
+
+set expandtab                  " пробелы вместо табуляции
+set tabstop=4                  " Таб = четыре пробела
+set shiftwidth=4               " Количество пробелов в автоотступе
+set softtabstop=4              " Софттаб = четыре пробела
+set autoindent                 " включить автоотступ
+" set formatoptions=qrn1ct     " автоматическое форматирование
+set textwidth=80	       " ширина текста 80 символов
+set colorcolumn=81	       " Столбец подсветки ограничения ширины текста
+
+nmap <silent><Leader>ew :call ToggleWrap()<CR>
+
+" }}}
+
+" Отключение стрелочных клавишиш {{{
+
+nnoremap <up> <nop>
+nnoremap <down> <nop>
+nnoremap <left> <nop>
+nnoremap <right> <nop>
+inoremap <up> <nop>
+inoremap <down> <nop>
+inoremap <left> <nop>
+inoremap <right> <nop>
+
+" }}}
+
+" Цветовые схемы {{{
+
+syntax enable                  " включить подсветку синтаксиса
+set background=dark            " установить тёмный фон
+set t_Co=256                   " 256 цветов в теримнале
+if has('gui_running')
+    colorscheme molokai
+else
+    colorscheme molokai256
+endif
+
+" }}}
+
+" Шрифты {{{
+
+set guifont=Dejavu\ Sans\ Mono\ for\ Powerline\ 11
+
+" }}}
+
+" Изменение размера разделения при изменении окна VIM {{{
+
+au VimResized * exe "normal! \<c-w>="
+
+" }}}
+
+" Новые окна {{{
+
+nnoremap <Leader>v <C-w>v
+nnoremap <Leader>h <C-w>s
+
+" }}}
+
+" Быстрое переключение окон {{{
+
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
+" }}}
+
+" Быстрок закрытие буферов и окон {{{
+
+nnoremap <Leader>k <C-w>c
+nnoremap <silent><Leader>K :bd<CR>
+
+" }}}
+
+" Переключение нумерации строк {{{
+
+nnoremap <silent><Leader>l :call ToggleRelativeAbsoluteNumber()<CR>
+
+" }}}
+
+" Показ непечатуемых символов {{{
+
+nmap <Leader>eh :set list!<CR>
+set listchars=tab:→\ ,eol:↵,trail:·,extends:↷,precedes:↶
+
+" }}}
+
+" Складки {{{
+
+set foldmethod=marker
+
+" Toggle folding
+
+nnoremap \ za
+vnoremap \ za
+
+" }}}
+
+" Вырезание/Вставка {{{
+
+" в/из буфера обмена
+map <Leader>y "*y
+map <Leader>p "*p
+
+" Переключение режима вставки
+map <Leader>P :set invpaste<CR>
+
+" }}}
+
+" Автозагрузка конфигурации когда этот файл меняется ($MYVIMRC) {{{
+
+autocmd! BufWritePost vimrc source %
+
+" }}}
+
+" Проверка правописания {{{
+
+" Включить проверку правописания и установить русский язык
+nmap <Leader>sr :setlocal spell spelllang=ru<CR>
+" Включить проверку правописания и установить английский язык
+nmap <Leader>se :setlocal spell spelllang=en<CR>
+" Выключить проверку правописания
+nmap <Leader>so :setlocal nospell <CR>
+" Перейти к следующему неправильному слову
+nmap <Leader>sn ]s
+" Предложить слова
+" nmap <Leader>sp z=
+" Предложить слова (Unite)
+nmap <Leader>sp :Unite spell_suggest<CR>
+" Перейти к следующему неправильному слову и предложить правильное написание
+" nmap <Leader>sc ]sz=
+" Перейти к следующему неправильному слову и предложить правильное написание  (Unite)
+nmap <Leader>sc ]s :Unite spell_suggest<CR>
+" Добавить слово в словарь
+nmap <Leader>sa zg
+" }}}
+
+" Сохранить как root {{{
+
+cmap w!! w !sudo tee % >/dev/null<CR>:e!<CR><CR>
+
+" }}}
+
+" Быстрое сохранение {{{
+
+nmap <silent> <Leader>w :update<CR>
+
+" }}}
+
+" Удалить завершающие пробелы {{{
+
+nmap <silent><Leader>et :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
+
+" }}}
+
+" Использовать Ranger для навигации по файлам {{{
+
+map <Leader>x :call RangerChooser()<CR>
+
+" }}}
+
+" Показать окно быстрых правок {{{
+
+command! ToggleQuickfix call <SID>QuickfixToggle()
+nnoremap <silent> <Leader>q :ToggleQuickfix<CR>
+
+" }}}
+
+" Статистика по тексту {{{
+
+" Получить общее количество строк, слов, символов и байт (включая текущую позицию)
+map <Leader>es g<C-G>
+
+" Получить частоту слов в тексте
+
+command! -range=% WordFrequency <line1>,<line2>call WordFrequency()
+map <Leader>ef :Unite output:WordFrequency<CR>
+
+" }}}
+
+" Переключить подсветку результатов поиска {{{
+
+map <silent><Leader>eq :set invhlsearch<CR>
+
+" }}}
+
+" Перемещение между окнами Vim и Tmux {{{
+
+if exists('$TMUX')
+  let previous_title = substitute(system("tmux display-message -p '#{pane_title}'"), '\n', '', '')
+  let &t_ti = "\<Esc>]2;vim\<Esc>\\" . &t_ti
+  let &t_te = "\<Esc>]2;". previous_title . "\<Esc>\\" . &t_te
+  nnoremap <silent> <C-h> :call TmuxOrSplitSwitch('h', 'L')<CR>
+  nnoremap <silent> <C-j> :call TmuxOrSplitSwitch('j', 'D')<CR>
+  nnoremap <silent> <C-k> :call TmuxOrSplitSwitch('k', 'U')<CR>
+  nnoremap <silent> <C-l> :call TmuxOrSplitSwitch('l', 'R')<CR>
+else
+  map <C-h> <C-w>h
+  map <C-j> <C-w>j
+  map <C-k> <C-w>k
+  map <C-l> <C-w>l
+endif
+
+" }}}
+
+" Быстрый выход без сохранения {{{
+
+nnoremap <Leader>`` :qa!<CR>
+
+" }}}
+
+" Права на исполнение по умолчанию для файлов, начинающихся с #! {{{
+
+augroup shebang_chmod
+  autocmd!
+  autocmd BufNewFile  * let b:brand_new_file = 1
+  autocmd BufWritePost * unlet! b:brand_new_file
+  autocmd BufWritePre *
+        \ if exists('b:brand_new_file') |
+        \   if getline(1) =~ '^#!' |
+        \     let b:chmod_post = '+x' |
+        \   endif |
+        \ endif
+  autocmd BufWritePost,FileWritePost *
+        \ if exists('b:chmod_post') && executable('chmod') |
+        \   silent! execute '!chmod '.b:chmod_post.' "<afile>"' |
+        \   unlet b:chmod_post |
+        \ endif
+augroup END
+
+" }}}
+
+" Загрузить matchit по умолчанию {{{
+
+if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
+  runtime! macros/matchit.vim
+endif
+
+" }}}
+
+" Установить поведение Y похожим на D и C {{{
+
+nnoremap Y y$
+
+" }}}
+
+" Настройки VIM }}}
+
+" Настройки плагинов {{{ ===========================================================
+
+" Airline {{{
+
+set noshowmode
+
+let g:airline_theme='powerlineish'
+let g:airline_powerline_fonts=1
+let g:airline#extensions#branch#enabled = 1
+let g:airline#extensions#whitespace#enabled = 1
+let g:airline#extensions#hunks#non_zero_only = 1
+
+" let g:airline#extensions#tabline#enabled = 2
+" let g:airline#extensions#tabline#fnamemod = ':t'
+" let g:airline#extensions#tabline#buffer_min_count = 1
+
+" }}}
+
+" CoffeeScript {{{
+
+map <Leader>rw :CoffeeWatch vert<CR>
+
+" }}}
+
+" ColorV {{{
+
+let g:colorv_cache_file=$HOME.'/.vim/tmp/vim_colorv_cache'
+let g:colorv_cache_fav=$HOME.'/.vim/tmp/vim_colorv_cache_fav'
+
+" }}}
+
+" Commentary {{{
+
+nmap <Leader>c <Plug>CommentaryLine
+xmap <Leader>c <Plug>Commentary
+
+augroup plugin_commentary
+    au!
+    au FileType python setlocal commentstring=#%s
+    au FileType htmldjango setlocal commentstring={#\ %s\ #}
+    au FileType puppet setlocal commentstring=#\ %s
+    au FileType xquery setlocal commentstring=(:\ %s\ :)
+augroup END
+
+" }}}
+
+" DBext {{{
+
+let g:dbext_default_type = 'SQLITE'
+let g:dbext_default_user = ""
+let g:dbext_default_passwd = ""
+let g:dbext_default_display_cmd_line = 0
+let g:dbext_default_prompt_for_parameters=0
+let g:dbext_default_history_file = $HOME.'./vim/tmp/dbext_sql_history.txt'
+
+" Маппинг
+
+let g:dbext_default_usermaps = 0
+let g:dbext_map_or_cmd = 'cmd'
+
+vnoremap <Leader>Se :DBExecVisualSQL<CR>
+vnoremap <leader>St :DBSelectFromTable<CR>
+vnoremap <Leader>Sdt :DBDescribeTable<CR>
+vnoremap <Leader>Sdp :DBDescribeProcedure<CR>
+vnoremap <Leader>Slt :DBListTable<CR>
+vnoremap <Leader>Slp :DBListProcedure<CR>
+vnoremap <Leader>Slv :DBListView<CR>
+vnoremap <Leader>Slc :DBListColumn<CR>
+
+nnoremap <Leader>Se :DBExecSQLUnderCursor<CR>
+nnoremap <Leader>SE :DBExecSQLTopX<CR>
+nnoremap <Leader>Sea :1,$DBExecRangeSQL<CR>
+nnoremap <Leader>Sel :.,.DBExecRangeSQL<CR>
+nnoremap <Leader>Sep :'<,'>DBExecRangeSQL<CR>
+nnoremap <Leader>St :DBSelectFromTable<CR>
+nnoremap <Leader>ST :DBSelectFromTableTopX<CR>
+nnoremap <Leader>Stw :DBSelectFromTableWithWhere<CR>
+nnoremap <Leader>Sta :DBSelectFromTableAskName<CR>
+nnoremap <Leader>Sd :DBDescribeTable<CR>
+nnoremap <Leader>Sda :DBDescribeTableAskName<CR>
+nnoremap <Leader>Sdp :DBDescribeProcedure<CR>
+nnoremap <Leader>Sdpa :DBDescribeProcedureAskName<CR>
+nnoremap <Leader>Slt :DBListTable<CR>
+nnoremap <Leader>Slp :DBListProcedure<CR>
+nnoremap <Leader>Slv :DBListView<CR>
+nnoremap <Leader>Slc :DBListColumn<CR>
+nnoremap <Leader>Svr :DBListVar<CR>
+nmap <silent> <Leader>Sal :.,.DBVarRangeAssign<CR>
+nmap <silent> <Leader>Saa :1,$DBVarRangeAssign<CR>
+nmap <silent> <Leader>Sap :'<,'>DBVarRangeAssign<CR>
+xmap <silent> <Leader>Sa :DBVarRangeAssign<CR>
+nnoremap <Leader>Sh :DBHistory<CR>
+nnoremap <Leader>So :DBOrientation<CR>
+nnoremap <Leader>Sbp <Plug>DBPromptForBufferParameters<CR>
+
+" SQLite
+let g:dbext_default_SQLITE_bin = 'sqlite3'
+" let g:dbext_default_SQLITE_cmd_header        = ".mode column\n.headers ON\n"
+" let g:dbext_default_SQLITE_cmd_terminator    = ';'
+" let g:dbext_default_SQLITE_cmd_terminator    = ';'
+" let g:dbext_default_SQLITE_extra             = ''
+
+" }}}
+
+" delimitmate {{{
+
+let delimitMate_expand_space = 1
+
+" }}}
+
+" easydigraph {{{
+
+let g:EasyDigraph_nmap = '<Leader>dd'
+
+" }}}
+
+" Fugitive {{{
+
+nnoremap <Leader>gn :Unite output:echo\ system("git\ init")<CR>
+nnoremap <Leader>gs :Gstatus<CR>
+nnoremap <Leader>gw :Gwrite<CR>
+nnoremap <Leader>go :Gread<CR>
+nnoremap <Leader>gR :Gremove<CR>
+nnoremap <Leader>gm :Gmove<Space>
+nnoremap <Leader>gc :Gcommit<CR>
+nnoremap <Leader>gd :Gdiff<CR>
+nnoremap <Leader>gb :Gblame<CR>
+nnoremap <Leader>gB :Gbrowse<CR>
+nnoremap <Leader>gp :Git! push<CR>
+nnoremap <Leader>gP :Git! pull<CR>
+nnoremap <Leader>gi :Git!<Space>
+nnoremap <Leader>ge :Gedit<CR>
+nnoremap <Leader>gE :Gedit<Space>
+nnoremap <Leader>gl :exe "silent Glog <Bar> Unite -no-quit
+            \ quickfix"<CR>:redraw!<CR>
+nnoremap <Leader>gL :exe "silent Glog -- <Bar> Unite -no-quit
+            \ quickfix"<CR>:redraw!<CR>
+nnoremap <Leader>gt :!tig<CR>:redraw!<CR>
+nnoremap <Leader>gS :exe "silent !shipit"<CR>:redraw!<CR>
+nnoremap <Leader>gg :exe 'silent Ggrep -i '.input("Pattern: ")<Bar>Unite
+            \ quickfix -no-quit<CR>
+nnoremap <Leader>ggm :exe 'silent Glog --grep='.input("Pattern: ").' <Bar>
+            \Unite -no-quit quickfix'<CR>
+nnoremap <Leader>ggt :exe 'silent Glog -S='.input("Pattern: ").' <Bar>
+            \Unite -no-quit quickfix'<CR>
+
+nnoremap <Leader>ggc :silent! Ggrep -i<Space>
+
+" для режима сравнения
+noremap <Leader>du :diffupdate<CR>
+
+if !exists(":Gdiffoff")
+    command Gdiffoff diffoff | q | Gedit
+endif
+noremap <Leader>dq :Gdiffoff<CR>
+" }}}
+
+" Gitv {{{
+
+nnoremap <silent> <leader>gv :Gitv --all<CR>
+nnoremap <silent> <leader>gV :Gitv! --all<CR>
+vnoremap <silent> <leader>gV :Gitv! --all<CR>
+
+let g:Gitv_OpenHorizontal = 'auto'
+let g:Gitv_WipeAllOnClose = 1
+let g:Gitv_DoNotMapCtrlKey = 1
+" let g:Gitv_WrapLines = 1
+
+autocmd FileType git set nofoldenable
+
+" }}}
+
+" GitHub dashboard {{{
+
+nnoremap <Leader>gD :exe 'GHD! '.input("Username: ")<CR>
+nnoremap <Leader>gA :exe 'GHA! '.input("Username or repository: ")<CR>
+autocmd FileType github-dashboard call airline#add_statusline_func('GHDashboard')
+
+" }}}
+
+" Gundo {{{
+
+nnoremap <Leader>u :GundoToggle<CR>
+
+let g:gundo_preview_bottom = 1
+
+" }}}
+
+" indentLine {{{
+
+map <silent> <Leader>L :IndentLinesToggle<CR>
+let g:indentLine_enabled = 0
+let g:indentLine_char = '┊'
+let g:indentLine_color_term = 239
+
+" }}}
+
+" Neocomplete {{{
+
+let g:neocomplete#enable_at_startup = 1
+let g:neocomplete#enable_smart_case = 1
+let g:neocomplete#enable_refresh_always = 1
+let g:neocomplete#max_list = 30
+let g:neocomplete#min_keyword_length = 1
+let g:neocomplete#sources#syntax#min_keyword_length = 1
+let g:neocomplete#data_directory = $HOME.'/.vim/tmp/neocomplete'
+
+" отключить функцию автоматического выбора по умолчанию, чтобы не препятствовал 
+" вводу текста
+let g:neocomplete#enable_auto_select = 0
+
+nnoremap <silent><Leader>ea :call ToggleNeoComplete()<CR>
+   
+" Включить автодополнение
+autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
+autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
+autocmd FileType ruby setlocal omnifunc=rubycomplete#Complete
+autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
+
+if !exists('g:neocomplete#sources#omni#input_patterns')
+    let g:neocomplete#sources#omni#input_patterns = {}
+endif
+
+let g:neocomplete#sources#omni#input_patterns.python='[^. \t]\.\w*'
+
+" }}}
+
+" Neobundle {{{
+
+let g:neobundle#log_filename = $HOME.'/.vim/tmp/neobundle.log'
+
+" }}}
+
+" neomru {{{
+
+let g:neomru#file_mru_path = $HOME.'/.vim/tmp/neomru/file'
+let g:neomru#directory_mru_path = $HOME.'/.vim/tmp/neomru/directory'
+
+" }}}
+
+" Po.vim {{{ -----------------------------------------------------------------
+
+let g:po_translator = "Anton Salnikov <antares@antares.me>"
+
+" }}}
+
+" PythonMode {{{ -------------------------------------------------------------
+
+nmap <silent><Leader>n :PymodeLint<CR>
+
+let g:pymode_breakpoint_bind = '<Leader>B'
+
+let g:pymode_lint = 1
+let g:pymode_lint_on_write = 0
+let g:pymode_lint_checkers = ['pylint', 'pep8', 'mccabe', 'pep257']
+let g:pymode_lint_ignore = ''
+let g:pymode_virtualenv = 0
+let g:pymode_rope = 1
+
+let g:pymode_rope_completion = 0
+let g:pymode_rope_complete_on_dot = 1
+
+" }}}
+
+" Syntastic {{{
+
+nmap <silent><Leader>N :SyntasticCheck<CR>:Errors<CR>
+
+let g:syntastic_python_pylint_exe = "pylint2"
+let g:syntastic_mode_map = { 'mode': 'active',
+            \ 'active_filetypes': ['php','js','css'],
+            \ 'passive_filetypes': ['python'] }
+
+let g:syntastic_error_symbol='✗'
+let g:syntastic_warning_symbol='⚠'
+let g:syntastic_style_error_symbol  = '⚡'
+let g:syntastic_style_warning_symbol  = '⚡'
+
+" }}}
+
+" Unite {{{
+
+" Файлы
+nnoremap <silent><Leader>o :Unite -silent -start-insert file<CR>
+nnoremap <silent><Leader>O :Unite -silent -start-insert file_rec/async<CR>
+nnoremap <silent><Leader>m :Unite -silent file_mru<CR>
+" Буферы
+nnoremap <silent><Leader>b :Unite -silent buffer<CR>
+" Табы
+nnoremap <silent><Leader>B :Unite -silent tab<CR>
+" Поиск по буферам
+nnoremap <silent><Leader>f :Unite -silent -no-split -start-insert -auto-preview
+            \ line<CR>
+nnoremap <silent>[menu]8 :UniteWithCursorWord -silent -no-split -auto-preview
+            \ line<CR>
+" Копирование
+nnoremap <silent><Leader>i :Unite -silent history/yank<CR>
+" Поиск (grep)
+nnoremap <silent><Leader>a :Unite -silent -no-quit grep<CR>
+" Помощь
+nnoremap <silent> g<C-h> :UniteWithCursorWord -silent help<CR>
+" Задачи
+nnoremap <silent><Leader>; :Unite -silent -toggle
+            \ grep:%::FIXME\|TODO\|NOTE\|XXX\|COMBAK\|@todo<CR>
+" Идентификаторы (также ctags)
+nnoremap <silent><Leader>t :Unite -silent -vertical -winwidth=40
+            \ -direction=topleft -toggle outline<CR>
+" Временные файлы
+  nnoremap <silent><Leader>d :Unite -silent junkfile/new junkfile<CR>
+
+" меню {{{
+let g:unite_source_menu_menus = {}
+
+" Клавиша-префикс меню (для всех меню Unite) {{{
+nnoremap [menu] <Nop>
+nmap <LocalLeader> [menu]
+" }}}
+
+" Основное меню
+nnoremap <silent>[menu]u :Unite -silent -winheight=20 menu<CR>
+
+" Меню файлов и папок {{{
+let g:unite_source_menu_menus.files = {
+    \ 'description' : '          файлы и папки
+        \                                         ⌘ [space]o',
+    \}
+let g:unite_source_menu_menus.files.command_candidates = [
+    \['▷ открыть файл                                               ⌘ ,o',
+        \'Unite -start-insert file'],
+    \['▷ открыть наиболее используемые файлы                        ⌘ ,m',
+        \'Unite file_mru'],
+    \['▷ открыть файл, используя рекурсивный поиск                  ⌘ ,O',
+        \'Unite -start-insert file_rec/async'],
+    \['▷ открыть новый файл',
+        \'Unite file/new'],
+    \['▷ поиск директории',
+        \'Unite directory'],
+    \['▷ открыть наиболее используемые директории',
+        \'Unite directory_mru'],
+    \['▷ искать директории, используя рекурсивный поиск',
+        \'Unite directory_rec/async'],
+    \['▷ создать новую директорию',
+        \'Unite directory/new'],
+    \['▷ сменить рабочую директорию',
+        \'Unite -default-action=lcd directory'],
+    \['▷ узнать текущую рабочую директорию',
+        \'Unite output:pwd'],
+    \['▷ временные файлы                                            ⌘ ,d',
+        \'Unite junkfile/new junkfile'],
+    \['▷ сохранить как root                                         ⌘ :w!!',
+        \'exe "write !sudo tee % >/dev/null"'],
+    \['▷ быстрое сохранение                                         ⌘ ,w',
+        \'normal ,w'],
+    \['▷ открыть ranger                                             ⌘ ,x',
+        \'call RangerChooser()'],
+    \['▷ открыть vimfiler                                           ⌘ ,X',
+        \'VimFiler'],
+    \]
+nnoremap <silent>[menu]o :Unite -silent -winheight=17 -start-insert
+            \ menu:files<CR>
+" }}}
+
+" Меню поиска файлов {{{
+let g:unite_source_menu_menus.grep = {
+    \ 'description' : '           поиск файлов
+        \                                          ⌘ [space]a',
+    \}
+let g:unite_source_menu_menus.grep.command_candidates = [
+    \['▷ grep (ag → ack → grep)                                     ⌘ ,a',
+        \'Unite -no-quit grep'],
+    \['▷ find',
+        \'Unite find'],
+    \['▷ locate',
+        \'Unite -start-insert locate'],
+    \['▷ vimgrep (очень медленно)',
+        \'Unite vimgrep'],
+    \]
+nnoremap <silent>[menu]a :Unite -silent menu:grep<CR>
+" }}}
+
+" Меню буферов, табов и окон {{{
+let g:unite_source_menu_menus.navigation = {
+    \ 'description' : '     навигация по буферам, табам и окнам
+        \                   ⌘ [space]b',
+    \}
+let g:unite_source_menu_menus.navigation.command_candidates = [
+    \['▷ буферы                                                     ⌘ ,b',
+        \'Unite buffer'],
+    \['▷ табы                                                       ⌘ ,B',
+        \'Unite tab'],
+    \['▷ окна',
+        \'Unite window'],
+    \['▷ список местонахождений',
+        \'Unite location_list'],
+    \['▷ быстрая правка',
+        \'Unite quickfix'],
+    \['▷ изменить размер окон                                       ⌘ C-C C-W',
+        \'WinResizerStartResize'],
+    \['▷ новое вертикальное окно                                    ⌘ ,v',
+        \'vsplit'],
+    \['▷ новое горизонтальное окно                                  ⌘ ,h',
+        \'split'],
+    \['▷ закрыть текущее окно                                       ⌘ ,k',
+        \'close'],
+    \['▷ переключить окно быстрой правки                            ⌘ ,q',
+        \'normal ,q'],
+    \['▷ увеличить                                                  ⌘ ,z',
+        \'ZoomWinTabToggle'],
+    \['▷ удалить буфер                                              ⌘ ,K',
+        \'bd'],
+    \]
+nnoremap <silent>[menu]b :Unite -silent menu:navigation<CR>
+" }}}
+
+" Меню поиска по буферу {{{
+let g:unite_source_menu_menus.searching = {
+    \ 'description' : '      поиск в текущем буфере
+        \                                ⌘ [space]f',
+    \}
+let g:unite_source_menu_menus.searching.command_candidates = [
+    \['▷ поиск строки                                               ⌘ ,f',
+        \'Unite -auto-preview -start-insert line'],
+    \['▷ поиск слова  под курсором                                  ⌘ [space]8',
+        \'UniteWithCursorWord -no-split -auto-preview line'],
+    \['▷ поиск определений и тэгов (ctags)                          ⌘ ,t',
+        \'Unite -vertical -winwidth=40 -direction=topleft -toggle outline'],
+    \['▷ поиск меток',
+        \'Unite -auto-preview mark'],
+    \['▷ поиск складок',
+        \'Unite -vertical -winwidth=30 -auto-highlight fold'],
+    \['▷ поиск изменений',
+        \'Unite change'],
+    \['▷ поиск вызовов',
+        \'Unite jump'],
+    \['▷ поиск отмен',
+        \'Unite undo'],
+    \['▷ поиск задач                                                ⌘ ,;',
+        \'Unite -toggle grep:%::FIXME|TODO|NOTE|XXX|COMBAK|@todo'],
+    \]
+nnoremap <silent>[menu]f :Unite -silent menu:searching<CR>
+" }}}
+
+" Меню копирований, регистров и истории {{{
+let g:unite_source_menu_menus.registers = {
+    \ 'description' : '      копирования, регистры и история
+        \                       ⌘ [space]i',
+    \}
+let g:unite_source_menu_menus.registers.command_candidates = [
+    \['▷ копирования                                                ⌘ ,i',
+        \'Unite history/yank'],
+    \['▷ команды       (история)                                    ⌘ q:',
+        \'Unite history/command'],
+    \['▷ поиски        (история)                                    ⌘ q/',
+        \'Unite history/search'],
+    \['▷ регистры',
+        \'Unite register'],
+    \['▷ сообщения',
+        \'Unite output:messages'],
+    \['▷ дерево отмен  (gundo)                                      ⌘ ,u',
+        \'GundoToggle'],
+    \]
+nnoremap <silent>[menu]i :Unite -silent menu:registers<CR>
+" }}}
+
+" Меню проверки правописания {{{
+let g:unite_source_menu_menus.spelling = {
+    \ 'description' : '       проверка правописания
+        \                                 ⌘ [space]s',
+    \}
+let g:unite_source_menu_menus.spelling.command_candidates = [
+    \['▷ проверка правописания на русском                           ⌘ ,sr',
+        \'setlocal spell spelllang=ru'],
+    \['▷ проверка правописания на английском                        ⌘ ,se',
+        \'setlocal spell spelllang=en'],
+    \['▷ выключить проверку правописания                            ⌘ ,so',
+        \'setlocal nospell'],
+    \['▷ перейти к следующему неправильному слову с вариантами      ⌘ ,sc',
+        \'normal ,sc'],
+    \['▷ перейти к следующему неправильному слову                   ⌘ ,sn',
+        \'normal ,sn'],
+    \['▷ варианты                                                   ⌘ ,sp',
+        \'normal ,sp'],
+    \['▷ добавить слово в словарь                                   ⌘ ,sa',
+        \'normal ,sa'],
+    \]
+nnoremap <silent>[menu]s :Unite -silent menu:spelling<CR>
+" }}}
+
+" Меню редактирования текста {{{
+let g:unite_source_menu_menus.text = {
+    \ 'description' : '           редактирование текста
+        \                                 ⌘ [space]e',
+    \}
+let g:unite_source_menu_menus.text.command_candidates = [
+    \['▷ переключить подсветку результатов поиска                   ⌘ ,eq',
+        \'set invhlsearch'],
+    \['▷ переключить нумерацию строк                                ⌘ ,l',
+        \'call ToggleRelativeAbsoluteNumber()'],
+    \['▷ переключить отступы                                        ⌘ ,ew',
+        \'call ToggleWrap()'],
+    \['▷ переключить автодополнение (ручной → выключен → авто)     ⌘ ,ea',
+        \'call ToggleNeoCompleteAutoSelect()'],
+    \['▷ показать непечатуемые символы                              ⌘ ,eh',
+        \'set list!'],
+    \['▷ переключить складки                                        ⌘ /',
+        \'normal za'],
+    \['▷ открыть все складки                                        ⌘ zR',
+        \'normal zR'],
+    \['▷ свернуть все складки                                       ⌘ zM',
+        \'normal zM'],
+    \['▷ копировать в буфер обмена                                  ⌘ ,y',
+        \'normal ,y'],
+    \['▷ вставить из буфера обмена                                  ⌘ ,p',
+        \'normal ,p'],
+    \['▷ переключить режим вставки                                  ⌘ ,P',
+        \'normal ,P'],
+    \['▷ удалить завершающие пробелы                                ⌘ ,et',
+        \'normal ,et'],
+    \['▷ статистика текста                                          ⌘ ,es',
+        \'Unite output:normal\ ,es -no-cursor-line'],
+    \['▷ показать частоту слов                                      ⌘ ,ef',
+        \'Unite output:WordFrequency'],
+    \['▷ показать доступные спецсимволы',
+        \'digraphs'],
+    \['▷ вставить lorem ipsum текст',
+        \'exe "Loremipsum" input("количество слов: ")'],
+    \['▷ показать информацию по текущему символу                    ⌘ ga',
+        \'normal ga'],
+    \]
+nnoremap <silent>[menu]e :Unite -silent -winheight=20 menu:text <CR>
+" }}}
+
+" Меню neobundle {{{
+let g:unite_source_menu_menus.neobundle = {
+    \ 'description' : '      управление плагинами с помощью neobundle
+        \              ⌘ [space]n',
+    \}
+let g:unite_source_menu_menus.neobundle.command_candidates = [
+    \['▷ neobundle',
+        \'Unite neobundle'],
+    \['▷ лог neobundle ',
+        \'Unite neobundle/log'],
+    \['▷ ленивая загрузка',
+        \'Unite neobundle/lazy'],
+    \['▷ обновить плагины',
+        \'Unite neobundle/update'],
+    \['▷ найти плагины',
+        \'Unite neobundle/search'],
+    \['▷ установить плагины',
+        \'Unite neobundle/install'],
+    \['▷ проверить плагины',
+        \'Unite -no-empty output:NeoBundleCheck'],
+    \['▷ документация плагинов',
+        \'Unite output:NeoBundleDocs'],
+    \['▷ удалить неиспользуемые плагины',
+        \'NeoBundleClean'],
+    \['▷ откатить изменения плагинов',
+        \'exe "NeoBundleRollback" input("plugin: ")'],
+    \['▷ список установленных плагинов',
+        \'Unite output:NeoBundleList'],
+    \['▷ редактирование подключения плагинов',
+        \'NeoBundleExtraEdit'],
+    \]
+nnoremap <silent>[menu]n :Unite -silent -start-insert menu:neobundle<CR>
+" }}}
+
+" Меню git {{{
+let g:unite_source_menu_menus.git = {
+    \ 'description' : '            управление git репозиториями
+        \                          ⌘ [space]g',
+    \}
+let g:unite_source_menu_menus.git.command_candidates = [
+    \['▷ tig                                                        ⌘ ,gt',
+        \'normal ,gt'],
+    \['▷ просмотр git           (gitv)                              ⌘ ,gv',
+        \'normal ,gv'],
+    \['▷ просмотр git - буфер   (gitv)                              ⌘ ,gV',
+        \'normal ,gV'],
+    \['▷ статус git             (fugitive)                          ⌘ ,gs',
+        \'Gstatus'],
+    \['▷ сравнение git          (fugitive)                          ⌘ ,gd',
+        \'Gdiff'],
+    \['▷ комит git              (fugitive)                          ⌘ ,gc',
+        \'Gcommit'],
+    \['▷ лог git                (fugitive)                          ⌘ ,gl',
+        \'exe "silent Glog | Unite -no-quit quickfix"'],
+    \['▷ лог git - все          (fugitive)                          ⌘ ,gL',
+        \'exe "silent Glog -all | Unite -no-quit quickfix"'],
+    \['▷ git blame              (fugitive)                          ⌘ ,gb',
+        \'Gblame'],
+    \['▷ git add/stage          (fugitive)                          ⌘ ,gw',
+        \'Gwrite'],
+    \['▷ git checkout           (fugitive)                          ⌘ ,go',
+        \'Gread'],
+    \['▷ git rm                 (fugitive)                          ⌘ ,gR',
+        \'Gremove'],
+    \['▷ git mv                 (fugitive)                          ⌘ ,gm',
+        \'exe "Gmove " input("destino: ")'],
+    \['▷ git push               (fugitive, buffer output)           ⌘ ,gp',
+        \'Git! push'],
+    \['▷ git pull               (fugitive, buffer output)           ⌘ ,gP',
+        \'Git! pull'],
+    \['▷ git command            (fugitive, buffer output)           ⌘ ,gi',
+        \'exe "Git! " input("comando git: ")'],
+    \['▷ git edit               (fugitive)                          ⌘ ,gE',
+        \'exe "command Gedit " input(":Gedit ")'],
+    \['▷ git grep               (fugitive)                          ⌘ ,gg',
+        \'exe "silent Ggrep -i ".input("Pattern: ") | Unite -no-quit quickfix'],
+    \['▷ git grep - messages    (fugitive)                          ⌘ ,ggm',
+        \'exe "silent Glog --grep=".input("Pattern: ")." | Unite -no-quit quickfix"'],
+    \['▷ git grep - text        (fugitive)                          ⌘ ,ggt',
+        \'exe "silent Glog -S".input("Pattern: ")." | Unite -no-quit quickfix"'],
+    \['▷ git init                                                   ⌘ ,gn',
+        \'Unite output:echo\ system("git\ init")'],
+    \['▷ git cd                 (fugitive)',
+        \'Gcd'],
+    \['▷ git lcd                (fugitive)',
+        \'Glcd'],
+    \['▷ git browse             (fugitive)                          ⌘ ,gB',
+        \'Gbrowse'],
+    \['▷ github dashboard       (github-dashboard)                  ⌘ ,gD',
+        \'exe "GHD! " input("Username: ")'],
+    \['▷ Активность на github   (github-dashboard)                  ⌘ ,gA',
+        \'exe "GHA! " input("Имя пользователя или репозиторий: ")'],
+    \['▷ github issues & PR                                         ⌘ ,gS',
+        \'normal ,gS'],
+    \]
+nnoremap <silent>[menu]g :Unite -silent -winheight=29 -start-insert menu:git<CR>
+" }}}
+
+" code menu {{{
+let g:unite_source_menu_menus.code = {
+    \ 'description' : '           code tools
+        \                                            ⌘ [space]p',
+    \}
+let g:unite_source_menu_menus.code.command_candidates = [
+    \['▷ run python code                            (pymode)        ⌘ ,r',
+        \'PymodeRun'],
+    \['▷ show docs for the current word             (pymode)        ⌘ K',
+        \'normal K'],
+    \['▷ insert a breakpoint                        (pymode)        ⌘ ,B',
+        \'normal ,B'],
+    \['▷ pylint check                               (pymode)        ⌘ ,n',
+        \'PymodeLint'],
+    \['▷ run with python2 in tmux panel             (vimux)         ⌘ ,rr',
+        \'normal ,rr'],
+    \['▷ run with python3 in tmux panel             (vimux)         ⌘ ,r3',
+        \'normal ,r3'],
+    \['▷ run with python2 & time in tmux panel      (vimux)         ⌘ ,rt',
+        \'normal ,rt'],
+    \['▷ run with pypy & time in tmux panel         (vimux)         ⌘ ,rp',
+        \'normal ,rp'],
+    \['▷ command prompt to run in a tmux panel      (vimux)         ⌘ ,rc',
+        \'VimuxPromptCommand'],
+    \['▷ repeat last command                        (vimux)         ⌘ ,rl',
+        \'VimuxRunLastCommand'],
+    \['▷ stop command execution in tmux panel       (vimux)         ⌘ ,rs',
+        \'VimuxInterruptRunner'],
+    \['▷ inspect tmux panel                         (vimux)         ⌘ ,ri',
+        \'VimuxInspectRunner'],
+    \['▷ close tmux panel                           (vimux)         ⌘ ,rq',
+        \'VimuxCloseRunner'],
+    \['▷ sort imports                               (isort)',
+        \'Isort'],
+    \['▷ go to definition                           (pymode-rope)   ⌘ C-C g',
+        \'call pymode#rope#goto_definition()'],
+    \['▷ find where a function is used              (pymode-rope)   ⌘ C-C f',
+        \'call pymode#rope#find_it()'],
+    \['▷ show docs for current word                 (pymode-rope)   ⌘ C-C d',
+        \'call pymode#rope#show_doc()'],
+    \['▷ reorganize imports                         (pymode-rope)   ⌘ C-C r o',
+        \'call pymode#rope#organize_imports()'],
+    \['▷ refactorize - rename                       (pymode-rope)   ⌘ C-C r r',
+        \'call pymode#rope#rename()'],
+    \['▷ refactorize - inline                       (pymode-rope)   ⌘ C-C r i',
+        \'call pymode#rope#inline()'],
+    \['▷ refactorize - move                         (pymode-rope)   ⌘ C-C r v',
+        \'call pymode#rope#move()'],
+    \['▷ refactorize - use function                 (pymode-rope)   ⌘ C-C r u',
+        \'call pymode#rope#use_function()'],
+    \['▷ refactorize - change signature             (pymode-rope)   ⌘ C-C r s',
+        \'call pymode#rope#signature()'],
+    \['▷ refactorize - rename current module        (pymode-rope)   ⌘ C-C r 1 r',
+        \'PymodeRopeRenameModule'],
+    \['▷ refactorize - module to package            (pymode-rope)   ⌘ C-C r 1 p',
+        \'PymodeRopeModuleToPackage'],
+    \['▷ syntastic toggle                           (syntastic)',
+        \'SyntasticToggleMode'],
+    \['▷ syntastic check & errors                   (syntastic)     ⌘ ,N',
+        \'normal ,N'],
+    \['▷ list virtualenvs                           (virtualenv)',
+        \'Unite output:VirtualEnvList'],
+    \['▷ activate virtualenv                        (virtualenv)',
+        \'VirtualEnvActivate'],
+    \['▷ deactivate virtualenv                      (virtualenv)',
+        \'VirtualEnvDeactivate'],
+    \['▷ run coverage2                              (coveragepy)',
+        \'call system("coverage2 run ".bufname("%")) | Coveragepy report'],
+    \['▷ run coverage3                              (coveragepy)',
+        \'call system("coverage3 run ".bufname("%")) | Coveragepy report'],
+    \['▷ toggle coverage report                     (coveragepy)',
+        \'Coveragepy session'],
+    \['▷ toggle coverage marks                      (coveragepy)',
+        \'Coveragepy show'],
+    \['▷ coffeewatch                                (coffeescript)  ⌘ ,rw',
+        \'CoffeeWatch vert'],
+    \['▷ count lines of code',
+        \'Unite -default-action= output:call\\ LinesOfCode()'],
+    \['▷ toggle indent lines                                        ⌘ ,L',
+        \'IndentLinesToggle'],
+    \]
+nnoremap <silent>[menu]p :Unite -silent -winheight=42 menu:code<CR>
+" }}}
+
+" Меню markdown {{{
+let g:unite_source_menu_menus.markdown = {
+    \ 'description' : '       preview markdown extra docs
+        \                           ⌘ [space]k',
+    \}
+let g:unite_source_menu_menus.markdown.command_candidates = [
+    \['▷ preview',
+        \'Me'],
+    \['▷ refresh',
+        \'Mer'],
+    \]
+nnoremap <silent>[menu]k :Unite -silent menu:markdown<CR>
+" }}}
+ 
+" reST menu {{{
+let g:unite_source_menu_menus.rest = {
+    \ 'description' : '           reStructuredText
+    \                                      ⌘ [space]r',
+    \}
+let g:unite_source_menu_menus.rest.command_candidates = [
+    \['▷ CheatSheet',
+        \'RivCheatSheet'],
+    \['▷ reStructuredText Specification',
+        \'RivSpecification'],
+    \]
+nnoremap <silent>[menu]r :Unite -silent menu:rest<CR>
+" }}}
+ 
+" bookmarks menu {{{
+let g:unite_source_menu_menus.bookmarks = {
+    \ 'description' : '      bookmarks
+        \                                             ⌘ [space]m',
+    \}
+let g:unite_source_menu_menus.bookmarks.command_candidates = [
+    \['▷ open bookmarks',
+        \'Unite bookmark:*'],
+    \['▷ add bookmark',
+        \'UniteBookmarkAdd'],
+    \]
+nnoremap <silent>[menu]m :Unite -silent menu:bookmarks<CR>
+" }}}
+
+" colorv menu {{{
+function! GetColorFormat()
+    let formats = {'r' : 'RGB',
+                  \'n' : 'NAME',
+                  \'s' : 'HEX',
+                  \'ar': 'RGBA',
+                  \'pr': 'RGBP',
+                  \'pa': 'RGBAP',
+                  \'m' : 'CMYK',
+                  \'l' : 'HSL',
+                  \'la' : 'HSLA',
+                  \'h' : 'HSV',
+                  \}
+    let formats_menu = ["\n"]
+    for [k, v] in items(formats)
+        call add(formats_menu, "  ".k."\t".v."\n")
+    endfor
+    let fsel = get(formats, input('Choose a format: '.join(formats_menu).'? '))
+    return fsel
+endfunction
+
+function! GetColorMethod()
+    let methods = {
+                   \'h' : 'Hue',
+                   \'s' : 'Saturation',
+                   \'v' : 'Value',
+                   \'m' : 'Monochromatic',
+                   \'a' : 'Analogous',
+                   \'3' : 'Triadic',
+                   \'4' : 'Tetradic',
+                   \'n' : 'Neutral',
+                   \'c' : 'Clash',
+                   \'q' : 'Square',
+                   \'5' : 'Five-Tone',
+                   \'6' : 'Six-Tone',
+                   \'2' : 'Complementary',
+                   \'p' : 'Split-Complementary',
+                   \'l' : 'Luma',
+                   \'g' : 'Turn-To',
+                   \}
+    let methods_menu = ["\n"]
+    for [k, v] in items(methods)
+        call add(methods_menu, "  ".k."\t".v."\n")
+    endfor
+    let msel = get(methods, input('Choose a method: '.join(methods_menu).'? '))
+    return msel
+endfunction
+
+let g:unite_source_menu_menus.colorv = {
+    \ 'description' : '         color management
+        \                                      ⌘ [space]c',
+    \}
+let g:unite_source_menu_menus.colorv.command_candidates = [
+    \['▷ open colorv                                                ⌘ ,cv',
+        \'ColorV'],
+    \['▷ open colorv with the color under the cursor                ⌘ ,cw',
+        \'ColorVView'],
+    \['▷ preview colors                                             ⌘ ,cpp',
+        \'ColorVPreview'],
+    \['▷ color picker                                               ⌘ ,cd',
+        \'ColorVPicker'],
+    \['▷ edit the color under the cursor                            ⌘ ,ce',
+        \'ColorVEdit'],
+    \['▷ edit the color under the cursor (and all the concurrences) ⌘ ,cE',
+        \'ColorVEditAll'],
+    \['▷ insert a color                                             ⌘ ,cii',
+        \'exe "ColorVInsert " .GetColorFormat()'],
+    \['▷ color list relative to the current                         ⌘ ,cgh',
+        \'exe "ColorVList " .GetColorMethod() "
+        \ ".input("number of colors? (optional): ")
+        \ " ".input("number of steps?  (optional): ")'],
+    \['▷ show colors list (Web W3C colors)                          ⌘ ,cn',
+        \'ColorVName'],
+    \['▷ choose color scheme (ColourLovers, Kuler)                  ⌘ ,css',
+        \'ColorVScheme'],
+    \['▷ show favorite color schemes                                ⌘ ,csf',
+        \'ColorVSchemeFav'],
+    \['▷ new color scheme                                           ⌘ ,csn',
+        \'ColorVSchemeNew'],
+    \['▷ create hue gradation between two colors',
+        \'exe "ColorVTurn2 " " ".input("Color 1 (hex): ")
+        \" ".input("Color 2 (hex): ")'],
+    \]
+nnoremap <silent>[menu]c :Unite -silent menu:colorv<CR>
+" }}}
+
+" vim menu {{{
+let g:unite_source_menu_menus.vim = {
+    \ 'description' : '            vim
+        \                                                   ⌘ [space]v',
+    \}
+let g:unite_source_menu_menus.vim.command_candidates = [
+    \['▷ choose colorscheme',
+        \'Unite colorscheme -auto-preview'],
+    \['▷ mappings',
+        \'Unite mapping -start-insert'],
+    \['▷ edit configuration file (vimrc)',
+        \'edit $MYVIMRC'],
+    \['▷ choose filetype',
+        \'Unite -start-insert filetype'],
+    \['▷ vim help',
+        \'Unite -start-insert help'],
+    \['▷ vim commands',
+        \'Unite -start-insert command'],
+    \['▷ vim functions',
+        \'Unite -start-insert function'],
+    \['▷ vim runtimepath',
+        \'Unite -start-insert runtimepath'],
+    \['▷ vim command output',
+        \'Unite output'],
+    \['▷ unite sources',
+        \'Unite source'],
+    \['▷ kill process',
+        \'Unite -default-action=sigkill -start-insert process'],
+    \['▷ launch executable (dmenu like)',
+        \'Unite -start-insert launcher'],
+    \]
+nnoremap <silent>[menu]v :Unite menu:vim -silent -start-insert<CR>
+" }}}
+
+" db menu {{{
+let g:unite_source_menu_menus.db = {
+    \ 'description' : '             database (SQL)
+        \                                        ⌘ [space]S',
+    \}
+let g:unite_source_menu_menus.db.command_candidates = [
+    \['▷ Execute SQL',
+        \'exe "DBExecSQL" " ".input("SQL?: ")'],
+    \['▷ Execute SQL (with limit of n rows)',
+        \'exe "DBExecSQL" " ".input("SQL?: ")'],
+    \['▷ SQL SELECT statement',
+        \'exe "Select" " ".input("SELECT ")'],
+    \['▷ SQL UPDATE statement',
+        \'exe "Update" " ".input("UPDATE")'],
+    \['▷ SQL INSERT statement',
+        \'exe "Insert" " ".input("INSERT")'],
+    \['▷ SQL DELETE statement',
+        \'exe "Delete" " ".input("DELETE")'],
+    \['▷ SQL CALL statement',
+        \'exe "Call" " ".input("CALL")'],
+    \['▷ SQL DROP statement',
+        \'exe "Drop" " ".input("DROP")'],
+    \['▷ SQL ALTER statement',
+        \'exe "Alter" " ".input("ALTER")'],
+    \['▷ SQL CREATE statement',
+        \'exe "Create" " ".input("CREATE")'],
+    \['▷ List all Tables                                            ⌘ ,Slt',
+        \'DBListTable'],
+    \['▷ List all Procedures                                        ⌘ ,Slp',
+        \'DBListProcedure'],
+    \['▷ List all Views                                             ⌘ ,Slv',
+        \'DBListView'],
+    \['▷ List all Variables                                         ⌘ ,Svr',
+        \'DBListVar'],
+    \['▷ DBext Get Options',
+        \'DBGetOption'],
+    \['▷ DBext Set Option',
+        \'exe "DBSetOption" " ".input("Option: ")'],
+    \['▷ DBext Set Var',
+        \'exe "DBSetVar" " ".input("Var: ")'],
+    \['▷ DBext Set Buffer Parameters',
+        \'DBPromptForBufferParameters'],
+    \['▷ List all Connections       (only DBI/ODBC)',
+        \'DBListConnections'],
+    \['▷ Commit                     (only DBI/ODBC)',
+        \'DBCommit'],
+    \['▷ Rollback                   (only DBI/ODBC)',
+        \'DBRollback'],
+    \['▷ Connect                    (only DBI/ODBC)',
+        \'DBConnect'],
+    \['▷ Disconnect                 (only DBI/ODBC)',
+        \'DBDisconnect'],
+    \]
+
+nnoremap <silent>[menu]S :Unite menu:db -silent -winheight=25 -start-insert<CR>
+
+" }}}
+
+" }}}
+
+call unite#filters#matcher_default#use(['matcher_fuzzy'])
+call unite#filters#sorter_default#use(['sorter_rank'])
+call unite#custom#source('file_mru,file_rec,file_rec/async,grep,locate',
+            \ 'ignore_pattern', join(['\.git/', 'tmp/', 'bundle/'], '\|'))
+
+let g:default_context = {
+    \ 'winheight' : 15,
+    \ 'update_time' : 200,
+    \ 'prompt' : '>>> ',
+    \ 'enable_start_insert' : 0,
+    \ 'enable_short_source_names' : 0,
+    \ 'marked_icon' : '✓',
+    \ 'ignorecase' : 1,
+    \ 'smartcase' : 1,
+\ }
+
+call unite#custom#profile('default', 'context', default_context)
+
+let g:unite_source_history_yank_enable = 1
+let g:unite_force_overwrite_statusline = 0
+let g:unite_split_rule = 'botright'
+let g:unite_data_directory = $HOME.'/.vim/tmp/unite'
+let g:unite_source_buffer_time_format = '(%d-%m-%Y %H:%M:%S) '
+let g:unite_source_file_mru_time_format = '(%d-%m-%Y %H:%M:%S) '
+let g:unite_source_directory_mru_time_format = '(%d-%m-%Y %H:%M:%S) '
+
+if executable('ag')
+    let g:unite_source_grep_command='ag'
+    let g:unite_source_grep_default_opts='--nocolor --nogroup -a -S'
+    let g:unite_source_grep_recursive_opt=''
+    let g:unite_source_grep_search_word_highlight = 1
+elseif executable('ack')
+    let g:unite_source_grep_command='ack'
+    let g:unite_source_grep_default_opts='--no-group --no-color'
+    let g:unite_source_grep_recursive_opt=''
+    let g:unite_source_grep_search_word_highlight = 1
+endif
+
+let g:junkfile#directory=expand($HOME."/.vim/tmp/junk")
+
+" }}}
+
+" Сартовое меню {{{
+
+" Закладки для стартового меню
+let g:startify_bookmarks = ['~/.vim/vimrc','~/Рабочий стол/pass.txt']
+" Автосохранение сессии
+let g:startify_session_persistence = 1
+" Заголовок стартового экрана и подвал
+let g:startify_custom_header = map(split(system('fortune ~/.vim/fortunes | cowsay -W 60 -f daemon'), '\n'), '"   ". v:val') + ['','']
+" Пропускать в последних измененных файлы
+let g:startify_skiplist = ['vimrc',]
+" При открытии файла или закладки не переходить в папку с файлом
+let g:startify_change_to_dir = 0
+" Количество файлов в списках
+let g:startify_files_number = 10
+" Смена рабочего каталога (контроль версий)
+let g:startify_change_to_vcs_root = 1
+
+" }}}
+
+" Utl {{{
+
+map <Leader>j :Utl <CR><Bar>:redraw!<CR>
+
+let g:utl_cfg_hdl_scm_http_system = "silent !firefox %u &"
+let g:utl_cfg_hdl_mt_application_pdf = 'silent :!zathura %p &'
+let g:utl_cfg_hdl_mt_image_jpeg = 'silent :!sxiv %p &'
+let g:utl_cfg_hdl_mt_image_gif = 'silent :!sxiv %p &'
+let g:utl_cfg_hdl_mt_image_png = 'silent :!sxiv %p &'
+
+" }}}
+
+" VimWiKi {{{
+
+let g:vimwiki_list = [{'path': '~/MEGA/vimwiki/'}]
+
+"}}}
+
+" VimFiler {{{
+
+nnoremap <silent><Leader>X :VimFiler<CR>
+
+let g:vimfiler_as_default_explorer = 1
+let g:vimfiler_enable_auto_cd = 1
+
+let g:vimfiler_tree_leaf_icon = '├'
+let g:vimfiler_tree_opened_icon = '┐'
+let g:vimfiler_tree_closed_icon = '─'
+let g:vimfiler_file_icon = '┄'
+let g:vimfiler_marked_file_icon = '✓'
+let g:vimfiler_readonly_file_icon = '✗'
+
+let g:vimfiler_force_overwrite_statusline = 0
+
+let g:vimfiler_time_format = '%d-%m-%Y %H:%M:%S'
+let g:vimfiler_data_directory = $HOME.'/.vim/tmp/vimfiler'
+
+" }}}
+
+" Vim-markdown-extra-preview {{{
+
+" map <LocalLeader>mp :Me<CR>
+" map <LocalLeader>mr :Mer<CR>
+
+" let g:VMEPextensions = ['extra', 'codehilite']
+" let g:VMEPhtmlreader= '/usr/bin/chromium'
+
+" }}}
+
+" vimux {{{
+
+let g:VimuxUseNearestPane = 1
+
+map <Leader>rr :call VimuxRunCommand('clear;cd '.expand("%:p:h") .' ;python2 '.bufname("%"))<CR>
+map <Leader>r3 :call VimuxRunCommand('clear;cd '.expand("%:p:h") .' ;python3 '.bufname("%"))<CR>
+map <Leader>rt :call VimuxRunCommand('clear;cd '.expand("%:p:h") .' ;time python2 '.bufname("%"))<CR>
+map <Leader>rp :call VimuxRunCommand('clear;cd '.expand("%:p:h") .' ;time pypy '.bufname("%"))<CR>
+
+map <Leader>rc :VimuxPromptCommand<CR>
+map <Leader>rl :VimuxRunLastCommand<CR>
+map <Leader>rs :VimuxInterruptRunner<CR>
+map <Leader>ri :VimuxInspectRunner<CR>
+map <Leader>rq :VimuxCloseRunner<CR>
+
+" }}}
+
+" Vinarise {{{
+
+map <F6> :Vinarise<CR>
+
+let g:vinarise_enable_auto_detect = 1
+
+au FileType vinarise let g:airline_section_warning = ''
+
+" }}}
+
+" Virtualenv {{{
+
+let g:virtualenv_auto_activate = 1
+let g:virtualenv_stl_format = '(%n)'
+
+" }}}
+
+" winresizer {{{
+
+let g:winresizer_start_key = '<C-C><C-W>'
+" клавиша отмены ESC
+" let g:winresizer_finish_with_escape = 1
+let g:winresizer_keycode_finish = 27
+
+" }}}
+
+" zoomwintab {{{
+
+map <Leader>z :ZoomWinTabToggle<CR>
+
+" }}}
+
+" Настройки плагинов }}}
+
+" FILETYPES  {{{ ==============================================================
+
+" DJANGO HTML (Шаблоны) {{{
+
+au BufRead,BufNewFile */templates/*.html setlocal filetype=htmldjango.html
+
+" }}}
+
+" JSON {{{ -------------------------------------------------------------------
+
+augroup json_autocmd
+  autocmd FileType json set foldmethod=syntax
+augroup END
+
+" }}}
+
+" LUA {{{
+
+au BufRead,BufNewFile rc.lua setlocal foldmethod=marker
+
+" }}}
+
+" PYTHON {{{
+
+au FileType python setlocal foldlevel=1000
+
+" }}}
+
+" MARKDOWN {{{
+
+" Типы файлов markdown
+au BufRead,BufNewFile *.{md,mdown,mkd,mkdn,markdown,mdwn} set filetype=markdown
+autocmd FileType markdown NeoBundleSource vim-markdown
+autocmd FileType markdown NeoBundleSource vim-markdown-extra-preview
+
+" }}}
+
+" RUBY {{{
+
+au FileType ruby setlocal tabstop=2 softtabstop=2 shiftwidth=2
+
+" }}}
+
+" SQL {{{
+
+autocmd FileType sql DBCheckModeline
+
+" }}}
+
+" END FILETYPES }}}
+
+" Прочие настройки {{{ ====================================================
+
+let s:vimcustomfile = $HOME.'/.vim/custom.vim'
+
+if filereadable(s:vimcustomfile)
+    exec 'source '.s:vimcustomfile
+endif
+
+" }}}
+
+" vim:foldmethod=marker

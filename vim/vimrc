@@ -540,6 +540,9 @@ let maplocalleader= ' '
 
 scriptencoding utf-8
 set encoding=utf-8              " установка кодировки в UTF-8
+set termencoding=utf-8          " Установка кодировки терминала
+set fileencoding=utf-8          " установка кодировки сохраняемых файлов
+set fileencodings=utf8,cp1251   " список предполагаемых кодировок, в порядке предпочтения
 set ls=2                        " всегда показывать строку статуса
 set go-=T                       " скрыть панель инструментов
 set go-=m                       " скрыть меню

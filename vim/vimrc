@@ -277,6 +277,12 @@ NeoBundle 'kchmck/vim-coffee-script',{'autoload' : {
                              \ 'CoffeeRun', 'CoffeeWatch'],
             \ 'filetypes' : ['coffee']
             \ }}
+" Поддержка цветов в CSS
+NeoBundleLazy 'skammer/vim-css-color', {'filetypes': ['css', 'less']}
+" Поддержка CSS3 синтаксиса
+NeoBundleLazy 'hail2u/vim-css3-syntax', {'filetypes': ['css', 'less']}
+" Поддержка LESS
+NeoBundleLazy 'groenewege/vim-less',{'filetypes' : 'less'}
 
 " }}}
 

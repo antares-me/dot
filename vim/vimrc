@@ -310,6 +310,16 @@ NeoBundle 'mhinz/vim-startify'
 "
 " }}}
 
+" NerdTREE {{{
+
+" Древовидный менеджер файлов
+NeoBundle 'scrooloose/nerdtree'
+
+" Плагин для отображения изменений в GIT репозитории внутри NerdTREE
+NeoBundle 'Xuyuanp/nerdtree-git-plugin'
+
+" }}}
+
 " Tmux {{{
 
 " Взаимодействие с Tmux
@@ -1117,6 +1127,31 @@ let g:neomru#directory_mru_path = $HOME.'/.vim/tmp/neomru/directory'
 " Po.vim {{{ -----------------------------------------------------------------
 
 let g:po_translator = "Anton Salnikov <antares@antares.me>"
+
+" }}}
+
+" NerdTREE {{{ ---------------------------------------------------------------
+" Показывать скрытые файлы при запуске
+let NERDTreeShowHidden=1
+" Показывать текущий файл в NERDTree слева
+nmap <silent> <leader>f :NERDTreeFind<CR>
+" Показать NERDTree
+nmap <Bs> :NERDTreeToggle<CR>
+" Показывать закладки
+let NERDTreeShowBookmarks=1
+let NERDTreeChDirMode=2
+let NERDTreeQuitOnOpen=1
+" Показывать скрытые файлы
+let NERDTreeShowHidden=1
+let NERDTreeKeepTreeInNewTab=0
+" Отключить метку 'Bookmarks' и текст 'Press ? for help'
+let NERDTreeMinimalUI=1
+" Использовать стрелки вместо '+' '~' символов при отображении каталогов
+let NERDTreeDirArrows=1
+" Файл закладок NERDTree
+let NERDTreeBookmarksFile= $HOME . '/.vim/tmp/NerdTREE/.NERDTreeBookmarks'
+" Показ меток GIT в дереве файлов
+let g:NERDTreeUseSimpleIndicator = 1
 
 " }}}
 

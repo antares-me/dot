@@ -233,6 +233,8 @@ NeoBundleLazy 'salsifis/vim-transpose', { 'autoload' :
 NeoBundle 'kshenoy/vim-signature'
 " Форматирование текста в виде таблицы
 NeoBundle 'dhruvasagar/vim-table-mode'
+" Плагин для работы с CSV
+NeoBundleLazy 'chrisbra/csv.vim', {'filetypes' : 'csv'} 
 
 " Текстовые объекты {{{
 
@@ -298,6 +300,9 @@ NeoBundle 'jimsei/winresizer'
 
 " Стартовое меню
 NeoBundle 'mhinz/vim-startify'
+
+" Многокурсорность
+NeoBundle 'terryma/vim-multiple-cursors'
 
 " Скринсейвер матрица
 " NeoBundle 'uguu-org/vim-matrix-screensaver'

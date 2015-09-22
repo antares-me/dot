@@ -4,4 +4,4 @@
 - cowsay
 - ranger
 
-sudo apt-get install cowsay ranger vim vim-nox awesome awesome-extra
+`sudo apt-get install cowsay ranger vim vim-nox awesome awesome-extra`

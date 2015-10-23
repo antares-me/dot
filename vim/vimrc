@@ -255,7 +255,7 @@ NeoBundle 'kana/vim-textobj-user'
 
 " }}}
 
-" HTML/CSS {{{
+" HTML/CSS/JS/PHP {{{
 
 " Мощный инструмент управления цветом
 NeoBundleLazy 'Rykka/colorv.vim', {'autoload' : {
@@ -285,7 +285,18 @@ NeoBundleLazy 'skammer/vim-css-color', {'filetypes': ['css', 'less']}
 NeoBundleLazy 'hail2u/vim-css3-syntax', {'filetypes': ['css', 'less']}
 " Поддержка LESS
 NeoBundleLazy 'groenewege/vim-less',{'filetypes' : 'less'}
-
+" Поддержка JavaScript
+NeoBundleLazy 'jelera/vim-javascript-syntax', {'autoload':{'filetypes':['javascript']}}
+" Поддержка синтаксиса PHP
+NeoBundleLazy 'php.vim', {'autoload':{'filetypes':['php']}}
+" Поддержка складок в PHP
+NeoBundleLazy 'phpfolding.vim', {'autoload':{'filetypes':['php']}}
+" Поддержка автодополнения PHP
+NeoBundle 'm2mdas/phpcomplete-extended'
+" Шаблонная система Mustache (необходима для работы PDV)
+NeoBundle 'tobyS/vmustache'
+" PhpDocumentator
+NeoBundle 'tobyS/pdv'
 " }}}
 
 " GUI {{{
@@ -1191,6 +1202,7 @@ let g:syntastic_error_symbol='✗'
 let g:syntastic_warning_symbol='⚠'
 let g:syntastic_style_error_symbol  = '⚡'
 let g:syntastic_style_warning_symbol  = '⚡'
+let g:syntastic_enable_signs=1
 
 " }}}
 
@@ -1895,7 +1907,7 @@ let g:junkfile#directory=expand($HOME."/.vim/tmp/junk")
 " Сартовое меню {{{
 
 " Закладки для стартового меню
-let g:startify_bookmarks = ['~/.vim/vimrc','~/Рабочий стол/pass.txt']
+" let g:startify_bookmarks = ['~/.vim/vimrc','~/Рабочий стол/pass.txt']
 " Автосохранение сессии
 let g:startify_session_persistence = 1
 " Заголовок стартового экрана и подвал

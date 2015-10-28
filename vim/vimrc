@@ -1195,15 +1195,20 @@ nmap <silent><Leader>N :SyntasticCheck<CR>:Errors<CR>
 
 let g:syntastic_python_pylint_exe = "pylint2"
 let g:syntastic_mode_map = { 'mode': 'active',
-            \ 'active_filetypes': ['php','js','css'],
             \ 'passive_filetypes': ['python'] }
 
+" \ 'active_filetypes': ['php','js','css'],
 let g:syntastic_error_symbol='✗'
 let g:syntastic_warning_symbol='⚠'
 let g:syntastic_style_error_symbol  = '⚡'
 let g:syntastic_style_warning_symbol  = '⚡'
 let g:syntastic_enable_signs=1
-
+let g:syntastic_auto_loc_list=1
+" PHP
+let g:syntastic_php_checkers = ['php', 'phpcs']
+let g:syntastic_php_phpcs_args = "--standard=zend -n --report=csv"
+" JavaScript
+let g:syntastic_javascript_checkers = ['jshint']
 " }}}
 
 " Unite {{{

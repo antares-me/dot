@@ -121,6 +121,10 @@ NeoBundleLazy 'joedicastro/vim-github256', { 'autoload' :
 NeoBundleLazy 'godlygeek/csapprox', { 'autoload' :
         \ { 'commands' : ['CSApprox', 'CSApproxSnapshot']}}
 
+" Solarized
+NeoBundleLazy 'altercation/vim-colors-solarized', { 'autoload' :
+            \ { 'unite_sources' : 'colorscheme' }}
+
 " }}}
 
 " DCVS {{{
@@ -172,7 +176,7 @@ NeoBundleLazy 'Yggdroot/indentLine', {'autoload': {'filetypes': ['python']}}
 " Показ сообщений из coverage.py
 NeoBundleLazy 'alfredodeza/coveragepy.vim', {'autoload': {'filetypes': ['python']}}
 " Сортировка импортов
- NeoBundle 'fisadev/vim-isort', {'autoload': {'filetypes': ['python']}}
+NeoBundle 'fisadev/vim-isort', {'autoload': {'filetypes': ['python']}}
 " }}}
 
 " Сниппеты {{{
@@ -292,11 +296,23 @@ NeoBundleLazy 'php.vim', {'autoload':{'filetypes':['php']}}
 " Поддержка складок в PHP
 NeoBundleLazy 'phpfolding.vim', {'autoload':{'filetypes':['php']}}
 " Поддержка автодополнения PHP
-NeoBundle 'm2mdas/phpcomplete-extended'
+NeoBundle 'm2mdas/phpcomplete-extended', {'autoload':{'filetypes': ['php']}}
 " Шаблонная система Mustache (необходима для работы PDV)
-NeoBundle 'tobyS/vmustache'
+NeoBundle 'tobyS/vmustache', {'autoload':{'filetypes': ['php']}}
 " PhpDocumentator
-NeoBundle 'tobyS/pdv'
+NeoBundle 'tobyS/pdv', {'autoload':{'filetypes': ['php']}}
+" JSBeautifier
+NeoBundle 'maksimr/vim-jsbeautify', {'autoload':{'filetypes':
+            \ ['php', 'css', 'js', 'html']}}
+" JSBeautifier {{{
+" NeoBundle 'michalliu/sourcebeautify.vim'
+" NeoBundle 'michalliu/jsruntime.vim'
+" NeoBundle 'michalliu/jsoncodecs.vim'
+"}}}
+
+" Поддержка Editorconfig
+NeoBundle 'editorconfig/editorconfig-vim'
+
 " }}}
 
 " GUI {{{
@@ -650,10 +666,16 @@ set wildignore+=*.stats                          " Статистика Pylint
 
 " Табы, пробелы и перенос {{{
 
-set expandtab                  " пробелы вместо табуляции
-set tabstop=4                  " Таб = четыре пробела
-set shiftwidth=4               " Количество пробелов в автоотступе
-set softtabstop=4              " Софттаб = четыре пробела
+" пробелы вместо табуляции в файлах кроме PHP, CSS, JS
+let _curfile = expand("%:t")
+if _curfile =~ ".*\.php" || _curfile =~ ".*\.css" || _curfile =~ ".*\.js"
+	set noexpandtab
+else
+	set expandtab
+	set tabstop=4                  " Таб = четыре пробела
+	set shiftwidth=4               " Количество пробелов в автоотступе
+	set softtabstop=4              " Софттаб = четыре пробела
+endif
 set autoindent                 " включить автоотступ
 " set formatoptions=qrn1ct     " автоматическое форматирование
 set textwidth=80	       " ширина текста 80 символов
@@ -681,6 +703,7 @@ inoremap <right> <nop>
 syntax enable                  " включить подсветку синтаксиса
 set background=dark            " установить тёмный фон
 set t_Co=256                   " 256 цветов в теримнале
+let g:solarized_termcolors=256
 if has('gui_running')
     colorscheme molokai
 else
@@ -2025,6 +2048,27 @@ let g:winresizer_keycode_finish = 27
 map <Leader>z :ZoomWinTabToggle<CR>
 
 " }}}
+
+" Editorconfig {{{
+
+let g:EditorConfig_exclude_patterns = ['fugitive://.*', 'scp://.*']
+
+" }}}
+
+" JSBeautifier {{{
+
+"map <c-f> :call JsBeautify()<cr>
+autocmd FileType javascript noremap <buffer>  <c-f> :call JsBeautify()<cr>
+" for html
+autocmd FileType html noremap <buffer> <c-f> :call HtmlBeautify()<cr>
+" for css or scss
+autocmd FileType css noremap <buffer> <c-f> :call CSSBeautify()<cr>
+" visual mode
+autocmd FileType javascript vnoremap <buffer>  <c-f> :call RangeJsBeautify()<cr>
+autocmd FileType html vnoremap <buffer> <c-f> :call RangeHtmlBeautify()<cr>
+autocmd FileType css vnoremap <buffer> <c-f> :call RangeCSSBeautify()<cr>
+
+"}}}
 
 " Настройки плагинов }}}
 

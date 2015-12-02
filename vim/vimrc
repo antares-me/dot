@@ -138,6 +138,8 @@ NeoBundleLazy 'gregsexton/gitv', {'depends':['tpope/vim-fugitive'],
             \ 'autoload':{'commands':'Gitv'}}
 " Просмотр событий GitHub в Vim
 NeoBundle 'joedicastro/vim-github-dashboard'
+" Работа с Gist
+NeoBundle 'mattn/gist-vim', {'depends': 'mattn/webapi-vim'}
 
 " }}}
 
@@ -239,6 +241,8 @@ NeoBundle 'kshenoy/vim-signature'
 NeoBundle 'dhruvasagar/vim-table-mode'
 " Плагин для работы с CSV
 NeoBundleLazy 'chrisbra/csv.vim', {'filetypes' : 'csv'} 
+" Плагин для форматирования текста в таблицу
+NeoBundle 'mattn/vim-maketable'
 
 " Текстовые объекты {{{
 

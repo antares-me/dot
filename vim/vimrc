@@ -243,6 +243,8 @@ NeoBundle 'dhruvasagar/vim-table-mode'
 NeoBundleLazy 'chrisbra/csv.vim', {'filetypes' : 'csv'} 
 " Плагин для форматирования текста в таблицу
 " NeoBundle 'mattn/vim-maketable'
+" Форматирование кода
+NeoBundle 'aserebryakov/filestyle'
 
 " Текстовые объекты {{{
 
@@ -2073,6 +2075,21 @@ autocmd FileType html vnoremap <buffer> <c-f> :call RangeHtmlBeautify()<cr>
 autocmd FileType css vnoremap <buffer> <c-f> :call RangeCSSBeautify()<cr>
 
 "}}}
+
+" Filestyle {{{
+" Исключить типы файлов
+let g:filestyle_ignore = ['text', 'vimwiki']
+" Паттерны исключения проверки
+let g:filestyle_ignore_patterns = ['^\(> \?\)\+$']
+" Подсветка ошибок форматирования (FileStyleIgnoredPattern работает только в gVim)
+" FileStyleTabsError
+" FileStyleTrailingSpacesError
+" FileStyleSpacesError
+" FileStyleControlCharacter
+" FileStyleTooLongLine
+" FileStyleIgnoredPattern
+" highlight FileStyleTabsError ctermbg=3 guibg=Yellow
+" }}}
 
 " Настройки плагинов }}}
 

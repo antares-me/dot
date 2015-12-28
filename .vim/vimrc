@@ -242,13 +242,9 @@ NeoBundle 'dhruvasagar/vim-table-mode'
 " Плагин для работы с CSV
 NeoBundleLazy 'chrisbra/csv.vim', {'filetypes' : 'csv'} 
 " Плагин для форматирования текста в таблицу
-<<<<<<< HEAD
 " NeoBundle 'mattn/vim-maketable'
 " Форматирование кода
 NeoBundle 'aserebryakov/filestyle'
-=======
-NeoBundle 'mattn/vim-maketable'
->>>>>>> master
 
 " Текстовые объекты {{{
 

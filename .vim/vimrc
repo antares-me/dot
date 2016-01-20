@@ -329,6 +329,9 @@ NeoBundle 'scrooloose/nerdtree'
 " Плагин для отображения изменений в GIT репозитории внутри NerdTREE
 NeoBundle 'Xuyuanp/nerdtree-git-plugin'
 
+" Плагин для скачивания файлов из меню NERDTree
+" NeoBundle 'NERDTree-Fetch'
+
 " }}}
 
 " Tmux {{{
@@ -370,26 +373,32 @@ NeoBundleLazy 'zoomwintab.vim', {'autoload' :
             \{'commands' : 'ZoomWinTabToggle'}}
 " Изменение размера окна
 NeoBundle 'jimsei/winresizer'
-
 " Стартовое меню
 NeoBundle 'mhinz/vim-startify'
-
 " Многокурсорность
 NeoBundle 'terryma/vim-multiple-cursors'
-
 " Скринсейвер матрица
 " NeoBundle 'uguu-org/vim-matrix-screensaver'
-
 " Подсказки (фортунки) vim при старте
 "NeoBundle 'hobbestigrou/vimtips-fortune', {'build':{
 "				\'unix' : 'strfile fortunes/vimtips',
 "				\'linux' : 'strfile fortunes/vimtips',
 "				\ }}
-
 " Иконки
 NeoBundle 'ryanoasis/vim-devicons'
+" Миникарта
+"NeoBundle 'severin-lemaignan/vim-minimap'
+" Копирование форматированного кода со стилями
+"NeoBundle 'google/vim-syncopate'
 
 " }}}
+
+" Сеть {{{
+" Синхронизация файлов через конфиг
+NeoBundle 'eshion/vim-sftp-sync'
+" Синхронизация файлов через конфиг в корне проекта
+"NeoBundle 'eshion/vim-sync'
+"}}}
 
 " END BUNDLES }}}
 
@@ -581,6 +590,12 @@ function! ToggleNeoComplete()
 endfunction
 
 " }}}
+
+" Подсветка типов файлов в NERDTree
+function! NERDTreeHighlightFile(extension, fg, bg, guifg, guibg)
+    exec 'autocmd FileType nerdtree highlight ' . a:extension .' ctermbg='. a:bg .' ctermfg='. a:fg .' guibg='. a:guibg .' guifg='. a:guifg
+    exec 'autocmd FileType nerdtree syn match ' . a:extension .' #^\s\+.*'.  a:extension .'$#'
+endfunction
 
 " }}}
 
@@ -1178,7 +1193,7 @@ let g:po_translator = "Anton Salnikov <antares@antares.me>"
 
 " }}}
 
-" NerdTREE {{{ ---------------------------------------------------------------
+" NERDTree {{{ ---------------------------------------------------------------
 " Показывать скрытые файлы при запуске
 let NERDTreeShowHidden=1
 " Показывать текущий файл в NERDTree слева
@@ -1201,6 +1216,25 @@ let NERDTreeBookmarksFile= $HOME . '/.vim/tmp/NerdTREE/.NERDTreeBookmarks'
 " Показ меток GIT в дереве файлов
 let g:NERDTreeUseSimpleIndicator = 1
 
+call NERDTreeHighlightFile('jade', 'green', 'none', 'green', '#151515')
+call NERDTreeHighlightFile('ini', 'yellow', 'none', 'yellow', '#151515')
+call NERDTreeHighlightFile('md', 'blue', 'none', '#3366FF', '#151515')
+call NERDTreeHighlightFile('yml', 'yellow', 'none', 'yellow', '#151515')
+call NERDTreeHighlightFile('config', 'yellow', 'none', 'yellow', '#151515')
+call NERDTreeHighlightFile('conf', 'yellow', 'none', 'yellow', '#151515')
+call NERDTreeHighlightFile('json', 'yellow', 'none', 'yellow', '#151515')
+call NERDTreeHighlightFile('html', 'yellow', 'none', 'yellow', '#151515')
+call NERDTreeHighlightFile('styl', 'cyan', 'none', 'cyan', '#151515')
+call NERDTreeHighlightFile('css', 'cyan', 'none', 'cyan', '#151515')
+call NERDTreeHighlightFile('coffee', 'Red', 'none', 'red', '#151515')
+call NERDTreeHighlightFile('js', 'Red', 'none', '#ffa500', '#151515')
+call NERDTreeHighlightFile('php', 'Magenta', 'none', '#ff00ff', '#151515')
+call NERDTreeHighlightFile('ds_store', 'Gray', 'none', '#686868', '#151515')
+call NERDTreeHighlightFile('gitconfig', 'Gray', 'none', '#686868', '#151515')
+call NERDTreeHighlightFile('gitignore', 'Gray', 'none', '#686868', '#151515')
+call NERDTreeHighlightFile('bashrc', 'Gray', 'none', '#686868', '#151515')
+call NERDTreeHighlightFile('bashprofile', 'Gray', 'none', '#686868', '#151515')
+"autocmd VimEnter * call NERDTreeHighlightFile('jade', 'green', 'none', 'green', '#151515')
 " }}}
 
 " PythonMode {{{ -------------------------------------------------------------
@@ -2092,6 +2126,25 @@ let g:filestyle_ignore_patterns = ['^\(> \?\)\+$']
 " FileStyleTooLongLine
 " FileStyleIgnoredPattern
 " highlight FileStyleTabsError ctermbg=3 guibg=Yellow
+" }}}
+
+" Миникарта {{{
+"let g:minimap_highlight='Visual'
+" }}}
+
+" vim-devicons {{{
+" Выравнивание в NERDTree
+let g:WebDevIconsNerdTreeGitPluginForceVAlign = 1
+" Отступы от иконок
+let g:WebDevIconsNerdTreeAfterGlyphPadding = ''
+" Двойной размер
+let g:WebDevIconsUnicodeGlyphDoubleWidth = 0
+" Перерисовка иконок
+if exists("g:loaded_webdevicons")
+    call webdevicons#refresh()
+endif
+" Убрать артефакты NERDTree в GVim
+autocmd FileType nerdtree setlocal nolist
 " }}}
 
 " Настройки плагинов }}}

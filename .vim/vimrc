@@ -125,6 +125,8 @@ NeoBundleLazy 'godlygeek/csapprox', { 'autoload' :
 NeoBundleLazy 'altercation/vim-colors-solarized', { 'autoload' :
             \ { 'unite_sources' : 'colorscheme' }}
 
+" Цветовые схемы для airline
+NeoBundle 'https://github.com/vim-airline/vim-airline-themes'
 " }}}
 
 " DCVS {{{
@@ -179,6 +181,8 @@ NeoBundleLazy 'Yggdroot/indentLine', {'autoload': {'filetypes': ['python']}}
 NeoBundleLazy 'alfredodeza/coveragepy.vim', {'autoload': {'filetypes': ['python']}}
 " Сортировка импортов
 NeoBundle 'fisadev/vim-isort', {'autoload': {'filetypes': ['python']}}
+" Jedi- дополнение кода Python
+NeoBundle 'davidhalter/jedi-vim', {'autoload': {'filetypes': ['python']}} 
 " }}}
 
 " Сниппеты {{{

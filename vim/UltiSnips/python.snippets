@@ -1,0 +1,135 @@
+###########################################################################
+#                             Python Snippets                             #
+###########################################################################
+
+############
+#  COMMON  #
+############
+
+global !p
+
+import os
+import glob
+from subprocess import Popen, PIPE
+
+
+def get_output(cmd):
+    """Get the output of a shell command.
+
+    :cmd: the command to execute
+    :return: the command output
+
+    """
+    output = Popen(
+        cmd,
+        stdout=PIPE,
+        stderr=PIPE,
+        shell=True
+    ).stdout.read().strip()
+
+    return output
+
+
+def get_vcs_username(path, username=''):
+    """Get the user information from a local DVCS or the global values instead.
+
+    :path: the path of the python file from where it is called the snippet
+    :username: the default username if not one is founded
+    :return: the user information (name & email) set in the DVCS
+
+    """
+
+    vcs_cmds = {
+        '.git': {
+            'user'  : 'git config --get user.name',
+            'email' : 'git config --get user.email'
+        },
+        '.hg': {
+            'user'  : 'hg showconfig ui.username'
+        },
+        '.bzr': {
+            'user'  : 'bzr whoami'
+        }
+    }
+
+    repo_directory, current_directory = os.path.dirname(path), os.getcwd()
+    os.chdir(repo_directory)
+
+    vcs_at_dir = [i for i in glob.iglob('.??*') if i in vcs_cmds.keys()]
+
+    # if there is a local repository check only that type, else check all
+    vcs_to_check = vcs_at_dir if vcs_at_dir else vcs_cmds.keys()
+
+    for i in vcs_to_check:
+        user = get_output(vcs_cmds[i].get('user'))
+        email = get_output(vcs_cmds[i].get('email', ''))
+        if user:
+            os.chdir(current_directory)
+            username = '{0} <{1}>'.format(user, email) if email else user
+            break
+
+    return username
+
+endglobal
+
+
+##############
+#  New File  #
+##############
+
+snippet script "Template for new script" !b
+#!/usr/bin/env python
+# -*- coding: utf8 -*-
+
+"""
+`!p snip.rv = fn`
+
+${1}
+
+"""
+
+__author__ = "${2:`!p snip.rv = get_vcs_username(vim.eval("expand('%:p')"))`}"
+__license__ = "${3:MIT}"
+__date__ = "`date +%Y-%m-%d`"
+__version__ = "0.1"
+
+try:
+    import sys
+    import os
+    ${4}
+except ImportError:
+    print('''
+          An error found importing one module:
+          
+          {0}
+          
+          You need to install it
+          
+          Stopping...
+          '''.format(str(sys.exc_info()[1])).replace(' ', '')
+          )
+    sys.exit(-2)
+
+
+def main():
+    """Main section."""
+    ${5:pass}
+
+if __name__ == '__main__':
+    main()
+endsnippet
+
+###########################################################################
+#                             Simple Script                               #
+###########################################################################
+
+snippet ss "Template for a new simple script" !b
+#!/usr/bin/env python
+# -*- coding: utf8 -*-
+
+"""
+${1}
+"""
+
+${2}
+endsnippet

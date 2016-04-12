@@ -2,7 +2,7 @@
 #+AUTHOR:    Anton Salnikov
 #+EMAIL:     antares@antares.me
 #+DATE:      2016-04-04
-#+LANGUAGE:  en
+#+LANGUAGE:  ru
 #+PROPERTY: header-args :tangle init.el :comments org
 #+OPTIONS: author:nil date:nil toc:nil title:nil e:nil
 #+LaTeX_HEADER: \pagenumbering{gobble}
@@ -160,25 +160,25 @@ These are some defaults that I consider a good start.
         visible-bell t                          ;; remove the annoying beep
         apropos-do-all t                        ;; apropos commands perform more extensive searches than default
         large-file-warning-threshold 100000000) ;; warn only when opening files bigger than 100MB
-  ;; no bars, no gui menus
+  ;; Убираем панели и GUI меню
   (menu-bar-mode -1)
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
-  ;; replace yes/no questions with y/n
+  ;; Заменяем вопросы yes/no на y/n
   (fset 'yes-or-no-p 'y-or-n-p)
   ;; show the empty lines at the end (bottom) of the buffer
   (toggle-indicate-empty-lines)
   ;; delete the previous selection when overrides it with a new insertion.
   (delete-selection-mode)
-  ;; the blinking cursor is pretty annoying, so disable it.
+  ;; Мигающий курсор раздражает. Отключим мигание.
   (blink-cursor-mode -1)
-  ;; more thinner window divisions
+  ;; Более тонкие разделители окон
   (fringe-mode '(1 . 1))
 
   ;; use ibuffer by default
   (defalias 'list-buffers 'ibuffer)
 
-   ;; make sure that UTF-8 is used everywhere.
+   ;; Убедимся что UTF-8 используется везде.
   (set-terminal-coding-system  'utf-8)
   (set-keyboard-coding-system  'utf-8)
   (set-language-environment    'utf-8)
@@ -187,7 +187,7 @@ These are some defaults that I consider a good start.
   (prefer-coding-system        'utf-8)
   (set-input-method nil)
 
-  ;; disable auto-save files & backups
+  ;; Отключим автосохранение и бэкапы
   ;; I prefer to use a undo-tree with branches instead of store auto-save
   ;; files. Because I'm using gpg to authetication and encrypt/sign files,
   ;; is more secure don't have a plaint text backup of those files. Use a
@@ -196,16 +196,16 @@ These are some defaults that I consider a good start.
         auto-save-list-file-prefix nil
         make-backup-files nil)
 
-   ;; always indent with spaces
+   ;; Всегда делать отступы пробелами
   (setq-default indent-tabs-mode  nil
                 default-tab-width 4
                 c-basic-offset 4)
 
-  ;; show the matching parenthesis when the cursor is above one of them.
+  ;; Подсвечивать парные скобки, когда курсор на одной из них.
   (setq show-paren-delay 0)
   (show-paren-mode t)
 
-  ;; highlight the current line
+  ;; Подсвечивать текущую строку
   (global-hl-line-mode 1)
 
    ;; settings for the mode line
@@ -222,14 +222,14 @@ These are some defaults that I consider a good start.
   (global-set-key "\C-x\C-k" 'kill-region)
   (global-set-key "\C-c\C-k" 'kill-region)
 
-  ;; text wrapping at 80 columns by default (only text)
+  ;; Перенос текста на 80 символе по умолчанию (только текст)
   (add-hook 'text-mode-hook 'turn-on-auto-fill)
   (add-hook 'text-mode-hook
             '(lambda() (set-fill-column 80)))
 
-  ;; browser settings
+  ;; Настройки браузера
   (setq browse-url-browser-function 'browse-url-generic
-        browse-url-generic-program "firefox")
+        browse-url-generic-program "chromium-browser")
 
   ;; disable these warnings about narrow
   (put 'narrow-to-region 'disabled nil)
@@ -242,8 +242,8 @@ These are some defaults that I consider a good start.
                 calendar-location-name   "A Coruña, Spain")
 
    ;; sets the default user's information properly.
-  (setq user-full-name    "joe di castro"
-        user-mail-address "joe@joedicastro.com")
+  (setq user-full-name    "Salnikov Anton"
+        user-mail-address "antares@antares.me")
 #+END_SRC
 
 ** Temporal directory
@@ -745,7 +745,7 @@ Settings for the Emacs Web Browser.
       (setq org-confirm-babel-evaluate 'antares-org-confirm-babel-evaluate)))
 #+END_SRC
 
-* TODO Packages [1/18]
+* TODO Packages [1/20]
 
 What I try here is to config each package as atomic as possible, so to ensure
 that to add or remove a package does not broke the configuration of others.
@@ -2843,14 +2843,24 @@ Emacs.
     )
 #+END_SRC
 
+** TODO moe-theme
+[[https://github.com/kuanyui/moe-theme.el][Moe-theme]]
+
+#+BEGIN_SRC emacs-lisp
+  (use-package moe-theme
+    :ensure t)
+  (load-theme 'moe-dark t)
+
+#+END_SRC
+
 ** monokai-theme
 
 [[https://github.com/oneKelvinSmith/monokai-emacs][Monokai for Emacs]] is a port of the popular TextMate theme Monokai by Wimer
 Hazenberg.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package monokai-theme
-    :ensure t)
+;;  (use-package monokai-theme
+;;    :ensure t)
 #+END_SRC
 
 ** TODO mu4e
@@ -4173,7 +4183,7 @@ ratings, usage statistics, customizability, and more.
 [[http://www.zx2c4.com/projects/password-store/][Password store (pass)]] support for Emacs.
 
 - [ ] make my own modifications
-
+  
 
 #+BEGIN_SRC emacs-lisp
   (use-package password-store
@@ -4291,6 +4301,21 @@ in the file-system, but rather created on-demand and stored in memory.
          :ensure t))
 #+END_SRC
 
+** TODO php
+Режим [[https://github.com/ejmr/php-mode][PHP]] является основной режим для редактирования исходного кода PHP.
+Это расширение режима C. Таким образом, он наследует все функциональные
+возможности навигации C режима, но подсветка соответствует грамматике PHP и
+углублена в соответствии с рекомендациями кодирования PEAR. Она также включает в
+себя пару удобных функций IDE-типа, такие как поиск документации и просмотрщик
+исходников и классов.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package php-mode
+    :ensure t
+    :mode ("\\.php\\'" . php-mode)
+    :interpreter ("php" . php-mode))
+#+END_SRC
+
 ** popwin
 
 [[https://github.com/m2ym/popwin-el][Popwin]] is a popup window manager for Emacs which makes you free from
@@ -4342,6 +4367,20 @@ the hell of annoying buffers such like *Help*, *Completions*,
     (add-hook 'popwin:after-popup-hook 'turn-off-evil-mode)
     (bind-keys :map popwin:window-map
                ((kbd "<escape>") . popwin:close-popup-window)))
+#+END_SRC
+
+** TODO powerline
+
+[[https://github.com/milkypostman/powerline][Powerline]]
+This is a proposed version 2.0 of the original Emacs Powerline which is a fork of vim-powerline.
+Emacs version of the Vim powerline.
+This version has utf-8 support enabled. The utf-8 separators will display a unicode character properly under mintty for example - as long as you have patched fonts installed.
+By default, any terminal mode emacs will use the utf-8 separators.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package powerline
+    :ensure t
+    :defer t)
 #+END_SRC
 
 ** pretty-mode

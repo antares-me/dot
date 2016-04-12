@@ -15,19 +15,19 @@
 
 ;; originaly seen at
 ;; https://github.com/larstvei/dot-emacs/blob/master/init.org
-(defun joe-tangle-init ()
+(defun antares-tangle-init ()
   "If the current buffer is 'readme.org' the code-blocks are
    tangled, and the tangled file is compiled."
   (when (or
          (equal (buffer-file-name)
                 (expand-file-name (concat user-emacs-directory "readme.org")))
          (equal (buffer-file-name)
-                (expand-file-name "~/dotfiles/emacs/readme.org")))
+                (expand-file-name "~/gitRepos/dotfiles/emacs/readme.org")))
     (call-process-shell-command
      "emacs ~/.emacs.d/readme.org --batch --eval='(org-babel-tangle)' && notify-send -a 'Emacs' 'init file tangled'" nil 0)))
     ;; (byte-compile-file (concat user-emacs-directory "init.el")))
 
-(add-hook 'after-save-hook 'joe-tangle-init)
+(add-hook 'after-save-hook 'antares-tangle-init)
 
 ;; Repositories
 
@@ -38,7 +38,7 @@
                          ("melpa-stable" . "http://stable.melpa.org/packages/")
                          ("org" . "http://orgmode.org/elpa/")))
 
-;; use-package & bind-key
+;; use-package и bind-key
 
 ;; The [[https://github.com/jwiegley/use-package][use-package]] declaration macro allows us to isolate package configuration in
 ;; our emacs setup in a way that is performance-oriented and, well, just tidy. As
@@ -96,25 +96,25 @@
       visible-bell t                          ;; remove the annoying beep
       apropos-do-all t                        ;; apropos commands perform more extensive searches than default
       large-file-warning-threshold 100000000) ;; warn only when opening files bigger than 100MB
-;; no bars, no gui menus
+;; Убираем панели и GUI меню
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
-;; replace yes/no questions with y/n
+;; Заменяем вопросы yes/no на y/n
 (fset 'yes-or-no-p 'y-or-n-p)
 ;; show the empty lines at the end (bottom) of the buffer
 (toggle-indicate-empty-lines)
 ;; delete the previous selection when overrides it with a new insertion.
 (delete-selection-mode)
-;; the blinking cursor is pretty annoying, so disable it.
+;; Мигающий курсор раздражает. Отключим мигание.
 (blink-cursor-mode -1)
-;; more thinner window divisions
+;; Более тонкие разделители окон
 (fringe-mode '(1 . 1))
 
 ;; use ibuffer by default
 (defalias 'list-buffers 'ibuffer)
 
- ;; make sure that UTF-8 is used everywhere.
+ ;; Убедимся что UTF-8 используется везде.
 (set-terminal-coding-system  'utf-8)
 (set-keyboard-coding-system  'utf-8)
 (set-language-environment    'utf-8)
@@ -123,7 +123,7 @@
 (prefer-coding-system        'utf-8)
 (set-input-method nil)
 
-;; disable auto-save files & backups
+;; Отключим автосохранение и бэкапы
 ;; I prefer to use a undo-tree with branches instead of store auto-save
 ;; files. Because I'm using gpg to authetication and encrypt/sign files,
 ;; is more secure don't have a plaint text backup of those files. Use a
@@ -132,16 +132,16 @@
       auto-save-list-file-prefix nil
       make-backup-files nil)
 
- ;; always indent with spaces
+ ;; Всегда делать отступы пробелами
 (setq-default indent-tabs-mode  nil
               default-tab-width 4
               c-basic-offset 4)
 
-;; show the matching parenthesis when the cursor is above one of them.
+;; Подсвечивать парные скобки, когда курсор на одной из них.
 (setq show-paren-delay 0)
 (show-paren-mode t)
 
-;; highlight the current line
+;; Подсвечивать текущую строку
 (global-hl-line-mode 1)
 
  ;; settings for the mode line
@@ -158,14 +158,14 @@
 (global-set-key "\C-x\C-k" 'kill-region)
 (global-set-key "\C-c\C-k" 'kill-region)
 
-;; text wrapping at 80 columns by default (only text)
+;; Перенос текста на 80 символе по умолчанию (только текст)
 (add-hook 'text-mode-hook 'turn-on-auto-fill)
 (add-hook 'text-mode-hook
           '(lambda() (set-fill-column 80)))
 
-;; browser settings
+;; Настройки браузера
 (setq browse-url-browser-function 'browse-url-generic
-      browse-url-generic-program "firefox")
+      browse-url-generic-program "chromium-browser")
 
 ;; disable these warnings about narrow
 (put 'narrow-to-region 'disabled nil)
@@ -178,8 +178,8 @@
               calendar-location-name   "A Coruña, Spain")
 
  ;; sets the default user's information properly.
-(setq user-full-name    "joe di castro"
-      user-mail-address "joe@joedicastro.com")
+(setq user-full-name    "Salnikov Anton"
+      user-mail-address "antares@antares.me")
 
 ;; Temporal directory
 
@@ -190,31 +190,31 @@
 ;; First, create a variable to point to that temporal directory and if
 ;; that directory does not exists, create it.
 
-(defvar joe-emacs-temporal-directory (concat user-emacs-directory "tmp/"))
-(unless (file-exists-p joe-emacs-temporal-directory)
-  (make-directory joe-emacs-temporal-directory))
+(defvar antares-emacs-temporal-directory (concat user-emacs-directory "tmp/"))
+(unless (file-exists-p antares-emacs-temporal-directory)
+  (make-directory antares-emacs-temporal-directory))
 
 ;; Store all temporal files in a temporal directory instead of being
 ;; disseminated in the $HOME directory
 
 (setq-default
  ;; Tramp history
- tramp-persistency-file-name (concat joe-emacs-temporal-directory "tramp")
+ tramp-persistency-file-name (concat antares-emacs-temporal-directory "tramp")
  ;; Bookmarks file
- bookmark-default-file (concat joe-emacs-temporal-directory "bookmarks")
+ bookmark-default-file (concat antares-emacs-temporal-directory "bookmarks")
  ;;SemanticDB files
- semanticdb-default-save-directory (concat joe-emacs-temporal-directory "semanticdb")
+ semanticdb-default-save-directory (concat antares-emacs-temporal-directory "semanticdb")
  ;; url files
- url-configuration-directory (concat joe-emacs-temporal-directory "url")
+ url-configuration-directory (concat antares-emacs-temporal-directory "url")
  ;; eshell files
- eshell-directory-name (concat joe-emacs-temporal-directory "eshell" ))
+ eshell-directory-name (concat antares-emacs-temporal-directory "eshell" ))
 
 ;; History
 
 ;; Maintain a history of past actions and a reasonable number of lists.
 
 (setq-default history-length 1000)
-(setq savehist-file (concat joe-emacs-temporal-directory "history")
+(setq savehist-file (concat antares-emacs-temporal-directory "history")
       history-delete-duplicates t
       savehist-save-minibuffer-history 1
       savehist-additional-variables
@@ -232,7 +232,7 @@
 (use-package recentf
   :config
   (progn
-    (setq recentf-save-file (concat joe-emacs-temporal-directory "recentf")
+    (setq recentf-save-file (concat antares-emacs-temporal-directory "recentf")
           recentf-max-saved-items 100
           recentf-exclude '("COMMIT_MSG" "COMMIT_EDITMSG"))
     (recentf-mode t)))
@@ -276,7 +276,7 @@
 (use-package saveplace
   :config
   (progn
-    (setq save-place-file (concat joe-emacs-temporal-directory "saveplace.el") )
+    (setq save-place-file (concat antares-emacs-temporal-directory "saveplace.el") )
     (setq-default save-place t)))
 
 ;; Color Theme
@@ -291,7 +291,7 @@
 ;; This code is to avoid to reload the theme every time that you open a new client
 ;; in server mode (from GUI or from terminal)
 
-(defvar joe-color-theme (if (package-installed-p 'monokai-theme)
+(defvar antares-color-theme (if (package-installed-p 'monokai-theme)
                             'monokai
                           'tango))
 
@@ -306,7 +306,7 @@
       (select-frame frame)
       (when (or gui ter)
         (progn
-          (load-theme joe-color-theme t)
+          (load-theme antares-color-theme t)
           (if (display-graphic-p)
               (puthash "gui" nil myGraphicModeHash)
             (puthash "term" nil myGraphicModeHash))))
@@ -315,7 +315,7 @@
 
 (if (daemonp)
     (add-hook 'after-make-frame-functions 'emacsclient-setup-theme-function)
-  (progn (load-theme joe-color-theme t)))
+  (progn (load-theme antares-color-theme t)))
 
 ;; Font
 
@@ -345,20 +345,20 @@
                                             (count-lines (point-min) (point-max))))))
                             (concat "%" (number-to-string w) "d"))))))
 
-(defun joe-linum-format-func (line)
+(defun antares-linum-format-func (line)
    (concat
     (propertize (format linum-format-fmt line) 'face 'linum)
     (propertize " " 'face 'linum)))
 
 (unless window-system
-  (setq linum-format 'joe-linum-format-func))
+  (setq linum-format 'antares-linum-format-func))
 
 ;; Toggle show trailing white-spaces
 
 ;; Show/hide the trailing white-spaces in the buffer.
 
 ;; from http://stackoverflow.com/a/11701899/634816
-(defun joe-toggle-show-trailing-whitespace ()
+(defun antares-toggle-show-trailing-whitespace ()
   "Toggle show-trailing-whitespace between t and nil"
   (interactive)
   (setq show-trailing-whitespace (not show-trailing-whitespace)))
@@ -369,7 +369,7 @@
 ;; process'= buffer
 
 ;; seen at http://stackoverflow.com/a/18034042
-(defun joe-delete-process-at-point ()
+(defun antares-delete-process-at-point ()
   (interactive)
   (let ((process (get-text-property (point) 'tabulated-list-id)))
     (cond ((and process
@@ -379,17 +379,17 @@
           (t
            (error "no process at point!")))))
 
-(define-key process-menu-mode-map (kbd "C-c k") 'joe-delete-process-at-point)
+(define-key process-menu-mode-map (kbd "C-c k") 'antares-delete-process-at-point)
 
 ;; Window movements
 
 ;; Provide a more intuitive window movements.
 
-(defun joe-scroll-other-window()
+(defun antares-scroll-other-window()
   (interactive)
   (scroll-other-window 1))
 
-(defun joe-scroll-other-window-down ()
+(defun antares-scroll-other-window-down ()
   (interactive)
   (scroll-other-window-down 1))
 
@@ -402,22 +402,22 @@
 
 ;; Some custom functions to manage buffers.
 
-(defun joe-alternate-buffers ()
+(defun antares-alternate-buffers ()
   "Toggle between the last two buffers"
   (interactive)
   (switch-to-buffer (other-buffer (current-buffer) t)))
 
-(defun joe-revert-buffer ()
+(defun antares-revert-buffer ()
   "Revert the buffer to the save disk file state"
   (interactive)
   (revert-buffer nil t))
 
-(defun joe-kill-this-buffer ()
+(defun antares-kill-this-buffer ()
   "Kill the current buffer"
   (interactive)
   (kill-buffer (current-buffer)))
 
-(defun joe-diff-buffer-with-file ()
+(defun antares-diff-buffer-with-file ()
   "Compare the current modified buffer with the saved version."
   (interactive)
   (let ((diff-switches "-u"))
@@ -446,20 +446,20 @@
               ispell-dictionary      "en_US")
 
 ;; switch between the most used dictionaries in my case
-(defun joe-switch-dictionary ()
+(defun antares-switch-dictionary ()
   (interactive)
   (let* ((dic ispell-current-dictionary)
-         (change (if (string= dic "en_US") "es_ES" "en_US")))
+         (change (if (string= dic "en_US") "ru_RU" "en_US")))
     (ispell-change-dictionary change)
     (message "Dictionary switched from %s to %s" dic change)))
 
-(defun joe-turn-on-spell-check ()
+(defun antares-turn-on-spell-check ()
   (flyspell-mode 1))
 
 ;; enable spell-check in certain modes
-(add-hook 'markdown-mode-hook 'joe-turn-on-spell-check)
-(add-hook 'text-mode-hook     'joe-turn-on-spell-check)
-(add-hook 'org-mode-hook      'joe-turn-on-spell-check)
+(add-hook 'markdown-mode-hook 'antares-turn-on-spell-check)
+(add-hook 'text-mode-hook     'antares-turn-on-spell-check)
+(add-hook 'org-mode-hook      'antares-turn-on-spell-check)
 (add-hook 'prog-mode-hook     'flyspell-prog-mode)
 
 ;; Dired
@@ -488,7 +488,7 @@
 (use-package ido
   :config
   (progn
-    (setq ido-save-directory-list-file (concat joe-emacs-temporal-directory "ido.last")
+    (setq ido-save-directory-list-file (concat antares-emacs-temporal-directory "ido.last")
           ido-enable-flex-matching t
           ido-use-virtual-buffers t)
     ;; (ido-mode t)
@@ -631,14 +631,14 @@
     (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
 
     ;; don't ask confirmation to execute "safe" languages
-    (defun joe-org-confirm-babel-evaluate (lang body)
+    (defun antares-org-confirm-babel-evaluate (lang body)
       (and (not (string= lang "ditaa"))
          (not (string= lang "dot"))
          (not (string= lang "gnuplot"))
          (not (string= lang "ledger"))
          (not (string= lang "plantuml"))))
 
-    (setq org-confirm-babel-evaluate 'joe-org-confirm-babel-evaluate)))
+    (setq org-confirm-babel-evaluate 'antares-org-confirm-babel-evaluate)))
 
 ;; ag
 
@@ -775,8 +775,8 @@
             ("x" delete-frame "delete frame"))
           (defhydra hydra-window-scroll (:color red)
             "Scroll other window"
-            ("n" joe-scroll-other-window "scroll")
-            ("p" joe-scroll-other-window-down "scroll down"))
+            ("n" antares-scroll-other-window "scroll")
+            ("p" antares-scroll-other-window-down "scroll down"))
           (add-to-list 'aw-dispatch-alist '(?w hydra-window-size/body) t)
           (add-to-list 'aw-dispatch-alist '(?o hydra-window-scroll/body) t)
           (add-to-list 'aw-dispatch-alist '(?\; hydra-window-frame/body) t))
@@ -1010,7 +1010,7 @@
   (add-hook 'elfeed-new-entry-hook
             (elfeed-make-tagger :before "4 weeks ago"
                                 :remove 'unread))
-  (setq elfeed-db-directory  (concat joe-emacs-temporal-directory "elfeed")
+  (setq elfeed-db-directory  (concat antares-emacs-temporal-directory "elfeed")
         elfeed-search-filter "@4-weeks-old +unread "
         elfeed-search-title-max-width 100)
   (setq elfeed-feeds
@@ -1114,13 +1114,10 @@
         ("TAB"   shr-next-link :color red)
         ("S-TAB" shr-previous-link :color red))))
 
-;; esup
+;; TODO esup
 
 ;; [[https://github.com/jschaf/esup][Esup]] is a package for benchmark Emacs startup time without ever leaving your
 ;; Emacs.
-
-;; *Note*: It currently stops when parsing the ~diminesh.elc~ file, if delete it
-;; works fine.
 
 (use-package esup
   :ensure t
@@ -1184,7 +1181,7 @@
   :ensure t
   :config
   (progn
-    (defcustom joe-evil-state-modes
+    (defcustom antares-evil-state-modes
     '(fundamental-mode
       text-mode
       prog-mode
@@ -1194,7 +1191,7 @@
     "List of modes that should start up in Evil state."
     :type '(symbol))
 
-    (defcustom joe-emacs-state-modes
+    (defcustom antares-emacs-state-modes
     '(debugger-mode
       process-menu-mode
       pdf-view-mode
@@ -1237,17 +1234,17 @@
           evil-replace-state-cursor  '("red" bar)
           evil-operator-state-cursor '("red" hollow))
 
-    (defun joe-major-mode-evil-state-adjust ()
-      (cond ((member major-mode joe-evil-state-modes) (turn-on-evil-mode))
-            ((member major-mode joe-emacs-state-modes) (turn-off-evil-mode))
-            ((apply 'derived-mode-p joe-evil-state-modes) (turn-on-evil-mode))
-            ((apply 'derived-mode-p joe-emacs-state-modes) (turn-off-evil-mode))))
+    (defun antares-major-mode-evil-state-adjust ()
+      (cond ((member major-mode antares-evil-state-modes) (turn-on-evil-mode))
+            ((member major-mode antares-emacs-state-modes) (turn-off-evil-mode))
+            ((apply 'derived-mode-p antares-evil-state-modes) (turn-on-evil-mode))
+            ((apply 'derived-mode-p antares-emacs-state-modes) (turn-off-evil-mode))))
 
-    (add-hook 'after-change-major-mode-hook #'joe-major-mode-evil-state-adjust)
+    (add-hook 'after-change-major-mode-hook #'antares-major-mode-evil-state-adjust)
 
     ;; defining new text objects
     ;; seen at http://stackoverflow.com/a/22418983/634816
-    (defmacro joe-define-and-bind-text-object (key start-regex end-regex)
+    (defmacro antares-define-and-bind-text-object (key start-regex end-regex)
       (let ((inner-name (make-symbol "inner-name"))
             (outer-name (make-symbol "outer-name")))
         `(progn
@@ -1259,13 +1256,13 @@
            (define-key evil-outer-text-objects-map ,key (quote ,outer-name)))))
 
     ;; between underscores:
-    (joe-define-and-bind-text-object "_" "_" "_")
+    (antares-define-and-bind-text-object "_" "_" "_")
     ;; an entire line:
-    (joe-define-and-bind-text-object "l" "^" "$")
+    (antares-define-and-bind-text-object "l" "^" "$")
     ;; between dollars sign:
-    (joe-define-and-bind-text-object "$" "\\$" "\\$")
+    (antares-define-and-bind-text-object "$" "\\$" "\\$")
     ;; between pipe characters:
-    (joe-define-and-bind-text-object "|" "|" "|")
+    (antares-define-and-bind-text-object "|" "|" "|")
 
     ;; custom bindings for /Org-mode/.
     (evil-define-key 'normal org-mode-map (kbd "TAB") 'org-cycle)
@@ -1551,7 +1548,7 @@
   :commands google-translate-smooth-translate
   :init
   (setq-default google-translate-translation-directions-alist
-                '(("es" . "en") ("en" . "es"))
+                '(("ru" . "en") ("en" . "ru"))
                 google-translate-show-phonetic t))
 
 ;; graphviz-dot-mode
@@ -1665,13 +1662,13 @@
   (use-package helm-dash
     :ensure t
     :config
-    (setq helm-dash-docsets-path "~/dotfiles/emacs/docsets")
+    (setq helm-dash-docsets-path "~/gitRepos/dotfiles/emacs/docsets")
     ;; each time that emacs starts load all the docsets already downloaded
     (setq helm-dash-common-docsets
           (sort
            (let (value) 
              (dolist (element
-                      (directory-files "~/dotfiles/emacs/docsets" nil "\\.docset$" 1) 
+                      (directory-files "~/gitRepos/dotfiles/emacs/docsets" nil "\\.docset$" 1) 
                       value)
                (setq value (cons (file-name-sans-extension element) value))))
            'string-lessp))))
@@ -1747,7 +1744,7 @@
   [_g_] git          [_n_] narrow        [^u^]
 --------------------------------------------------------------------------------
     "
-    ("<SPC>" joe-alternate-buffers "alternate buffers")
+    ("<SPC>" antares-alternate-buffers "alternate buffers")
     ("<ESC>" nil "quit")
     ("\\" (insert "\\") "\\")
     ("a"     hydra-bookmarks/body nil)
@@ -1800,14 +1797,14 @@
   [_s_] switch (helm)      [_w_] save buffer
 --------------------------------------------------------------------------------
     "
-    ("a" joe-alternate-buffers)
+    ("a" antares-alternate-buffers)
     ("b" ivy-switch-buffer)
-    ("d" joe-kill-this-buffer)
+    ("d" antares-kill-this-buffer)
     ("i" ibuffer)
     ("m" ace-swap-window)
     ("r" read-only-mode)
     ("s" helm-buffers-list)
-    ("u" joe-revert-buffer)
+    ("u" antares-revert-buffer)
     ("w" save-buffer))
 
     (defhydra hydra-flycheck (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
@@ -1948,7 +1945,7 @@
       ("p" describe-char)
       ("r" er/expand-region)
       ("s" charmap)
-      ("t" joe-toggle-show-trailing-whitespace)
+      ("t" antares-toggle-show-trailing-whitespace)
       ("u" helm-ucs)
       ("v" variable-pitch-mode)
       ("w" whitespace-cleanup)
@@ -2034,7 +2031,7 @@
       "
       ("w" ispell-word)
       ("d" ispell-change-dictionary)
-      ("t" joe-switch-dictionary)
+      ("t" antares-switch-dictionary)
       ("g" google-translate-smooth-translate)
       ("G" google-translate-query-translate)
       ("f" flyspell-mode)
@@ -2155,7 +2152,7 @@
 --------------------------------------------------------------------------------
       "
       ("c" helm-complex-command-history)
-      ("d" joe-diff-buffer-with-file)
+      ("d" antares-diff-buffer-with-file)
       ("e" helm-register)
       ("k" helm-show-kill-ring)
       ("a" helm-all-mark-rings)
@@ -2311,11 +2308,11 @@
       ("m" iedit-mode)
       ("n" count-words)
       ("p" describe-char)
-      ("e" joe-toggle-show-trailing-whitespace)
+      ("e" antares-toggle-show-trailing-whitespace)
       ("u" undo-tree-visualize)
       ("v" variable-pitch-mode)
       ("<SPC>" whitespace-cleanup)
-      ("s" joe-swiper)
+      ("s" antares-swiper)
       ("t" helm-semantic-or-imenu)
       ("x" comment-box)))
 
@@ -2396,15 +2393,15 @@
 (use-package irfc
   :ensure t
   :init
-  (setq-default irfc-directory (concat joe-emacs-temporal-directory "RFC")
+  (setq-default irfc-directory (concat antares-emacs-temporal-directory "RFC")
                 irfc-assoc-mode t)
   (defun irfc-index ()
     (interactive)
-    (defvar joe-rfc-index-file (concat irfc-directory "/rfc0000.txt" ))
-    (defvar joe-rfc-index-url "https://www.ietf.org/download/rfc-index.txt")
-    (unless (file-exists-p joe-rfc-index-file)
-      (url-copy-file joe-rfc-index-url joe-rfc-index-file))
-    (find-file joe-rfc-index-file))
+    (defvar antares-rfc-index-file (concat irfc-directory "/rfc0000.txt" ))
+    (defvar antares-rfc-index-url "https://www.ietf.org/download/rfc-index.txt")
+    (unless (file-exists-p antares-rfc-index-file)
+      (url-copy-file antares-rfc-index-url joe-rfc-index-file))
+    (find-file antares-rfc-index-file))
   :config
   (bind-keys :map irfc-mode-map
              ("SPC" . scroll-up)
@@ -2557,13 +2554,20 @@
   (use-package mingus-stays-home)
   )
 
+;; TODO moe-theme
+;; [[https://github.com/kuanyui/moe-theme.el][Moe-theme]]
+
+(use-package moe-theme
+  :ensure t)
+(load-theme 'moe-dark t)
+
 ;; monokai-theme
 
 ;; [[https://github.com/oneKelvinSmith/monokai-emacs][Monokai for Emacs]] is a port of the popular TextMate theme Monokai by Wimer
 ;; Hazenberg.
 
-(use-package monokai-theme
-  :ensure t)
+;;  (use-package monokai-theme
+;;    :ensure t)
 
 ;; Enable mu4e
 
@@ -2590,35 +2594,35 @@
 (setq gnutls-min-prime-bits 2048)
 
 ;; the multiple functions that provide the multiple accounts selection functionality
-(defun joe-mu4e-choose-account ()
+(defun antares-mu4e-choose-account ()
     (completing-read (format "Compose with account: (%s) "
       (mapconcat #'(lambda (var) (car var)) my-mu4e-account-alist "/"))
           (mapcar #'(lambda (var) (car var)) my-mu4e-account-alist)
                               nil t nil nil (caar my-mu4e-account-alist)))
 
-(defun joe-mu4e-get-field (a)
+(defun antares-mu4e-get-field (a)
     (let ((field (cdar (mu4e-message-field mu4e-compose-parent-message a))))
         (string-match "@\\(.*\\)\\..*" field)
         (match-string 1 field)))
 
 
-(defun joe-mu4e-is-not-draft ()
+(defun antares-mu4e-is-not-draft ()
     (let ((maildir (mu4e-message-field (mu4e-message-at-point) :maildir)))
        (if (string-match "drafts*" maildir)
               nil
               t)))
 
-(defun joe-mu4e-set-account ()
+(defun antares-mu4e-set-account ()
   "Set the account for composing a message."
   (let* ((account
           (if mu4e-compose-parent-message
-            (let ((field (if (joe-mu4e-is-not-draft)
-                            (joe-mu4e-get-field :to)
-                            (joe-mu4e-get-field :from))))
+            (let ((field (if (antares-mu4e-is-not-draft)
+                            (antares-mu4e-get-field :to)
+                            (antares-mu4e-get-field :from))))
                 (if (assoc field my-mu4e-account-alist)
                     field
-                    (joe-mu4e-choose-account)))
-            (joe-mu4e-choose-account)))
+                    (antares-mu4e-choose-account)))
+            (antares-mu4e-choose-account)))
          (account-vars (cdr (assoc account my-mu4e-account-alist))))
     (if account-vars
         (mapc #'(lambda (var)
@@ -2626,7 +2630,7 @@
               account-vars)
       (error "No email account found"))))
 
-(add-hook 'mu4e-compose-pre-hook 'joe-mu4e-set-account)
+(add-hook 'mu4e-compose-pre-hook 'antares-mu4e-set-account)
 
 ;; Queuing emails
 
@@ -2685,13 +2689,13 @@
 (setq mail-user-agent 'mu4e-user-agent)
 
 ;; decorate mu main view
-(defun joe-mu4e-main-mode-font-lock-rules ()
+(defun antares-mu4e-main-mode-font-lock-rules ()
   (save-excursion
     (goto-char (point-min))
     (while (re-search-forward "\\[\\([a-zA-Z]\\{1,2\\}\\)\\]" nil t)
       (add-text-properties (match-beginning 1) (match-end 1)
       '(face font-lock-variable-name-face)))))
-(add-hook 'mu4e-main-mode-hook 'joe-mu4e-main-mode-font-lock-rules)
+(add-hook 'mu4e-main-mode-hook 'antares-mu4e-main-mode-font-lock-rules)
 
 ;; attempt to automatically retrieve public keys when needed
 (setq mu4e-auto-retrieve-keys t)
@@ -2801,13 +2805,13 @@
   '("retag mail" . mu4e-action-retag-message) t)
 
 ;;Search for messages sent by the sender of the message at point
-(defun joe-search-for-sender (msg)
+(defun antares-search-for-sender (msg)
     (mu4e-headers-search
         (concat "from:" (cdar (mu4e-message-field msg :from)))))
 
 ;; define 'x' as the shortcut
 (add-to-list 'mu4e-view-actions
-    '("xsearch for sender" . joe-search-for-sender) t)
+    '("xsearch for sender" . antares-search-for-sender) t)
 
 ;; integration with org-contacts
 (setq mu4e-org-contacts-file "~/org/contacts.org")
@@ -2820,7 +2824,7 @@
 
 ;; get a pgp key from a message
 ;; from  http://hugoduncan.org/post/snarf-pgp-keys-in-emacs-mu4e/
-(defun joe-mu4e-view-snarf-pgp-key (&optional msg)
+(defun antares-mu4e-view-snarf-pgp-key (&optional msg)
   "get the pgp key for the specified message."
   (interactive)
   (let* ((msg (or msg (mu4e-message-at-point)))
@@ -2837,7 +2841,7 @@
           (message output))))))
 
 (add-to-list 'mu4e-view-actions
-             '("get PGP keys" . joe-mu4e-view-snarf-pgp-key) t)
+             '("get PGP keys" . antares-mu4e-view-snarf-pgp-key) t)
 
 ;; Deal with HTML messages
 
@@ -3020,27 +3024,27 @@
 ;; in the message's body.
 
 ;; simple regexp used to check the message. Tweak to your own need.
-(defvar joe-message-attachment-regexp "\\(adjunto\\|attach\\)")
+(defvar antares-message-attachment-regexp "\\(adjunto\\|attach\\)")
 ;; the function that checks the message
-(defun joe-message-check-attachment nil
+(defun antares-message-check-attachment nil
   "Check if there is an attachment in the message if I claim it."
   (save-excursion
     (message-goto-body)
-    (when (search-forward-regexp joe-message-attachment-regexp nil t nil)
+    (when (search-forward-regexp antares-message-attachment-regexp nil t nil)
       (message-goto-body)
       (unless (or (search-forward "<#part" nil t nil)
         (message-y-or-n-p
    "No attachment. Send the message ?" nil nil))
   (error "No message sent")))))
   ;; check is done just before sending the message
-  (add-hook 'message-send-hook 'joe-message-check-attachment)
+  (add-hook 'message-send-hook 'antares-message-check-attachment)
 
 ;; Open a mu4e search in a new frame
 
 ;; This is useful when you are composing a new email and need to do a
 ;; search in your emails to get a little context in the conversation.
 
-(defun joe-mu4e-headers-search-in-new-frame
+(defun antares-mu4e-headers-search-in-new-frame
     (&optional expr prompt edit ignore-history)
         "Execute `mu4e-headers-search' in a new frame."
         (interactive)
@@ -3183,7 +3187,7 @@
 (use-package pcache
   :ensure t
   :init
-  (setq pcache-directory (concat joe-emacs-temporal-directory "pcache" )))
+  (setq pcache-directory (concat antares-emacs-temporal-directory "pcache" )))
 
 ;; pdf-tools
 
@@ -3282,6 +3286,19 @@
    (use-package org-pdfview
      :ensure t))
 
+;; TODO php
+;; Режим [[https://github.com/ejmr/php-mode][PHP]] является основной режим для редактирования исходного кода PHP.
+;; Это расширение режима C. Таким образом, он наследует все функциональные
+;; возможности навигации C режима, но подсветка соответствует грамматике PHP и
+;; углублена в соответствии с рекомендациями кодирования PEAR. Она также включает в
+;; себя пару удобных функций IDE-типа, такие как поиск документации и просмотрщик
+;; исходников и классов.
+
+(use-package php-mode
+  :ensure t
+  :mode ("\\.php\\'" . php-mode)
+  :interpreter ("php" . php-mode))
+
 ;; popwin
 
 ;; [[https://github.com/m2ym/popwin-el][Popwin]] is a popup window manager for Emacs which makes you free from
@@ -3333,6 +3350,18 @@
   (bind-keys :map popwin:window-map
              ((kbd "<escape>") . popwin:close-popup-window)))
 
+;; TODO powerline
+
+;; [[https://github.com/milkypostman/powerline][Powerline]]
+;; This is a proposed version 2.0 of the original Emacs Powerline which is a fork of vim-powerline.
+;; Emacs version of the Vim powerline.
+;; This version has utf-8 support enabled. The utf-8 separators will display a unicode character properly under mintty for example - as long as you have patched fonts installed.
+;; By default, any terminal mode emacs will use the utf-8 separators.
+
+(use-package powerline
+  :ensure t
+  :defer t)
+
 ;; pretty-mode
 
 ;; [[https://github.com/akatov/pretty-mode][pretty-mode]] use mathematical *Unicode* /symbols/ instead of expressions or
@@ -3358,8 +3387,8 @@
   :diminish projectile-mode
   :config
   (progn
-    (setq projectile-cache-file (concat joe-emacs-temporal-directory "projectile.cache"))
-    (setq projectile-known-projects-file (concat joe-emacs-temporal-directory "projectile-bookmarks.eld"))
+    (setq projectile-cache-file (concat antares-emacs-temporal-directory "projectile.cache"))
+    (setq projectile-known-projects-file (concat antares-emacs-temporal-directory "projectile-bookmarks.eld"))
     (setq projectile-enable-caching t)
     (projectile-global-mode)))
 
@@ -3460,7 +3489,7 @@
   :init
   (bind-key "<menu>" 'smex)
   :config
-  (setq smex-save-file (concat joe-emacs-temporal-directory "smex-items")))
+  (setq smex-save-file (concat antares-emacs-temporal-directory "smex-items")))
 
 ;; Useful bindings & Delayed Initation
 
@@ -3528,7 +3557,7 @@
   :ensure t
   :defer t
   :config
-  (setq sx-cache-directory (concat joe-emacs-temporal-directory "sx")))
+  (setq sx-cache-directory (concat antares-emacs-temporal-directory "sx")))
 
 ;; TODO swiper
 
@@ -3545,7 +3574,7 @@
   (bind-keys :map ivy-minibuffer-map
              ("<escape>" . minibuffer-keyboard-quit)
              ("C-k"      . delete-minibuffer-contents))
-  (defun joe-swiper ()
+  (defun antares-swiper ()
      (interactive)
      (swiper)
      (add-to-list 'regexp-search-ring (ivy--regex ivy-text)))

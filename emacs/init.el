@@ -1,5 +1,5 @@
 
-;; How it works
+;; Как это работает
 
 ;; It uses one of the standard Emacs init files, =init.el= to load all the
 ;; configuration. This configuration is thought to be stored in the standard
@@ -13,25 +13,24 @@
 ;; This is the hook to tangle a new =~/.emacs.d/init.el= each time that this file
 ;; changes.
 
-;; originaly seen at
+;; Оригинал взят отсюда
 ;; https://github.com/larstvei/dot-emacs/blob/master/init.org
 (defun antares-tangle-init ()
-  "If the current buffer is 'readme.org' the code-blocks are
-   tangled, and the tangled file is compiled."
+  "Если текущий буфер 'readme.org' блоки кода собираются и собранный файл компилируется."
   (when (or
          (equal (buffer-file-name)
                 (expand-file-name (concat user-emacs-directory "readme.org")))
          (equal (buffer-file-name)
                 (expand-file-name "~/gitRepos/dotfiles/emacs/readme.org")))
     (call-process-shell-command
-     "emacs ~/.emacs.d/readme.org --batch --eval='(org-babel-tangle)' && notify-send -a 'Emacs' 'init file tangled'" nil 0)))
+     "emacs ~/.emacs.d/readme.org --batch --eval='(org-babel-tangle)' && notify-send -a 'Emacs' 'init-файл собран'" nil 0)))
     ;; (byte-compile-file (concat user-emacs-directory "init.el")))
 
 (add-hook 'after-save-hook 'antares-tangle-init)
 
-;; Repositories
+;; Репозитории
 
-;; The ELPA repositories from where the packages are fetched.
+;; Репозитории ELPA, откуда берутся пакеты.
 
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
                          ("melpa" . "http://melpa.org/packages/")
@@ -40,37 +39,39 @@
 
 ;; use-package и bind-key
 
-;; The [[https://github.com/jwiegley/use-package][use-package]] declaration macro allows us to isolate package configuration in
-;; our emacs setup in a way that is performance-oriented and, well, just tidy. As
-;; well it allows us to install automatically those packages that are not already
-;; installed (using the =:ensure t= keyword) and freeing us to use a custom
-;; bootstrap process.
+;; Макрос [[https://github.com/jwiegley/use-package][use-package]] позволяет использовать изолированные конфигурации пакетов в
+;; настройках emacs таким образом, это становится более производительно и, ну,
+;; просто аккуратно. А это позволяет нам установить автоматически те пакеты,
+;; которые еще не установлены (с использованием ключевого слова =:ensure t=) и
+;; освобождая нас от использования пользовательского процесса начальной
+;; загрузки.
 
-;; It comes also with a module =bind-key= that helps us to manage the key bindings
-;; in a more easy way. With those two utilities working in conjunction, we can
-;; setup the packages atomically, like islands, being able to add/disable/delete
-;; packages without interfere the others.
+;; Он поставляется также с модулем =bind-key=, который помогает нам
+;; управлять привязками клавиш более простоым способом. С помощью этих двух
+;; утилит, работающих совместно, мы можем установить пакеты атомарно, как острова,
+;; будучи в состоянии добавить/отключить/удалить пакеты, не вмешиваясь в другие.
 
-;; avoid problems with files newer than their byte-compiled counterparts
-;; it's better a lower startup than load an outdated and maybe bugged package
-(setq load-prefer-newer t)
-;; initialize the packages and create the packages list if not exists
-(package-initialize)
-(when (not package-archive-contents)
-  (package-refresh-contents))
+;; Во избежание проблем с файлами более новые, чем их байт скомпилированные
+;; аналоги, лучше более медленный запуск, чем загрузка устаревших и, возможно,
+;; сломанных пакетов.
+    (setq load-prefer-newer t)
+    ;; Инициализация пакетов и создание списка пакетов если он не существует
+    (package-initialize)
+    (when (not package-archive-contents)
+      (package-refresh-contents))
 
-;; install use-package if not exists
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
+    ;; Установка use-package если не существует
+    (unless (package-installed-p 'use-package)
+      (package-install 'use-package))
 
-(eval-when-compile
-  (require 'use-package))
-(require 'diminish)                ;; if you use :diminish
-(require 'bind-key)                ;; if you use any :bind variant
+    (eval-when-compile
+      (require 'use-package))
+    (require 'diminish)                ;; Если используется :diminish
+    (require 'bind-key)                ;; Если используется другой :bind variant
 
-;; Debug messages with timestamp
+;; Сообщения отладки с метками времени
 
-;; timestamps in *Messages*
+;; Временные метки (timestamp) в *Messages*
 ;; via https://www.reddit.com/r/emacs/comments/3hagxf/how_to_automatically_timestamp_messages_in/
 (defun current-time-microseconds ()
   (let* ((nowtime (current-time))
@@ -87,31 +88,31 @@
               (newline))
           (insert (current-time-microseconds))))))
 
-;; Some default settings
+;; Некоторые настройки по умолчанию
 
-;; These are some defaults that I consider a good start.
+;; Значения по умолчанию, которые я считаю хорошим началом.
 
-(setq inhibit-startup-screen t                ;; the welcome screen is for guests only, I'm at home now!
-      initial-scratch-message nil             ;; remove the message in the scratch buffer
-      visible-bell t                          ;; remove the annoying beep
-      apropos-do-all t                        ;; apropos commands perform more extensive searches than default
-      large-file-warning-threshold 100000000) ;; warn only when opening files bigger than 100MB
+(setq inhibit-startup-screen t                ;; Убираем экран приверствия
+      initial-scratch-message nil             ;; Убираем сообщения из scratch буфера
+      visible-bell t                          ;; Убираем пищалки
+      apropos-do-all t                        ;; Вспомогательные команды выполняют более обширные поиски, чем по умолчанию
+      large-file-warning-threshold 100000000) ;; Предупреждать только если открываемый файл больше 100MB
 ;; Убираем панели и GUI меню
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 ;; Заменяем вопросы yes/no на y/n
 (fset 'yes-or-no-p 'y-or-n-p)
-;; show the empty lines at the end (bottom) of the buffer
+;; Показывать пустые строки в конце (внизу) буфера
 (toggle-indicate-empty-lines)
-;; delete the previous selection when overrides it with a new insertion.
+;; Удалить предыдущий выбор если он перезаписывается новой вставкой
 (delete-selection-mode)
 ;; Мигающий курсор раздражает. Отключим мигание.
 (blink-cursor-mode -1)
-;; Более тонкие разделители окон
+;; Более тонкие границы окон
 (fringe-mode '(1 . 1))
 
-;; use ibuffer by default
+;; Использование ibuffer по умолчанию
 (defalias 'list-buffers 'ibuffer)
 
  ;; Убедимся что UTF-8 используется везде.
@@ -124,10 +125,10 @@
 (set-input-method nil)
 
 ;; Отключим автосохранение и бэкапы
-;; I prefer to use a undo-tree with branches instead of store auto-save
-;; files. Because I'm using gpg to authetication and encrypt/sign files,
-;; is more secure don't have a plaint text backup of those files. Use a
-;; DVCS and backup your files regularly, for God's sake!
+;; Я предпочитаю использовать дерево отмен (undo-tree) с ветвлением вместо
+;; автосохранения файлов. Так как я использую gpg для авторизации и подписи
+;; файлов, более безопасно не использовать резервные копии этих файлов.
+;; Используйте DCVS и регулярно бэкапьте файлы!      
 (setq auto-save-default nil
       auto-save-list-file-prefix nil
       make-backup-files nil)
@@ -144,17 +145,16 @@
 ;; Подсвечивать текущую строку
 (global-hl-line-mode 1)
 
- ;; settings for the mode line
+;; Настройки строки режима
 (column-number-mode t)
 (setq size-indication-mode t)
 (which-function-mode 1)
 
-;; backward-kill-word as alternative to Backspace:
-;; Kill the entire word instead of hitting Backspace key several
-;; times. To do this will bind the =backward-kill-region= function to the
-;; =C-w= key combination
+;; backward-kill-word альтернатива Backspace:
+;; Удалить слово целиком вместо нескольких нажатий Backspace
+;; Для этого привяжем =backward-kill-region= к комбинации =C-w=
 (global-set-key "\C-w" 'backward-kill-word)
- ;; now we reasigne the original binding to that combination to a new one
+;; Теперь перепривяжем оригинальные биндинги этой комбинации к новым
 (global-set-key "\C-x\C-k" 'kill-region)
 (global-set-key "\C-c\C-k" 'kill-region)
 
@@ -167,51 +167,50 @@
 (setq browse-url-browser-function 'browse-url-generic
       browse-url-generic-program "chromium-browser")
 
-;; disable these warnings about narrow
+;; Отключим предупреждения о тесноте
 (put 'narrow-to-region 'disabled nil)
 (put 'narrow-to-page 'disabled nil)
 
-;; set the calendar to my country and city's calendar standards
+;; Установим календарь на стандарты моей страны и города
 (setq-default calendar-week-start-day  1
-              calendar-latitude        43.3
-              calendar-longitude       -8.3
-              calendar-location-name   "A Coruña, Spain")
+            calendar-latitude        51.5
+            calendar-longitude       46.0
+            calendar-location-name   "Саратов, Россия")
 
- ;; sets the default user's information properly.
+;; Установим информацию о пользователе по умолчанию.
 (setq user-full-name    "Salnikov Anton"
       user-mail-address "antares@antares.me")
 
-;; Temporal directory
+;; Временные файлы
 
-;; I like to keep all of the temporal files and dirs (cache, backups,
-;; ...) in an unique directory. It's more clean, less error-prone and
-;; more easy to maintain.
+;; Я люблю хранить все временные файлы и папки (cache, backups, ...) в уникальных
+;; директориях. Так чище, меньше ошибок и проще управлять.
 
-;; First, create a variable to point to that temporal directory and if
-;; that directory does not exists, create it.
+;; Сначала создадим переменную, в которую поместим путь к этой директории и если
+;; она не существует создадим её.
 
 (defvar antares-emacs-temporal-directory (concat user-emacs-directory "tmp/"))
 (unless (file-exists-p antares-emacs-temporal-directory)
   (make-directory antares-emacs-temporal-directory))
 
-;; Store all temporal files in a temporal directory instead of being
-;; disseminated in the $HOME directory
+;; Сохраним все временные файлы во временных каталогах вместотого, чтобы плодить их
+;; в $HOME директории.
 
 (setq-default
- ;; Tramp history
+ ;; Tramp история
  tramp-persistency-file-name (concat antares-emacs-temporal-directory "tramp")
- ;; Bookmarks file
+ ;; Файл закладок
  bookmark-default-file (concat antares-emacs-temporal-directory "bookmarks")
- ;;SemanticDB files
+ ;; Файлы SemanticDB
  semanticdb-default-save-directory (concat antares-emacs-temporal-directory "semanticdb")
- ;; url files
+ ;; Файлы ссылок
  url-configuration-directory (concat antares-emacs-temporal-directory "url")
- ;; eshell files
+ ;; eshell файлы
  eshell-directory-name (concat antares-emacs-temporal-directory "eshell" ))
 
-;; History
+;; История
 
-;; Maintain a history of past actions and a reasonable number of lists.
+;; Поддерживать историю прошлых действий в списке с разумными пределами.
 
 (setq-default history-length 1000)
 (setq savehist-file (concat antares-emacs-temporal-directory "history")
@@ -223,11 +222,11 @@
         regexp-search-ring))
 (savehist-mode t)
 
-;; Recent files
+;; Недавние файлы
 
-;; Recentf is a minor mode that builds a list of recently opened
-;; files. This list is is automatically saved across Emacs sessions. You
-;; can then access this list through a menu.
+;; Recentf - это второстепенный режим, который строит список недавно открытых
+;; файлов. Этот список автоматически сохраняется во время сеанса Emacs. Вы можете
+;; получить доступ к этому списку через меню.
 
 (use-package recentf
   :config
@@ -237,13 +236,11 @@
           recentf-exclude '("COMMIT_MSG" "COMMIT_EDITMSG"))
     (recentf-mode t)))
 
-;; Keep session between emacs runs (Desktop)
+;; Сохранить сессию между запусками Emacs (Desktop)
 
-;; Desktop Save Mode is a feature to save the state of Emacs from one
-;; session to another.
+;; Desktop Save Mode - функция сохранения состояния Emacs от одного сеанса к другому.
 
-;; I have this disabled until this config is stable and stop to make so
-;; many tests with it
+;; У меня отключен пока эта конфигурация не стабильна
 (use-package desktop
   :config
   :disabled t
@@ -267,11 +264,11 @@
                     register-alist)))
     (desktop-save-mode 1)))
 
-;; Save cursor position across sessions
+;; Сохранение позиции курсора между сеансами
 
-;; Save the cursor position for every file you opened. So, next
-;; time you open the file, the cursor will be at the position you last
-;; opened it.
+;; Сохранить позицию курсора для каждого открытого файла. Так при повторном
+;; открытии файла, курсор будет в той позиции, в которой вы последний раз его
+;; открыли.
 
 (use-package saveplace
   :config
@@ -507,7 +504,7 @@
 
 ;; eww
 
-;; Settings for the Emacs Web Browser.
+;; Настройки Emacs Web Browser.
 
 (use-package eww
   :init
@@ -516,7 +513,7 @@
   (bind-keys :map eww-mode-map
              ("s" . eww-view-source)))
 
-;; Org-mode settings
+;; Настройки Org-mode
 
 (use-package org
   :defer 1
@@ -703,6 +700,15 @@
                          ))
   (real-global-auto-complete-mode t))
 
+;; TODO aria2c
+;; Основной режим для управления менеджером загрузок [[http://aria2.sourceforge.net/][aria2c]]
+;; [[./img/aria2c.png]]
+
+(use-package aria2
+  :ensure t
+  :config
+  (setq aria2-add-evil-quirks t))
+
 ;; avy
 
 ;; [[./img/avy.png]]
@@ -784,7 +790,7 @@
 
 ;; beacon
 
-;; [[https://github.com/Malabarba/beacon][Beacon]] is a minor mode that helps to locate you cursor easily.
+;; [[https://github.com/Malabarba/beacon][Beacon]] дополнительный режим, который помогает в поиске курсора.
 
 (use-package beacon
   :ensure t
@@ -2558,16 +2564,18 @@
 ;; [[https://github.com/kuanyui/moe-theme.el][Moe-theme]]
 
 (use-package moe-theme
-  :ensure t)
-(load-theme 'moe-dark t)
+  :ensure t
+  :config
+  (load-theme 'moe-dark t))
 
 ;; monokai-theme
 
 ;; [[https://github.com/oneKelvinSmith/monokai-emacs][Monokai for Emacs]] is a port of the popular TextMate theme Monokai by Wimer
 ;; Hazenberg.
 
-;;  (use-package monokai-theme
-;;    :ensure t)
+(use-package monokai-theme
+  :ensure t
+  :disabled t)
 
 ;; Enable mu4e
 
@@ -3360,7 +3368,8 @@
 
 (use-package powerline
   :ensure t
-  :defer t)
+  :defer t
+  )
 
 ;; pretty-mode
 
@@ -3413,8 +3422,7 @@
   :config
   (setq racket-mode-pretty-lambda t))
 
-;; DONE ranger
-;;    CLOSED: [2015-11-02 lun 20:40]
+;; ranger
 
 ;;  [[https://github.com/ralesi/ranger.el][Ranger]] is a minor mode that runs within dired emulating many of the features of
 ;;  [[https://github.com/ralesi/ranger.el][ranger]]. This minor mode shows a stack of the parent directories and updates the

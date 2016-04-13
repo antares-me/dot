@@ -540,17 +540,17 @@
         org-panel
         org-toc))
 
-    ;; set default directories
+    ;; Настройка директории по умолчанию
     (setq org-directory "~/org"
           org-default-notes-file (concat org-directory "/notes.org"))
 
-    ;; set the archive
+    ;; Настройка архива
     (setq org-archive-location "~/org/archive/%s_archive::datetree/** Archived")
     (setq org-agenda-custom-commands
           '(("Q" . "Custom queries") ;; gives label to "Q"
             ("Qa" "Archive search" search ""
              ((org-agenda-files (file-expand-wildcards "~/org/archive/*.org_archive"))))
-            ;; ...other commands here
+            ;; ...Тут прочие команды
             ))
 
     ;; highlight code blocks syntax
@@ -573,16 +573,16 @@
     (setq org-latex-pdf-process
           '("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 
-    ;; tasks management
+    ;; Управление задачами
     (setq org-log-done t)
     (setq org-clock-idle-time nil)
 
-    ;; agenda & diary
+    ;; Планировщик и дневник
     (setq org-agenda-include-diary t)
     (setq org-agenda-files '("~/org"))
     (setq org-agenda-inhibit-startup t)
 
-    ;; configure the external apps to open files
+    ;; конфигурация внешних приложений для открытия файлов
     (setq org-file-apps
           '(("\\.pdf\\'" . "zathura %s")
             ("\\.gnumeric\\'" . "gnumeric %s")))
@@ -591,16 +591,16 @@
     (setq-default org-catch-invisible-edits  'error
                   org-ctrl-k-protect-subtree 'error)
 
-    ;; show images inline
-    ;; only works in GUI, but is a nice feature to have
+    ;; Показ картинок в тексте
+    ;; работает только в GUI, но это удобная функция
     (when (window-system)
       (setq org-startup-with-inline-images t))
-    ;; limit images width
+    ;; Ограничение ширины картинок
     (setq org-image-actual-width '(800))
 
     ;; :::::: Org-Babel ::::::
 
-    ;; languages supported
+    ;; Поддержка языков программирования
     (org-babel-do-load-languages
      (quote org-babel-load-languages)
      (quote (
@@ -621,7 +621,8 @@
              (ruby . t)
              (sh . t)
              (sqlite . t)
-             (sql . nil))))
+             (sql . nil)
+             (php . t))))
     (setq org-babel-python-command "python2")
 
     ;; refresh images after execution

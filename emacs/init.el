@@ -553,7 +553,7 @@
             ;; ...Тут прочие команды
             ))
 
-    ;; highlight code blocks syntax
+    ;; Подсветка синтаксиса в блоках кода
     (setq org-src-fontify-natively  t
           org-src-tab-acts-natively t)
     (add-to-list 'org-src-lang-modes (quote ("dot" . graphviz-dot)))

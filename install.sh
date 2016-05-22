@@ -1,3 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
-apt-get install vim vim-nox ranger git cloc
+sudo apt-get install awesome awesome-extra lightdm ubuntu-session xterm vim vim-nox emacs ranger git cloc
+ln -s /usr/share/xsessions/awesome.desktop ~/.config/autostart/awesome.desktop

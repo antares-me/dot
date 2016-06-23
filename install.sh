@@ -5,4 +5,4 @@ mkdir -p ~/.config/autostart/
 ln -s /usr/share/xsessions/awesome.desktop ~/.config/autostart/
 git clone https://github.com/antares-me/dotfiles/
 sudo service lightdm restart
-
+chsh -s /bin/zsh

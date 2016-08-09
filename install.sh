@@ -13,22 +13,23 @@ fi
 apt update && apt -y upgrade && apt -y install \
     awesome \
     awesome-extra \
+    chromium-browser \
+    cloc \
+    emacs \
+    firefox \
+    firefox-locale-ru \
+    git \
+    libncurses5-dev \
+    libncursesw5-dev \
     lightdm \
     lightdm-webkit-greeter \
+    prelink \
+    preload \
+    ranger \
     xterm \
     vim \
     vim-nox \
-    emacs \
-    ranger \
-    git \
-    cloc \
-    libncurses5-dev \
-    libncursesw5-dev \
-    chromium-browser \
-    firefox \
-    firefox-locale-ru \
-    preload \
-    prelink
+    vlc
 
 git clone https://github.com/antares-me/dotfiles/
 service lightdm restart

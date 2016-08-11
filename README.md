@@ -4,7 +4,10 @@
 - awesome
 - cowsay
 - git
+- [cowsay][cowsay]
+- preload
 - ranger
+- stow
 - tmux
 - vim
 - w3m
@@ -22,3 +25,9 @@ libncurses5-dev libncursesw5-dev terminology libssl-dev xserver-xephyr`
 ### [Awesome](awesome/README.md)
 ### LightDM
 ### xTerm
+### Preload
+Preload - это демон, который работает в фоновом режиме, и определяет наиболее 
+часто используемые приложения и хранит их в кэше, благодаря этому они быстрее 
+запускаются.
+
+[cowsay]:https://ru.wikipedia.org/wiki/Cowsay

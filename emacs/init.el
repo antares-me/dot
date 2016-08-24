@@ -623,7 +623,7 @@
              (sqlite . t)
              (sql . nil)
              (php . t))))
-    (setq org-babel-python-command "python2")
+    (setq org-babel-python-command "python")
 
     ;; refresh images after execution
     (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)

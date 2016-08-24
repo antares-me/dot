@@ -30,18 +30,18 @@ Emacs. Конфигурация использует [[http://orgmode.org/][Org-
 управления настройками в едином файле Org Mode.
 
 ** Как это работает
+   
+Используется один из стандартнх init файлов Emacs,  =init.el= для загрузки всей
+конфигурации. Предпологается, что настройки хранятся в стандартном =~/.emacs.d=
+каталоге и для установки конфигурации вам нужна символическая ссылка с этого
+каталога =emacs= на него. Файл =~/.emacs.d/init.el= собирается из всех блоков
+кода этого файла =~/emacs.d/readme.org=, экспортируемых в процессе, который
+называется "tangling". Если блок помечен как =:tangle no=, он будет пропущен.
+Tangling происходит автоматически каждый раз при изменении =readme.org=, с
+помощью хука, чтобы быть уверенным в синхронизации файлов.
 
-It uses one of the standard Emacs init files, =init.el= to load all the
-configuration. This configuration is thought to be stored in the standard
-=~/.emacs.d= directory and to setup this configuration you need to symlink this
-=emacs= directory to that. The =~/.emacs.d/init.el= comes from all the code
-blocks of this file =~/emacs.d/readme.org= exported in a process that is called
-"tangling". If a block is marked with =:tangle no= it will be skipped. The
-tangling is made automatically each time that the =readme.el= changes, via a
-hook, to ensure that both files are synced.
-
-This is the hook to tangle a new =~/.emacs.d/init.el= each time that this file
-changes.
+Это хук для создания нового =~/.emacs.d/init.el= каждый раз при изменении этого
+файла.
 
 #+BEGIN_SRC emacs-lisp
   ;; Оригинал взят отсюда
@@ -66,7 +66,7 @@ directly press =C-c C-e=, choose =h= and then one of the options to produce HTML
 output. At the same time it makes the configuration management a delight, been
 pretty easy to find any setting and organize them.
 
-* Предпосылки
+* Предустанавливаемые приложения
 
 Тут список приложений, которые необходимо установить перед тем, как использовать
 эту конфигурацию и наслаждаться всеми её возможностями.

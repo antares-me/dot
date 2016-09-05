@@ -1,17 +1,17 @@
 
 ;; Как это работает
+   
+;; Используется один из стандартнх init файлов Emacs, =init.el= для загрузки всей
+;; конфигурации. Предпологается, что настройки хранятся в стандартном =~/.emacs.d=
+;; каталоге и для установки конфигурации вам нужна символическая ссылка с этого
+;; каталога =emacs= на него. Файл =~/.emacs.d/init.el= собирается из всех блоков
+;; кода этого файла =~/emacs.d/readme.org=, экспортируемых в процессе, который
+;; называется "tangling". Если блок помечен как =:tangle no=, он будет пропущен.
+;; Tangling происходит автоматически каждый раз при изменении =readme.org=, с
+;; помощью хука, чтобы быть уверенным в синхронизации файлов.
 
-;; It uses one of the standard Emacs init files, =init.el= to load all the
-;; configuration. This configuration is thought to be stored in the standard
-;; =~/.emacs.d= directory and to setup this configuration you need to symlink this
-;; =emacs= directory to that. The =~/.emacs.d/init.el= comes from all the code
-;; blocks of this file =~/emacs.d/readme.org= exported in a process that is called
-;; "tangling". If a block is marked with =:tangle no= it will be skipped. The
-;; tangling is made automatically each time that the =readme.el= changes, via a
-;; hook, to ensure that both files are synced.
-
-;; This is the hook to tangle a new =~/.emacs.d/init.el= each time that this file
-;; changes.
+;; Это хук для создаёт новый =~/.emacs.d/init.el= каждый раз при изменении этого
+;; файла.
 
 ;; Оригинал взят отсюда
 ;; https://github.com/larstvei/dot-emacs/blob/master/init.org
@@ -23,7 +23,7 @@
          (equal (buffer-file-name)
                 (expand-file-name "~/gitRepos/dotfiles/emacs/readme.org")))
     (call-process-shell-command
-     "emacs ~/.emacs.d/readme.org --batch --eval='(org-babel-tangle)' && notify-send -a 'Emacs' 'init-файл собран'" nil 0)))
+     "emacs ~/.emacs.d/readme.org --batch --eval='(org-babel-tangle)' && notify-send -i 'emacs' 'Emacs' 'init-файл собран'" nil 0)))
     ;; (byte-compile-file (concat user-emacs-directory "init.el")))
 
 (add-hook 'after-save-hook 'antares-tangle-init)
@@ -276,17 +276,17 @@
     (setq save-place-file (concat antares-emacs-temporal-directory "saveplace.el") )
     (setq-default save-place t)))
 
-;; Color Theme
+;; Цветовая схема
 
-;; Here I define the default theme, a total subjective decision, of course. This
-;; configuration works in terminal/graphic mode and in client/server or standalone
-;; frames.
+;; Тут я устанавливаю тему по-умолчанию, конечно субективное решение. Эта конфигурация
+;; работает в терминальном и графическом режиме а также в клиент-серверном и автономном
+;; буфере.
 
-;; *Remember: when testing a new theme, disable before the current one or
-;; use =helm-themes=.*
+;; *Внимание: когда тестируете новую тему, сначала отключите эту
+;; или используйте =helm-themes=.*
 
-;; This code is to avoid to reload the theme every time that you open a new client
-;; in server mode (from GUI or from terminal)
+;; Этот код служит для предотвращения перезагрузки темы каждый раз, когда вы
+;; открываете новый клиент в режиме сервера (из GUI или терминала)
 
 (defvar antares-color-theme (if (package-installed-p 'monokai-theme)
                             'monokai
@@ -314,10 +314,10 @@
     (add-hook 'after-make-frame-functions 'emacsclient-setup-theme-function)
   (progn (load-theme antares-color-theme t)))
 
-;; Font
+;; Шрифт
 
-;; The font to use. I choose monospace and /Dejavu Sans Mono/ because is
-;; an open font and has the best Unicode support, and looks very fine to me too!
+;; Используемый шрифт. Мой выбор моноширинный /Dejavu Sans Mono/ потому что он
+;; свободный и имеет отличную поддержку Юникода, да и выглядит неплохо!
 
 (set-face-attribute 'default nil :family "Dejavu Sans Mono" :height 110)
 
@@ -327,13 +327,11 @@
 (set-fontset-font "fontset-default" nil
                   (font-spec :size 20 :name "Symbola"))
 
-;; Better line numbers
+;; Улучшенная нумерация строк
 
-;; Display a more appealing line numbers. I don't use them too much because is a
-;; very slow feature, but sometimes it comes handy.
+;; Показывает более удобные номера строк. Я не часто использую их потому, что это
+;; очень медленная функция, но иногда она удобна.
 
-; 2014-04-04: Holy moly its effort to get line numbers like vim!
-; http://www.emacswiki.org/emacs/LineNumbers#toc6
 (unless window-system
   (add-hook 'linum-before-numbering-hook
             (lambda ()
@@ -350,9 +348,9 @@
 (unless window-system
   (setq linum-format 'antares-linum-format-func))
 
-;; Toggle show trailing white-spaces
+;; Показ завершающих пробелов
 
-;; Show/hide the trailing white-spaces in the buffer.
+;; Показать/скрыть завершающие пробелы в буфере
 
 ;; from http://stackoverflow.com/a/11701899/634816
 (defun antares-toggle-show-trailing-whitespace ()
@@ -360,10 +358,10 @@
   (interactive)
   (setq show-trailing-whitespace (not show-trailing-whitespace)))
 
-;; Kill internal processes via the =list process= buffer
+;; Убить внутренний процесс с помощью =list process= буфера
 
-;; Add a functionality to be able to kill process directly in the =list
-;; process'= buffer
+;; Добавляет функционал возможности завершения процесса прямо в =list process=
+;; буфере
 
 ;; seen at http://stackoverflow.com/a/18034042
 (defun antares-delete-process-at-point ()
@@ -378,9 +376,9 @@
 
 (define-key process-menu-mode-map (kbd "C-c k") 'antares-delete-process-at-point)
 
-;; Window movements
+;; Перемещение окон
 
-;; Provide a more intuitive window movements.
+;; Предоставляет больше интерактивности в передвижении окон.
 
 (defun antares-scroll-other-window()
   (interactive)
@@ -395,60 +393,60 @@
   :config
   (winner-mode t))
 
-;; Auxiliary functions for buffers management
+;; Вспомогательные функции для управления буферами
 
-;; Some custom functions to manage buffers.
+;; Несколько кастомных функций для управления буферами.
 
 (defun antares-alternate-buffers ()
-  "Toggle between the last two buffers"
+  "Переключение между последними двумя буферами"
   (interactive)
   (switch-to-buffer (other-buffer (current-buffer) t)))
 
 (defun antares-revert-buffer ()
-  "Revert the buffer to the save disk file state"
+  "Откат буфера до состояния сохранённого на диске файла"
   (interactive)
   (revert-buffer nil t))
 
 (defun antares-kill-this-buffer ()
-  "Kill the current buffer"
+  "Удалить текущий буфер"
   (interactive)
   (kill-buffer (current-buffer)))
 
 (defun antares-diff-buffer-with-file ()
-  "Compare the current modified buffer with the saved version."
+  "Сравнить текущий изменённый буфер с сохранённой версией"
   (interactive)
   (let ((diff-switches "-u"))
     (diff-buffer-with-file (current-buffer))))
 
-;; Use encryption
+;; Использование шифрования
 
-;; Use encryption to protect the sensitive data like the mail servers
-;; configuration (stored in =authinfo.gpg=) and the sensitive user's
-;; information.
+;; Использование шифрования для защиты конфиденциальных данных. Таких как
+;; конфигурации почтовых серверов (хранятся в =authinfo.gpg=) и пользовательских
+;; данных.
 
 (use-package epa-file
   :config
   (progn
     (setq auth-sources '("~/.authinfo.gpg" "~/.authinfo" "~/.netrc"))))
 
-;; Spelling
+;; Правописание
 
-;; Activate Spell Checking by default. Also use [[http://hunspell.sourceforge.net/][hunspell]] instead of
-;; [[http://www.gnu.org/software/ispell/ispell.html][ispell]] as corrector.
+;; Включаем по-умолчанию проверку правописания. Также используем [[http://hunspell.sourceforge.net/][hunspell]] вместо
+;; [[http://www.gnu.org/software/ispell/ispell.html][ispell]] для исправлений.
 
 (setq-default ispell-program-name    "hunspell"
               ispell-really-hunspell t
               ispell-check-comments  t
-              ispell-extra-args      '("-i" "utf-8") ;; produce a lot of noise, disable?
+              ispell-extra-args      '("-i" "utf-8") ;; производит много шума, отключить?
               ispell-dictionary      "en_US")
 
-;; switch between the most used dictionaries in my case
+;; Переключение между двумя наиболее часто используемыми словарями
 (defun antares-switch-dictionary ()
   (interactive)
   (let* ((dic ispell-current-dictionary)
          (change (if (string= dic "en_US") "ru_RU" "en_US")))
     (ispell-change-dictionary change)
-    (message "Dictionary switched from %s to %s" dic change)))
+    (message "Словарь переключен с %s на %s" dic change)))
 
 (defun antares-turn-on-spell-check ()
   (flyspell-mode 1))
@@ -461,16 +459,17 @@
 
 ;; Dired
 
-;; Two ways to avoid to use more than one buffer when using Dired.
+;; Есть два способа, чтобы избежать использование боле одного буфера при
+;; использовании Dired.
 
 (use-package dired
    :init
    ;; human-readable sizes
    (setq dired-listing-switches "-alh")
-   ;; 'a' reuses the current buffer, 'RET' opens a new one
+   ;; 'a' использовать текущий буфер, 'RET' открыть новый
    (put 'dired-find-alternate-file 'disabled nil)
 
-   ;; '^' reuses the current buffer
+   ;; '^' использовать текущий буфер
    (add-hook 'dired-mode-hook
              (lambda ()
                (define-key dired-mode-map (kbd "^")
@@ -480,7 +479,7 @@
 
 ;; Ido
 
-;; Use ido to deal with files and buffers in a more pleasant way.
+;; Используем ido для работы с файлами и буферами удобным способом.
 
 (use-package ido
   :config
@@ -493,7 +492,7 @@
 
 ;; ediff
 
-;; A more sane default configuration to ediff.
+;; Более удобная конфигурация ediff по умолчанию.
 
 (use-package ediff
   :init
@@ -519,7 +518,7 @@
   :defer 1
   :config
   (progn
-    ;; set the modules enabled by default
+    ;; укажем модули, включённые по умолчанию
     (setq org-modules '(
         org-bbdb
         org-bibtex
@@ -541,15 +540,15 @@
         org-toc))
 
     ;; Настройка директории по умолчанию
-    (setq org-directory "~/org"
+    (setq org-directory "~/MEGA/org"
           org-default-notes-file (concat org-directory "/notes.org"))
 
     ;; Настройка архива
-    (setq org-archive-location "~/org/archive/%s_archive::datetree/** Archived")
+    (setq org-archive-location "~/MEGA/org/archive/%s_archive::datetree/** Archived")
     (setq org-agenda-custom-commands
           '(("Q" . "Custom queries") ;; gives label to "Q"
             ("Qa" "Archive search" search ""
-             ((org-agenda-files (file-expand-wildcards "~/org/archive/*.org_archive"))))
+             ((org-agenda-files (file-expand-wildcards "~/MEGA/org/archive/*.org_archive"))))
             ;; ...Тут прочие команды
             ))
 
@@ -558,8 +557,8 @@
           org-src-tab-acts-natively t)
     (add-to-list 'org-src-lang-modes (quote ("dot" . graphviz-dot)))
 
-    ;; highlight code blocks syntax in PDF export
-    ;; Include the latex-exporter
+    ;; Подсветка синтаксиса в блоках кода при экспорте в PDF
+    ;; Подключим latex-exporter
     (use-package ox-latex)
     ;; Add minted to the defaults packages to include when exporting.
     (add-to-list 'org-latex-packages-alist '("" "minted"))
@@ -579,7 +578,7 @@
 
     ;; Планировщик и дневник
     (setq org-agenda-include-diary t)
-    (setq org-agenda-files '("~/org"))
+    (setq org-agenda-files '("~/MEGA/org"))
     (setq org-agenda-inhibit-startup t)
 
     ;; конфигурация внешних приложений для открытия файлов
@@ -621,9 +620,8 @@
              (ruby . t)
              (sh . t)
              (sqlite . t)
-             (sql . nil)
-             (php . t))))
-    (setq org-babel-python-command "python")
+             (sql . nil))))
+    (setq org-babel-python-command "python2")
 
     ;; refresh images after execution
     (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
@@ -642,7 +640,7 @@
 
 ;; [[./img/ag.png]]
 
-;; [[https://github.com/Wilfred/ag.el][ag.el]] is a simple Emacs frontend to ag, ("the silver searcher" ack replacement).
+;; [[https://github.com/Wilfred/ag.el][ag.el]] простой фронтенд Emacs для ag, ("the silver searcher" замена ack).
 
 (use-package ag
   :ensure t
@@ -655,18 +653,19 @@
 
 ;; async
 
-;; [[https://github.com/jwiegley/emacs-async][async.el]] is a module for doing asynchronous processing in Emacs.
+;; [[https://github.com/jwiegley/emacs-async][async.el]] модуль для создания
+;; асинхронных процессов в Emacs.
 
 (use-package async
   :defer t
   :ensure t)
 
-;; auto-complete
+;; автодополнение
 
 ;; [[./img/auto_complete.png]]
 
-;; [[https://github.com/auto-complete/auto-complete][Auto Complete Mode]] (aka =auto-complete.el=, =auto-complete-mode=) is a extension
-;; that automates and advances completion-system.
+;; [[https://github.com/auto-complete/auto-complete][Auto Complete Mode]] (aka =auto-complete.el=, =auto-complete-mode=) расширение
+;; которое автоматизирует и расширяет систему автодополнения.
 
 (use-package auto-complete
   :ensure t
@@ -689,11 +688,11 @@
           ac-auto-start 2)
     (ac-flyspell-workaround))
 
-  ;; the file where store the history of auto-complete.
+  ;; файл в котором хранится история автодополнения.
   (setq ac-comphist-file (concat user-emacs-directory
                                  "temp/ac-comphist.dat"))
 
-  ;; dirty fix for having AC everywhere
+  ;; грязный фикс для работы AC везде
   (define-globalized-minor-mode real-global-auto-complete-mode
     auto-complete-mode (lambda ()
                          (if (not (minibufferp (current-buffer)))
@@ -714,25 +713,25 @@
 
 ;; [[./img/avy.png]]
 
-;; [[https://github.com/abo-abo/avy][avy]] is a GNU Emacs package for jumping to visible text using a char-based
-;; decision tree.
+;; [[https://github.com/abo-abo/avy][avy]] GNU Emacs пакет для пролистывания видимого текста
+;; используя символьное дерево решений.
 
 ;; [[./img/ace_link.png]]
 
-;; [[https://github.com/abo-abo/ace-link][ace-link]] is a Emacs package for selecting a link to jump to.
-;; Works in org-mode, info, help and eww.
+;; [[https://github.com/abo-abo/ace-link][ace-link]] Emacs пакет для выбора ссылки для перехода.
+;; Работает в org-mode, info, help и eww.
 
-;; | Binding | Call       | Do           |
-;; |---------+------------+--------------|
-;; | o       | ace-link-* | jump to link |
-;; |---------+------------+--------------|
+;; | Привязка | Вызов      | Действие          |
+;; |----------+------------+-------------------|
+;; | o        | ace-link-* | Переход по ссылке |
+;; |----------+------------+-------------------|
 
 
 ;; [[./img/ace_window.png]]
 
-;; [[https://github.com/abo-abo/ace-window][ace-window]] is a package for selecting a window to switch to. Also can be used to
-;; jump to words, lines, chars, subwords, move/delete/copy lines and other some
-;; nice features.
+;; [[https://github.com/abo-abo/ace-window][ace-window]] пакет для выбора окна для переключения.
+;; Также может быть использован для перехода по словам, строкам, символам,
+;; подстрокам, перемещения/удаления/копирования строк и других удобных действий.
 
 (use-package avy
       :ensure t
@@ -758,12 +757,12 @@
         (setq aw-keys   '(?a ?s ?d ?f ?j ?k ?l)
               aw-dispatch-always t
               aw-dispatch-alist
-              '((?x aw-delete-window     "Ace - Delete Window")
-                (?c aw-swap-window       "Ace - Swap Window")
+              '((?x aw-delete-window     "Ace - Удалить окно")
+                (?c aw-swap-window       "Ace - Сменить окно")
                 (?n aw-flip-window)
-                (?h aw-split-window-vert "Ace - Split Vert Window")
-                (?v aw-split-window-horz "Ace - Split Horz Window")
-                (?m delete-other-windows "Ace - Maximize Window")
+                (?h aw-split-window-vert "Ace - Разделить окно по вертикали")
+                (?v aw-split-window-horz "Ace - Разделить окно по горизонтали")
+                (?m delete-other-windows "Ace - Развернуть окно")
                 (?g delete-other-windows)
                 (?b balance-windows)
                 (?u winner-undo)
@@ -771,15 +770,15 @@
 
         (when (package-installed-p 'hydra)
           (defhydra hydra-window-size (:color red)
-            "Windows size"
-            ("h" shrink-window-horizontally "shrink horizontal")
-            ("j" shrink-window "shrink vertical")
-            ("k" enlarge-window "enlarge vertical")
-            ("l" enlarge-window-horizontally "enlarge horizontal"))
+            "Размер окна"
+            ("h" shrink-window-horizontally "сократить по горизонтали")
+            ("j" shrink-window "сократить по вертикали")
+            ("k" enlarge-window "увеличить по вертикали")
+            ("l" enlarge-window-horizontally "увеличить по горизонтали"))
           (defhydra hydra-window-frame (:color red)
             "Frame"
-            ("f" make-frame "new frame")
-            ("x" delete-frame "delete frame"))
+            ("f" make-frame "Новый фрейм")
+            ("x" delete-frame "Удалить фрейм"))
           (defhydra hydra-window-scroll (:color red)
             "Scroll other window"
             ("n" antares-scroll-other-window "scroll")
@@ -806,11 +805,12 @@
 
 ;; [[./img/boxquote.png]]
 
-;; [[https://github.com/davep/boxquote.el/blob/master/boxquote.el][boxquote.el]] provides a set of functions for using a text quoting style that
-;; partially boxes in the left hand side of an area of text, such a marking style
-;; might be used to show externally included text or example code.
+;; [[https://github.com/davep/boxquote.el/blob/master/boxquote.el][boxquote.el]] предоставляет набор функций для использования
+;; текста в стиле цитат. Текст частично выделен в левой части. Такая разметка
+;; текста может быть использована для показа включённого внешнего текста или пример
+;; кода.
 
-;; This is how a boxquote looks:
+;; Так выглядит boxquote:
 ;; #+BEGIN_EXAMPLE
 ;; ╭────[ Lorem ipsum ]
 ;; │ Nullam eu ante vel est convallis dignissim.  Fusce suscipit, wisi nec facilisis
@@ -834,7 +834,7 @@
     (defhydra hydra-boxquote (:color blue :hint nil)
        "
                                                                     ╭──────────┐
-  Text           External           Apropos         Do              │ Boxquote │
+  Текст          External           Apropos         Do              │ Boxquote │
 ╭───────────────────────────────────────────────────────────────────┴──────────╯
   [_r_] region        [_f_] file      [_K_] describe-key        [_t_] title
   [_p_] paragraph     [_b_] buffer    [_F_] describe-function   [_u_] unbox
@@ -871,8 +871,8 @@
 
 ;; [[./img/bug_hunter.png]]
 
-;; [[https://github.com/Malabarba/elisp-bug-hunter][The Bug Hunter]] is an Emacs library that finds the source of an error or
-;; unexpected behavior inside an elisp configuration file (typically =init.el= or
+;; [[https://github.com/Malabarba/elisp-bug-hunter][The Bug Hunter]] библиотека Emacs, которая ищет источник ошибки или
+;; неожиданного поведения внутри elisp файла конфигурации (обычно =init.el= или
 ;; =.emacs=).
 
 (use-package bug-hunter
@@ -883,7 +883,7 @@
 
 ;; [[./img/cfw_calendar.png]]
 
-;; [[https://github.com/kiwanami/emacs-calfw][Calfw]] program displays a calendar view in the Emacs buffer.
+;; [[https://github.com/kiwanami/emacs-calfw][Calfw]] программа отображает календарь в буфере Emacs.
 
 (use-package calfw
   :commands cfw:open-org-calendar
@@ -900,14 +900,29 @@
           cfw:fchar-right-junction ?┫
           cfw:fchar-top-junction ?┯
           cfw:fchar-top-left-corner ?┏
-          cfw:fchar-top-right-corner ?┓)))
+          cfw:fchar-top-right-corner ?┓)
+
+          ;; Месяцы
+          (setq calendar-month-name-array
+           ["Январь" "Февраль" "Март" "Апрель" "Май" "Июнь"
+           "Июль" "Август" "Сентяврь" "Октябрь" "Ноябрь" "Декабрь"])
+
+          ;; Дни недели
+          (setq calendar-day-name-array
+           ["Воскресенье" "Понедельник" "Вторник" "Среда" "Четверг"
+           "Пятница" "Суббота"])
+
+          ;; Первый день недели
+          (setq calendar-week-start-day 1) ; 0:Воскресенье, 1:Понедельник
+          )
+          )
 
 ;; charmap
 
 ;; [[./img/charmap.png]]
 
-;; [[https://github.com/lateau/charmap][Charmap]] is Unicode table viewer for Emacs. With CharMap you can see the Unicode
-;; table based on The Unicode Standard 6.2.
+;; [[https://github.com/lateau/charmap][Charmap]] просмотр таблицы Unicode для Emacs.
+;; С помощью CharMap можно посмотреть таблицу Unicode основанную на стандарте Unicode 6.2.
 
 (use-package charmap
   :commands charmap
@@ -920,11 +935,10 @@
 
 ;; [[./img/chess.png]]
 
-;; [[https://github.com/jwiegley/emacs-chess][Chess.el]] is an Emacs chess client and library, designed to be used for
-;; writing chess-related programs, or for playing games of chess against
-;; various chess engines, including Internet servers.  The library can be
-;; used for analyzing variations, browsing historical games, or a multitude
-;; of other purposes.
+;; [[https://github.com/jwiegley/emacs-chess][Chess.el]] клиент и библиотека Emacs, предназначенные
+;; для использования и записи шахматных программ или для игр в шахматы против
+;; различных движков, в том числе интернет-серверов. Библиотека может быть
+;; использована для анализа вариаций, просмотра исторических игр или других целей.
 
 (use-package chess
   :ensure t
@@ -937,7 +951,7 @@
 
 ;; [[./img/cloc.png]]
 
-;; [[https://github.com/cosmicexplorer/cloc-emacs][cloc]] count the lines of code in a buffer
+;; [[https://github.com/cosmicexplorer/cloc-emacs][cloc]] количество строк кода в буфере
 
 (use-package cloc
   :ensure t
@@ -945,7 +959,7 @@
 
 ;; csv-mode
 
-;; [[https://github.com/emacsmirror/csv-mode][csv-mode]] is a major mode for editing comma/char separated values.
+;; [[https://github.com/emacsmirror/csv-mode][csv-mode]] основной режим для редактирования значений, разделённых запятой/символом.
 
 ;; | Binding | Call                    | Do                                                                     |
 ;; |---------+-------------------------+------------------------------------------------------------------------|
@@ -969,16 +983,16 @@
 
 ;; define-word
 
-;; [[https://github.com/abo-abo/define-word][define-word]] is a GNU Emacs package that lets you see the definition of a word or
-;; a phrase at point, without having to switch to a browser.
+;; [[https://github.com/abo-abo/define-word][define-word]] пакет GNU Emacs, позволяющий увидеть определение слова или фразы
+;; в точке, без необходимости переключаться в браузер.
 
 (use-package define-word
   :ensure t)
 
 ;; diff-hl
 
-;; [[https://github.com/dgutov/diff-hl][diff-hl]] highlights uncommitted changes on the left side of the window, allows
-;; you to jump between and revert them selectively.
+;; [[https://github.com/dgutov/diff-hl][diff-hl]] подсвечивает незакоммиченные изменения с левой стороны окна,
+;; позволяет перемещаться между ними и выборочно откатить их.
 
 ;; | Bind    | Call                   | Do                                                                  |
 ;; |---------+------------------------+---------------------------------------------------------------------|
@@ -1000,13 +1014,13 @@
 
 ;; elfeed
 
-;; [[https://github.com/skeeto/elfeed][Elfeed]] is an extensible web feed reader for Emacs, supporting both Atom and RSS
+;; [[https://github.com/skeeto/elfeed][Elfeed]] предоставляет расширяемую читалку лент новостей для Emacs с поддержкой Atom и RSS
 
-;; *Search mode*
+;; *Режим поиска*
 
 ;; [[./img/elfeed.png]]
 
-;; *Show mode*
+;; *Режим просмотра*
 
 ;; [[./img/elfeed_show.png]]
 
@@ -1121,10 +1135,94 @@
         ("TAB"   shr-next-link :color red)
         ("S-TAB" shr-previous-link :color red))))
 
+;; emmet-mode
+
+;; [[https://github.com/smihica/emmet-mode][emmet-mode]] второстепенный режим, предоставляющий поддержку [[http://emmet.io/][Emmet]], который создаёт HTML и CSS из CSS-подобных селекторо.
+
+;; Вот пример работы, набрав
+;;      : a#q.x>b#q.x*2
+;; получим такой код HTML:
+;; #+BEGIN_EXAMPLE
+;; <a id="q" class="x" href="">
+;;     <b id="q" class="x"></b>
+;;     <b id="q" class="x"></b>
+;; </a>
+;; #+END_EXAMPLE
+
+;; | Binding  | Call                   | Do                        |
+;; |----------+------------------------+---------------------------|
+;; | C-j      | emmet-expand-line      | expand the emmet snippet  |
+;; | C-return | emmet-expand-line      | expand the emmet snippet  |
+;; | C-n      | emmet-next-edit-point  | go to the next edit point |
+;; | C-p      | emmet-prev-edit-point  | go to the next edit point |
+;; | C-c w    | emmet-wrap-with-markup | Wrap region with markup   |
+;; |----------+------------------------+---------------------------|
+
+;; [[https://github.com/yasuyk/helm-emmet][helm-emmet]] предоставляет источники для helm фрагментов в Emmet-mode
+
+;; [[https://github.com/yasuyk/ac-emmet][ac-emmet]] источники автозаполнения для снипетов emmet-mode
+
+(use-package emmet-mode
+  :ensure t
+  :config
+  (add-hook 'sgml-mode-hook 'emmet-mode)
+  (add-hook 'css-mode-hook  'emmet-mode)
+  (bind-keys :map emmet-mode-keymap
+             ("C-n" . emmet-next-edit-point)
+             ("C-p" . emmet-prev-edit-point))
+
+  (use-package helm-emmet
+    :ensure t
+    :ensure helm
+    :commands helm-emmet)
+
+  (use-package ac-emmet
+    :ensure t
+    :ensure auto-complete
+    :config
+    (add-hook 'sgml-mode-hook 'ac-emmet-html-setup)
+    (add-hook 'css-mode-hook  'ac-emmet-css-setup)))
+
+;; epresent
+
+;; [[https://github.com/eschulte/epresent][epresent]] простой режим презентации для Emacs Org-mode
+
+;; | Binding   | Call                        | Do                                         |
+;; |-----------+-----------------------------+--------------------------------------------|
+;; | j         | scroll-up                   | scroll up one "line" of the same "slide"   |
+;; | ↓         | scroll-up                   | scroll up one "line" of the same "slide"   |
+;; | k         | scroll-down                 | scroll down one "line" of the same "slide" |
+;; | ↑         | scroll-down                 | scroll down one "line" of the same "slide" |
+;; |-----------+-----------------------------+--------------------------------------------|
+;; | 1         | epresent-top                | top level of the presentation              |
+;; | t         | epresent-top                | top level of the presentation              |
+;; | q         | epresent-quit               | quit                                       |
+;; |-----------+-----------------------------+--------------------------------------------|
+;; | SPC       | epresent-next-page          | next "slide"                               |
+;; | n         | epresent-next-page          | next "slide"                               |
+;; | f         | epresent-next-page          | next "slide"                               |
+;; | →         | epresent-next-page          | next "slide"                               |
+;; | BACKSPACE | epresent-previous-page      | previous "slide"                           |
+;; | p         | epresent-previous-page      | previous "slide"                           |
+;; | b         | epresent-previous-page      | previous "slide"                           |
+;; | ←         | epresent-previous-page      | previous "slide"                           |
+;; |-----------+-----------------------------+--------------------------------------------|
+;; | c         | epresent-next-src-block     | move to the next code block                |
+;; | C         | epresent-previous-src-block | move to the previous code block            |
+;; | e         | org-edit-src-code           | edit the source block                      |
+;; | x         | org-babel-execute-src-block | execute the source block                   |
+;; | r         | epresent-refresh            | refresh the page to show the results       |
+;; | g         | epresent-refresh            | refresh the page to show the results       |
+;; | C-c C-c   |                             | refresh the page to show the results       |
+;; |-----------+-----------------------------+--------------------------------------------|
+
+(use-package epresent
+  :ensure t
+  :defer t)
+
 ;; TODO esup
 
-;; [[https://github.com/jschaf/esup][Esup]] is a package for benchmark Emacs startup time without ever leaving your
-;; Emacs.
+;; [[https://github.com/jschaf/esup][Esup]] пакет для тестирования времени запуска Emacs даже без выхода из Emacs.
 
 (use-package esup
   :ensure t
@@ -1132,9 +1230,8 @@
 
 ;; evil
 
-;; [[https://gitorious.org/evil/pages/Home][Evil]] is an extensible vi layer for Emacs. It emulates the main
-;; features of Vim, and provides facilities for writing custom
-;; extensions.
+;; [[https://gitorious.org/evil/pages/Home][Evil]] расширяемый vi слой для Emacs. Он эмулирует основные особенности Vim,
+;; а также предоставляет средства для написания пользовательских расширений.
 
 ;; | Binding | Call                        | Do                                      |
 ;; |---------+-----------------------------+-----------------------------------------|
@@ -1142,15 +1239,15 @@
 ;; | \       | evil-execute-in-emacs-state | Execute the next command in emacs state |
 
 
-;; [[https://github.com/Dewdrops/evil-exchange][Evil-exchange]] is an easy text exchange operator for Evil. This is the
-;; port of [[https://github.com/tommcdo/vim-exchange][vim-exchange]] by Tom McDonald.
+;; [[https://github.com/Dewdrops/evil-exchange][Evil-exchange]] простой оператор изменения текста для Evil.
+;; Это порт [[https://github.com/tommcdo/vim-exchange][vim-exchange]] от Tom McDonald.
 
 ;; | Binding | Call                 | Do                                                    |
 ;; |---------+----------------------+-------------------------------------------------------|
 ;; | gx      | evil-exchange        | Define (and highlight) the first {motion} to exchange |
 ;; | gX      | evil-exchange-cancel | Clear any {motion} pending for exchange.              |
 
-;; [[https://github.com/cofi/evil-indent-textobject][evil-indent-textobject]] is a textobject for evil based on indentation.
+;; [[https://github.com/cofi/evil-indent-textobject][evil-indent-textobject]] текстовый объект evil на основе отступа.
 
 ;; | textobject | Do                                                                     |
 ;; |------------+------------------------------------------------------------------------|
@@ -1158,17 +1255,16 @@
 ;; | ai         | Above & Indentation: ii + the line above with a different indentation  |
 ;; | aI         | Above & Indentation+: ai + the line below with a different indentation |
 
-;; Use the [[https://github.com/redguardtoo/evil-matchit][Matchit]] package, the equivalent to the Vim one.
+;; Используем пакет [[https://github.com/redguardtoo/evil-matchit][Matchit]], эквивалентный Vim.
 
 ;; | Binding | Call              | Do                        |
 ;; |---------+-------------------+---------------------------|
 ;; | %       | evilmi-jump-items | jumps between item/tag(s) |
 ;; |---------+-------------------+---------------------------|
 
-;; [[https://github.com/redguardtoo/evil-nerd-commenter][evil-nerd-commenter]] comment/uncomment lines efficiently. Like Nerd Commenter in
-;; Vim
+;; [[https://github.com/redguardtoo/evil-nerd-commenter][evil-nerd-commenter]] комментирует/раскомментируетстроки эффективно. Как Nerd Commenter в Vim
 
-;; Use the [[https://github.com/timcharper/evil-surround][evil-surround]] package, the equivalent to the Vim one.
+;; Используем пакет [[https://github.com/timcharper/evil-surround][evil-surround]], эквивалентный Vim.
 
 ;; | Binding | Do                                  |
 ;; |---------+-------------------------------------|
@@ -1177,12 +1273,12 @@
 ;; | ds      | delete surround                     |
 ;; | S       | for create surrounds in visual mode |
 
-;; [[https://github.com/victorhge/iedit][iedit]] allows you to edit one occurrence of some text in a buffer (possibly
-;; narrowed) or region, and simultaneously have other occurrences edited in the
-;; same way, with visual feedback as you type.
-;; [[https://github.com/magnars/expand-region.el][Expand region]] increases the selected region by semantic units. Just keep
-;; pressing the key until it selects what you want.
-;; [[https://github.com/syl20bnr/evil-iedit-state][evil-iedit-state]] slick Evil states for iedit and expand region.
+;; [[https://github.com/victorhge/iedit][iedit]] позволяет редактировать одно вхождение какого-нибудь текста в буфере
+;; или области и одновременно редактировать другие вхождения таким же образом, с
+;; визуальной обратной связью по мере ввода.
+;; [[https://github.com/magnars/expand-region.el][Expand region]] увеличивает выделенную область с помощью смысловых едениц.
+;; Просто продолжайте нажимать клавишу, пока он не выберет то, что вы хотите.
+;; [[https://github.com/syl20bnr/evil-iedit-state][evil-iedit-state]] выделение в Evil для iedit и расширенной области.
 
 (use-package evil
   :ensure t
@@ -1195,7 +1291,7 @@
       term-mode
       conf-mode
       web-mode)
-    "List of modes that should start up in Evil state."
+    "Список режимов, которые должны запускаться в статусе Evil."
     :type '(symbol))
 
     (defcustom antares-emacs-state-modes
@@ -1216,7 +1312,7 @@
       chess-mode
       git-commit-mode
       git-rebase-mode)
-    "List of modes that should start up in Evil Emacs state."
+    "Список режимов, которые должны запускаться в Evil Emacs статусе."
     :type '(symbol))
 
     ;; better indentation
@@ -1385,8 +1481,7 @@
 
 ;; fill-column-indicator
 
-;; [[https://github.com/alpaker/Fill-Column-Indicator][fill-column-indicator]] toggle the vertical column that indicates the fill
-;; threshold.
+;; [[https://github.com/alpaker/Fill-Column-Indicator][fill-column-indicator]] переключает вертикальный столбец, указывающий на заполнение строки.
 
 (use-package fill-column-indicator
   :ensure t
@@ -1397,7 +1492,7 @@
 
 ;; fixmee
 
-;; [[https://github.com/rolandwalker/fixmee][fixmee]] is for quickly navigate to FIXME and TODO notices in Emacs.
+;; [[https://github.com/rolandwalker/fixmee][fixmee]] для быстрой навигации к FIXME и TODO меткам в Emacs.
 
 ;; | Binding | Call                             | Do                                       |
 ;; |---------+----------------------------------+------------------------------------------|
@@ -1419,8 +1514,8 @@
 
 ;; flatland-theme
 
-;; [[https://github.com/gchp/flatland-emacs][Flatland]] for Emacs is a direct port of the popular Flatland theme for Sublime
-;; Text developed by Pixel Lab.
+;; [[https://github.com/gchp/flatland-emacs][Flatland]] для Emacs- порт популярной темы Flatland для Sublime
+;; Text, разработанной Pixel Lab.
 
 (use-package flatland-theme
   :ensure t
@@ -1428,7 +1523,7 @@
 
 ;; TODO flycheck
 
-;; [[https://github.com/yasuyk/helm-flycheck][helm-flycheck]] show flycheck errors with helm.
+;; [[https://github.com/yasuyk/helm-flycheck][helm-flycheck]] показ ошибок flycheck с помощью helm.
 
 (use-package flycheck
   :ensure t
@@ -1443,8 +1538,8 @@
 
 ;; git-modes
 
-;; [[https://github.com/magit/git-modes][Git modes]] are GNU Emacs modes for Git-related files. There are in a common
-;; repository in GitHub but available as independent packages in Melpa.
+;; [[https://github.com/magit/git-modes][Git modes]] GNU Emacs режимы для файлов связанных с Git.
+;; Доступен в репозитории на GitHub, но также доступен как независимый пакет в Melpa.
 
 (use-package gitconfig-mode
   :ensure t
@@ -1458,22 +1553,22 @@
 
 ;; git-timemachine
 
-;; Use [[https://github.com/pidu/git-timemachine][git-timemachine]] to browse historic versions of a file with =p=
-;; (previous) and =n= (next).
+;; Use [[https://github.com/pidu/git-timemachine][git-timemachine]] для просмотра истории версий файла.
+;; =p= (предыдущая) и =n= (следующая).
 
 (use-package git-timemachine
   :ensure t
   :commands git-timemachine
   :config
   (defadvice git-timemachine-mode (after toggle-evil activate)
-    "Turn off `evil-local-mode' when enabling `git-timemachine-mode',
-    and turn it back on when disabling `git-timemachine-mode'."
+    "Отключаем `evil-local-mode' если включен `git-timemachine-mode',
+    и включаем его обратно при выключении `git-timemachine-mode'."
     (evil-local-mode (if git-timemachine-mode -1 1))))
 
 ;; google-maps
 
-;; [[https://julien.danjou.info/projects/emacs-packages#google-maps][google-maps]] provides support for Google Maps in Emacs. Works as an independent
-;; command and also integrated in org-mode.
+;; [[https://julien.danjou.info/projects/emacs-packages#google-maps][google-maps]] предоставляет поддержку Google Maps в Emacs.
+;; Работает в качестве независимой команды, а также интегрирована в org-mode.
 
 ;; | Binding | Call                               | Do                                                    |
 ;; |---------+------------------------------------+-------------------------------------------------------|
@@ -1536,8 +1631,7 @@
 
 ;; google-this
 
-;; [[https://github.com/Bruce-Connor/emacs-google-this][google-this]] is a package that provides a set of functions and keybindings for
-;; launching google searches from within emacs.
+;; [[https://github.com/Bruce-Connor/emacs-google-this][google-this]] пакет, предоставляющий набор функций и привязок клавиш для запуска поиска Google внутри Emacs.
 
 (use-package google-this
   :ensure t
@@ -1547,8 +1641,8 @@
 
 ;; [[./img/google_translate.png]]
 
-;; [[https://github.com/atykhonov/google-translate][google-translate]] package allows to translate the strings using Google Translate
-;; service directly from GNU Emacs.
+;; [[https://github.com/atykhonov/google-translate][google-translate]] пакет, позволяющий перевести строку с помощью сервиса Google Translate
+;; прямо из GNU Emacs.
 
 (use-package google-translate
   :ensure t
@@ -1560,7 +1654,7 @@
 
 ;; graphviz-dot-mode
 
-;; [[https://github.com/ppareit/graphviz-dot-mode][graphviz-dot-mode]] is a mode for the DOT language, used by graphviz.
+;; [[https://github.com/ppareit/graphviz-dot-mode][graphviz-dot-mode]] режим для языка DOT, с использованием graphviz.
 
 (use-package graphviz-dot-mode
   :ensure t
@@ -1568,7 +1662,7 @@
 
 ;; haskell-mode
 
-;; [[https://github.com/haskell/haskell-mode][haskell-mode]] is the Haskell mode package for Emacs.
+;; [[https://github.com/haskell/haskell-mode][haskell-mode]] режим Haskell для Emacs.
 
 (use-package haskell-mode
   :ensure t
@@ -1578,10 +1672,10 @@
 
 ;; TODO helm
 
-;; [[https://github.com/emacs-helm/helm][Helm]] is an Emacs incremental completion and selection narrowing framework.
+;; [[https://github.com/emacs-helm/helm][Helm]] инкрементальное завершение и сужение поиска для Emacs.
 
-;; [[https://github.com/emacs-helm/helm-descbinds][Helm descbinds]] provides an interface to emacs’ =describe-bindings= making the
-;; currently active key bindings interactively searchable with helm.
+;; [[https://github.com/emacs-helm/helm-descbinds][Helm descbinds]] предоставляет интерфейс для =describe-bindings= Emacs, создающие сочетания клавиш
+;; в интерактивном режиме для активного в настоящий момент режима с помощью helm.
 
 ;; | Binding | Call              | Do                  |
 ;; |---------+-------------------+---------------------|
@@ -1589,14 +1683,14 @@
 ;; | C-x C-h | describe-bindings | Show heml-descbinds |
 ;; |---------+-------------------+---------------------|
 
-;; [[https://github.com/ShingoFukuyama/helm-swoop][helm-swoop]] list match lines to another buffer, which is able to squeeze by any
-;; words you input. At the same time, the original buffer's cursor is jumping line
-;; to line according to moving up and down the line list.
+;; [[https://github.com/ShingoFukuyama/helm-swoop][helm-swoop]] строит список строк в другом буфере, который может быть сужен любыми вводимыми словами.
+;; В то же время курсор оригинального буфера перемещается от строки к строке в
+;; соответствии с перемещением вверх и вниз по списку строк.
 
-;; [[https://github.com/syohex/emacs-helm-themes][helm-themes]] provides theme selection with Helm.
+;; [[https://github.com/syohex/emacs-helm-themes][helm-themes]] позволяет выбор темы с Helm.
 
-;; [[https://github.com/areina/helm-dash][helm-dash]] uses [[https://kapeli.com/dash][Dash]] docsets to browse documentation. It does not requires Dash
-;; or Zeal installed.
+;; [[https://github.com/areina/helm-dash][helm-dash]] использует docsets [[https://kapeli.com/dash][Dash]] для просмотра документации.
+;; Не требует установки Dash или Zeal.
 
 (use-package helm
   :ensure t
@@ -1682,47 +1776,46 @@
 
 ;; hydra
 
-;; [[https://github.com/abo-abo/hydra][Hydra]] is a package for GNU Emacs that can be used to tie related commands into a
-;; family of short bindings with a common prefix - a Hydra.
+;; [[https://github.com/abo-abo/hydra][Hydra]] пакет GNU Emacs, который может использоваться для привязки команд в семейство горячих клавиш
+;; с общим префиксом - Hydra.
 
-;; I use it as a general interface for the most common used commands by me in my
-;; workflow. It is based in a previous idea that I implemented in Vim with Unite to
-;; generate menus where the most useful commands are shown with a key binding to
-;; activate it, at the same time Unite worked as a interface for several of that
-;; commands.
+;; Я использую его в качестве общего интерфейса для наиболее часто используемых
+;; команд в моём рабочем процессе. Он основан на предыдущей идее, которую я
+;; реализовывал в Vim с Unite, чтобы генерировать меню, в котором наиболее полезные
+;; команды отображались с помощью привязки клавиш для их активации. В то же время
+;; Unite работал в качестве интерфейса для нескольких из этих команд.
 
-;; In Emacs the way of doing this is different because we have, thanks to many
-;; developers, the two roles that Unite performed in my Vim configuration divided
-;; in two separate ways:
+;; В Emacs способ добиться такого же поведения иной потому, что благодаря многим
+;; разработчикам мы имеем две роли, которые Unite предпочитал разделять в моей
+;; конфигурации Vim на два отдельных способа:
 
-;; + Interface for commands:
-;;   I use the most suited package for this job, Helm, that is the quasi-equivalent
-;;   of Vim's Unite. It works as a completion and selection framework for a lot of
-;;   Emacs commands and tasks. I don't use it yet a lot, but I have in mind to
-;;   adopt it in a lot of tasks.
+;; + Командный интерфейс:
+;;   Я использую наиболее подходящий для этого пакет - Helm. Это эквивалент Unite в
+;;   Vim. Он работает в качестве основы для автодополнения и выбора для многих
+;;   команд и задач Emacs. Пока я не использую его на полную мощь, но думаю, что
+;;   буду применять в большом количестве задач.
 
-;; + Menus:
-;;   At the beginning, mimicking the [[https://github.com/syl20bnr/spacemacs][Spacemacs]] project, I was using a combination
-;;   of =evil-leader= and =guide-key= packages to generate those menus. But this
-;;   have a few glitches and I didn't want to have Evil activated in all the
-;;   buffers. Then Hydra showed up and at from the first moment I realized that it
-;;   solved almost every problem that the previous setup had. It can be used
-;;   through all Emacs and it's more customizable, and better oriented for my
-;;   original purpose.
+;; + Меню:
+;;   Вначале, имитируя проект [[https://github.com/syl20bnr/spacemacs][Spacemacs]], я использовал комбинации =evil-leader= и =guide-key=
+;;   для создания меню. Но при этом всплывали некоторые глюки и я не хочу
+;;   использовать активный Evil во всех буферах. После появилась Hydra и с первого
+;;   момента я понял, что она решает практически любую проблему, которая была в
+;;   предыдущей настройке. Она может использоваться по всему Emacs и она более
+;;   настраиваемая и более ориентированная к моей первоначальной цели.
 
-;; I use Hydra in two ways:
+;; Я использую Hydra двумя способами:
 
-;; + Activating through the "\" key to call all of the general and by-package
-;;   menus. Using this, and occasionally the =helm-descbinds= command (C-h b), I
-;;   can see and remember all the most useful commands and key-bindings that I have
-;;   at my disposal in a very easy way. Not more time lost due to memory laps.
+;; + Активация через "\", для вызова всех основных и пакетных меню. Используя его,
+;;   а иногда команду =helm-descbinds= (C-h b), я могу видеть и запоминать все
+;;   наиболее полезные команды и привязки клавиш, которые есть в моём распоряжении
+;;   и это очень удобно.Больше не тратится времени на попытки вспомнить комбинации.
 
-;; + Activating through the "," key to work as the Evil leader key (only when Evil
-;;   is activated) to access to a menu to the more common tasks that I need when
-;;   I'm editing text, e.g. comment a region.
+;; + Активация через "," для работы в качестве Evil leader key (только когда активен
+;;   Evil) для доступа к меню общих задач, которые мне нужны когда я редактирую
+;;   текст (например комментирую область).
 
-;; I still prefer the Evil "language", so many hydras & packages are configured in
-;; that way.
+;; Я всё ещё предпочитаю "язык" Evil, поэтому многие команды и пакеты
+;; сконфигурированы таким образом.
 
 (use-package hydra
   :ensure t
@@ -2325,8 +2418,7 @@
 
 ;; ibuffer-vc
 
-;; [[https://github.com/purcell/ibuffer-vc][ibuffer-vc]] show the buffers grouped by the associated version control
-;; project.
+;; [[https://github.com/purcell/ibuffer-vc][ibuffer-vc]] поакзывает буферы сгруппированные по системам контроля версий.
 
 (use-package ibuffer-vc
   :ensure t
@@ -2352,11 +2444,11 @@
 
 ;; ido-ubiquitous
 
-;; Gimme some ido... everywhere!
+;; Дайне мне ido... Везде!
 
-;; [[https://github.com/DarwinAwardWinner/ido-ubiquitous][ido-ubiquitous]] does what you were really hoping for when you did =(setq ido-everywhere
-;; t)=. Replaces stock emacs completion with ido completion wherever it is possible
-;; to do so without breaking things.
+;; [[https://github.com/DarwinAwardWinner/ido-ubiquitous][ido-ubiquitous]] делает именно то, на что вы надеялись устанавливая
+;; =(setq ido-everywhere t)=. Заменяет стандартное автодополнение emacs на
+;; автодополнение ido везде, где это возможно сделать не нарушая работы.
 
 (use-package ido-ubiquitous
   :ensure t
@@ -2368,7 +2460,7 @@
 
 ;; ido-vertical-mode
 
-;; [[https://github.com/gempesaw/ido-vertical-mode.el][ido-vertical-mode]] makes =ido-mode= display vertically.
+;; [[https://github.com/gempesaw/ido-vertical-mode.el][ido-vertical-mode]] позволяет =ido-mode= показать вертикально.
 
 (use-package ido-vertical-mode
   :ensure t
@@ -2378,14 +2470,14 @@
 
 ;; TODO impatient-mode
 
-;; Thanks to [[https://github.com/skeeto/impatient-mode][impatient-mode]] you can see the effect of your HTML as you type it.
+;; Благодара [[https://github.com/skeeto/impatient-mode][impatient-mode]] вы можете видеть результат редактирования HTML во время редактирования.
 
 (use-package impatient-mode
   :ensure t)
 
 ;; imgur
 
-;; [[https://github.com/myuhe/imgur.el][imgur]] is an imgur client for Emacs
+;; [[https://github.com/myuhe/imgur.el][imgur]] клиент imgur для Emacs
 
 (use-package imgur
   :ensure t
@@ -2395,7 +2487,7 @@
 
 ;; [[./img/irfc.png]]
 
-;; [[http://www.emacswiki.org/emacs/irfc.el][irfc]] is an Interface for IETF RFC document.
+;; [[http://www.emacswiki.org/emacs/irfc.el][irfc]] интерфейс для IETF RFC документов.
 
 (use-package irfc
   :ensure t
@@ -2493,7 +2585,7 @@
 
 ;; TODO jedi
 
-;; [[https://github.com/tkf/emacs-jedi][Jedi]] offers very nice auto completion for python-mode.
+;; [[https://github.com/tkf/emacs-jedi][Jedi]] предоставляет очень хорошее автодополнение для python-mode.
 
 (use-package jedi
   :ensure t
@@ -2506,8 +2598,9 @@
 
 ;; know-your-http-well
 
-;; This [[https://github.com/for-GET/know-your-http-well][package]] provides HTTP headers, media types, methods, relations and status
-;; codes, all summarized and linking to their specification.
+;; Пакет [[https://github.com/for-GET/know-your-http-well][package]] предоставляет HTTP заголовки, media-типы,
+;; методы, отношения и коды состояния. Все они сгруппированы и имеют ссылки на
+;; спецификации.
 
 (use-package know-your-http-well
   :ensure t
@@ -2515,7 +2608,7 @@
 
 ;; lorem-ipsum
 
-;; [[https://github.com/jschaf/emacs-lorem-ipsum][lorem-ipsum]] add filler lorem ipsum text for Emacs.
+;; [[https://github.com/jschaf/emacs-lorem-ipsum][lorem-ipsum]] добавляет текст-рыбу lorem ipsum для Emacs.
 
 (use-package lorem-ipsum
   :ensure t
@@ -2523,7 +2616,7 @@
 
 ;; lua-mode
 
-;; [[https://github.com/immerrr/lua-mode][lua-mode]] is a major mode for editing Lua sources in Emacs.
+;; [[https://github.com/immerrr/lua-mode][lua-mode]] основной режим для редактирования исходников Lua в Emacs.
 
 (use-package lua-mode
   :ensure t
@@ -2532,11 +2625,10 @@
 
 ;; TODO magit
 
-;; With [[https://github.com/magit/magit][Magit]], you can inspect and modify your Git repositories with
-;; Emacs. You can review and commit the changes you have made to the
-;; tracked files, for example, and you can browse the history of past
-;; changes. There is support for cherry picking, reverting, merging,
-;; rebasing, and other common Git operations.
+;; С помощью [[https://github.com/magit/magit][Magit]], вы можете просматривать и редактировать свои репозитории Git с помошью Emacs.
+;; Вы , например, можете просмотреть и закоммитить изменения, внесённые в
+;; отслеживаемые файлы, а также просмотреть историю последних изменений. Есть
+;; поддержка cherry picking, откатов, мерджей, ребэйзов и прочих общих операций Git.
 
 (use-package magit
   :ensure t
@@ -2545,8 +2637,8 @@
 
 ;; TODO markdown-mode
 
-;; [[http://jblevins.org/projects/markdown-mode/][markdown-mode]] is a major mode for editing Markdown-formatted text files in GNU
-;; Emacs.
+;; [[http://jblevins.org/projects/markdown-mode/][markdown-mode]] основной режим для редактирования Markdown-форматированных текстовых файлов в
+;; GNU Emacs.
 
 (use-package markdown-mode
   :ensure t
@@ -2562,21 +2654,12 @@
   )
 
 ;; TODO moe-theme
-;; [[https://github.com/kuanyui/moe-theme.el][Moe-theme]]
+;; [[https://github.com/kuanyui/moe-theme.el][Moe-theme]] понравившаяся мне цветовая тема.
 
 (use-package moe-theme
   :ensure t
   :config
   (load-theme 'moe-dark t))
-
-;; monokai-theme
-
-;; [[https://github.com/oneKelvinSmith/monokai-emacs][Monokai for Emacs]] is a port of the popular TextMate theme Monokai by Wimer
-;; Hazenberg.
-
-(use-package monokai-theme
-  :ensure t
-  :disabled t)
 
 ;; Enable mu4e
 
@@ -2947,20 +3030,20 @@
 
 ;; Bookmarks
 
-;; My bookmarks
+;; Мои закладки
 
 (add-to-list 'mu4e-bookmarks
-             '("flag:flagged" "Flagged" ?f))
+             '("flag:flagged" "Помеченные" ?f))
 (add-to-list 'mu4e-bookmarks
-             '("date:48h..now" "Last 2 days" ?l))
+             '("date:48h..now" "Последние 2 дня" ?l))
 (add-to-list 'mu4e-bookmarks
-             '("date:1h..now" "Last hour" ?h))
+             '("date:1h..now" "Последний час" ?h))
 (add-to-list 'mu4e-bookmarks
-             '("flag:attach" "With attachments" ?a) t)
+             '("flag:attach" "С вложениями" ?a) t)
 (add-to-list 'mu4e-bookmarks
-             '("mime:application/pdf" "With documents" ?d) t)
+             '("mime:application/pdf" "С документами PDF" ?d) t)
 (add-to-list 'mu4e-bookmarks
-             '("size:3M..500M" "Big messages" ?b) t)
+             '("size:3M..500M" "Большие сообщения" ?b) t)
 
 ;; Shortcuts
 
@@ -3062,7 +3145,7 @@
 
 ;; mu4e-maildirs-extension
 
-;; [[https://github.com/agpchil/mu4e-maildirs-extension][Mu4e maildirs extension]] adds a maildir summary in mu4e-main-view.
+;; [[https://github.com/agpchil/mu4e-maildirs-extension][Mu4e maildirs extension]] добавляет почтовые папки в mu4e-main-view.
 
 (use-package mu4e-maildirs-extension
   :ensure t
@@ -3076,17 +3159,17 @@
 
 ;; multi-term
 
-;; [[http://www.emacswiki.org/emacs/multi-term.el][multi-term]] is for creating and managing multiple terminal buffers in Emacs.
+;; [[http://www.emacswiki.org/emacs/multi-term.el][multi-term]] для создания и управления множеством терминальных буферов в Emacs.
 
 (use-package multi-term
   :ensure t
   :commands (multi-term multi-term-next)
   :config
-  (setq multi-term-program "/bin/bash"))
+  (setq multi-term-program "/bin/zsh"))
 
 ;; org-bullets
 
-;; [[https://github.com/sabof/org-bullets][org-bullets]] show org-mode bullets as UTF-8 characters.
+;; [[https://github.com/sabof/org-bullets][org-bullets]] показать org-mode маркеры как UTF-8 символы.
 
 (use-package org-bullets
   :ensure t
@@ -3141,7 +3224,7 @@
 
 ;; org-pomodoro
 
-;; [[https://github.com/lolownia/org-pomodoro][org-pomodoro]] adds very basic support for Pomodoro technique in Emacs' org-mode.
+;; [[https://github.com/lolownia/org-pomodoro][org-pomodoro]] добавляет очень простую поддержку техники Pomodoro в org-mode Emacs'а.
 
 (use-package org-pomodoro
   :ensure t
@@ -3150,7 +3233,7 @@
 
 ;; ox-pandoc
 
-;; [[https://github.com/kawabata/ox-pandoc][ox-pandoc]] translates org-mode files to various other formats via Pandoc.
+;; [[https://github.com/kawabata/ox-pandoc][ox-pandoc]] переводит файлы org-mode в различные форматы, используя Pandoc.
 
 (use-package ox-pandoc
   :defer 1
@@ -3158,8 +3241,10 @@
 
 ;; page-break-lines
 
-;; [[https://github.com/purcell/page-break-lines][page-break-lines]] provides a global mode which displays ugly form feed characters
-;; =^L= as tidy horizontal rules.
+;; [[./img/page-break-lines.png]]
+
+;; [[https://github.com/purcell/page-break-lines][page-break-lines]] предоставляет глобальный режим, в котором уродливые символы перевода
+;; строки =^L= отображаются как аккуратные горизонтальные черты.
 
 (use-package page-break-lines
   :ensure t
@@ -3168,8 +3253,8 @@
 
 ;; paradox
 
-;; [[https://github.com/Bruce-Connor/paradox][Paradox]] is a Project for modernizing Emacs' Package Menu. With package
-;; ratings, usage statistics, customizability, and more.
+;; [[https://github.com/Bruce-Connor/paradox][Paradox]] проект модернизации Emacs'овского меню пакетов. С оценками пакетов,
+;; статистикой использования, настраиваемостью и многим другим.
 
 (use-package paradox
   :ensure t
@@ -3181,9 +3266,9 @@
 
 ;; TODO password-store
 
-;; [[http://www.zx2c4.com/projects/password-store/][Password store (pass)]] support for Emacs.
+;; Поддержка [[http://www.zx2c4.com/projects/password-store/][Password store (pass)]] в Emacs.
 
-;; - [ ] make my own modifications
+;; - [ ] добавить собственную модификацию
 
 (use-package password-store
   :ensure t
@@ -3191,7 +3276,7 @@
 
 ;; pcache
 
-;; [[https://github.com/sigma/pcache][pcache]] is a persistent caching for Emacs. Is need for other packages like =fixmee=.
+;; [[https://github.com/sigma/pcache][pcache]] персистентное кэширование для Emacs. Необходимо для других пакетов таких как =fixmee=.
 
 (use-package pcache
   :ensure t
@@ -3202,11 +3287,12 @@
 
 ;; [[./img/pdf_tools.png]]
 
-;; [[https://github.com/politza/pdf-tools][PDF Tools]] is, among other things, a replacement of DocView for PDF files. The
-;; key difference is, that pages are not prerendered by e.g. ghostscript and stored
-;; in the file-system, but rather created on-demand and stored in memory.
+;; [[https://github.com/politza/pdf-tools][PDF Tools]] помимо всего прочего является заменой DocView для PDF файлов.
+;; Ключевым отличием является то, что страницы не генерируются предварительно,
+;; например тем же ghostscript, и хранятся в файловой системе, а создаются налету
+;; по требованию и сохраняются в памяти.
 
-;; [[https://github.com/markus1189/org-pdfview][org-pdfview]] add support for org links from pdfview buffers like docview.
+;; [[https://github.com/markus1189/org-pdfview][org-pdfview]] добавляет поддержку ссылок org режима из pdfview буферов как docview.
 
 (use-package pdf-tools
   :ensure t
@@ -3295,7 +3381,7 @@
    (use-package org-pdfview
      :ensure t))
 
-;; TODO php
+;; php
 ;; Режим [[https://github.com/ejmr/php-mode][PHP]] является основной режим для редактирования исходного кода PHP.
 ;; Это расширение режима C. Таким образом, он наследует все функциональные
 ;; возможности навигации C режима, но подсветка соответствует грамматике PHP и
@@ -3310,9 +3396,8 @@
 
 ;; popwin
 
-;; [[https://github.com/m2ym/popwin-el][Popwin]] is a popup window manager for Emacs which makes you free from
-;; the hell of annoying buffers such like *Help*, *Completions*,
-;; *compilation*, and etc.
+;; [[https://github.com/m2ym/popwin-el][Popwin]] это менеджер всплывающих окон Emacs, который освобождает вас от ада раздражающих буферов,
+;; таких как *Help*, *Completions*, *compilation*, и так далее.
 
 (use-package popwin
   :ensure t
@@ -3362,20 +3447,31 @@
 ;; TODO powerline
 
 ;; [[https://github.com/milkypostman/powerline][Powerline]]
-;; This is a proposed version 2.0 of the original Emacs Powerline which is a fork of vim-powerline.
-;; Emacs version of the Vim powerline.
-;; This version has utf-8 support enabled. The utf-8 separators will display a unicode character properly under mintty for example - as long as you have patched fonts installed.
-;; By default, any terminal mode emacs will use the utf-8 separators.
+;; Предлагаемая версия 2.0 оригинального Emacs Powerline, которая является форком
+;; Powerline для Vim.
+;; Emacs версия Vim powerline.
+;; В эту версию включена поддержка UTF-8. UTF-8 разделители будут отображаться
+;; юникодными символами правильно, например под mintty, так долго, сколько у вас
+;; будут установлены пропатченные шрифты.
+;; По умолчанию все терминальные режимы Emacs используют разделители UTF-8.
 
 (use-package powerline
   :ensure t
   :defer t
   )
 
+;; TODO NEOTree
+;; [[./img/neotree.png]]
+;; [[https://github.com/jaypei/emacs-neotree][Neotree]] это аналог NerdTree (менеджера файлов) в Vim.
+
+(use-package neotree
+  :ensure t)
+(global-set-key [f8] 'neotree-toggle)
+
 ;; pretty-mode
 
-;; [[https://github.com/akatov/pretty-mode][pretty-mode]] use mathematical *Unicode* /symbols/ instead of expressions or
-;; keywords in some programming languages
+;; [[https://github.com/akatov/pretty-mode][pretty-mode]] позволяет использовать математические /символы/ *Unicode* /symbols/ вместо выражений
+;; или ключевых слов в некоторых языках программирования
 
 (use-package pretty-mode
   :ensure t
@@ -3385,12 +3481,12 @@
 
 ;; projectile
 
-;; [[https://github.com/bbatsov/projectile][Projectile]] is a project interaction library for Emacs. Its goal is to
-;; provide a nice set of features operating on a project level without
-;; introducing external dependencies(when feasible). For instance -
-;; finding project files has a portable implementation written in pure
-;; Emacs Lisp without the use of GNU find (but for performance sake an
-;; indexing mechanism backed by external commands exists as well).
+;; [[https://github.com/bbatsov/projectile][Projectile]] библиотека проектного взаимодействия для Emacs.
+;; Цель библиотеки- обеспечение набора функция, работающих на уровне проекта без
+;; внешних зависимостей (по фозможности). Например - поиск файлов проекта имеет
+;; портативную реализацию , написанную на чистом Emacs Lisp, без использования GUI
+;; поиска (но ради производительности используется внешний механизм индексирования
+;; с помощью внешних команд).
 
 (use-package projectile
   :ensure projectile
@@ -3404,30 +3500,21 @@
 
 ;; TODO quickrun
 
-;; [[https://github.com/syohex/emacs-quickrun][quickrun.el]] is a extension to execute editing buffer. quickrun.el is similar to
-;; executable-interpret, but quickrun.el provides more convenient
-;; commands. quickrun.el execute not only script languages(Perl, Ruby, Python etc),
-;; but also compiling languages(C, C++, Go, Java etc) and markup language.
+;; [[https://github.com/syohex/emacs-quickrun][quickrun.el]] пакет, предназначенный для выполнения редактируемого буфера.
+;; quickrun.el похож на интерпретатор, но quickrun.el предоставляет более удобные
+;; команды. quickrun.el выполняет не только языки сценариев (Perl, Ruby, Python),
+;; но и компилируемые языки(C, C++, Go, Java etc) и языки разметки.
 
 (use-package quickrun
    :ensure t
    :defer t)
 
-;; TODO racket-mode
-
-;; Racket settings.
-
-(use-package racket-mode
-  :ensure t
-  :defer t
-  :config
-  (setq racket-mode-pretty-lambda t))
-
 ;; ranger
 
-;;  [[https://github.com/ralesi/ranger.el][Ranger]] is a minor mode that runs within dired emulating many of the features of
-;;  [[https://github.com/ralesi/ranger.el][ranger]]. This minor mode shows a stack of the parent directories and updates the
-;;  parent buffers while navigating the file system.
+;;  [[https://github.com/ralesi/ranger.el][Ranger]] второстепенный режим, включаемый в Dired.
+;;  Эмулирует многие из особенностей [[https://github.com/ralesi/ranger.el][ranger]].
+;;  Этот второстепенный режим показывает стек родительских каталогов и обновляет
+;;  родительские буферы во время навигации по файловой системе.
 
 (use-package ranger
   :ensure t
@@ -3435,391 +3522,3 @@
   (setq ranger-cleanup-on-disable t
         ranger-show-dotfiles nil
         ranger-show-literal nil))
-
-;; restclient
-
-;; [[./img/restclient.png]]
-
-;; [[https://github.com/pashky/restclient.el][restclient]] is a tool to manually explore and test HTTP REST webservices. Runs
-;; queries from a plain-text query sheet, displays results as a pretty-printed XML,
-;; JSON and even images.
-
-(use-package restclient
-  :ensure t
-  :defer t)
-
-;; smart-mode-line
-
-;; This package shows a very nice and very informative mode line.
-
-(use-package smart-mode-line
-  :ensure t
-  :defer 0.2
-  :config
-  (progn
-    ;; (defvar sml-dark-theme
-    ;;   (substring
-    ;;    (shell-command-to-string
-    ;;     "sha256sum ~/.emacs.d/elpa/smart-mode-line-*/smart-mode-line-dark-theme.el | cut -d ' ' -f 1")
-    ;;    0 -1))
-
-    ;; (add-to-list 'custom-safe-themes sml-dark-theme)
-    (setq sml/no-confirm-load-theme t
-          sml/theme 'dark
-          sml/mode-width 'full
-          sml/name-width 30
-          sml/shorten-modes t)
-    (sml/setup)))
-
-;; smartparens
-
-;; [[https://github.com/Fuco1/smartparens][smartparens]] is a minor mode for Emacs that deals with parens pairs and tries to
-;; be smart about it.
-
-(use-package smartparens
-  :ensure t
-  :diminish smartparens-mode
-  :config
-  (smartparens-global-mode))
-
-;; smex
-
-;; [[https://github.com/nonsequitur/smex][Smex]] is a M-x enhancement for Emacs. Built on top of IDO, it provides
-;; a convenient interface to your recently and most frequently used
-;; commands. And to all the other commands, too.
-
-;; | Binding | Call                     | Do                                                           |
-;; |---------+--------------------------+--------------------------------------------------------------|
-;; | M-x     | smex                     | Calls a interactive command using smex                       |
-;; | M-X     | smex-major-mode-commands | Idem as above but limited to the current major mode commands |
-
-(use-package smex
-  :ensure t
-  :init
-  (bind-key "<menu>" 'smex)
-  :config
-  (setq smex-save-file (concat antares-emacs-temporal-directory "smex-items")))
-
-;; Useful bindings & Delayed Initation
-
-;; #+BEGIN_QUOTE
-;; I install smex with the following code to make emacs startup a little
-;; faster.  This delays initializing smex until it's needed. IMO, smex
-;; should load without this hack.
-
-;; Just have smex call =smex-initialize= when it's needed instead of
-;; having the user do it. --[[http://www.emacswiki.org/emacs/Smex][LeWang on EmacsWiki]]
-;; #+END_QUOTE
-
-(global-set-key [(meta x)] (lambda ()
-                             (interactive)
-                             (or (boundp 'smex-cache)
-                                (smex-initialize))
-                             (global-set-key [(meta x)] 'smex)
-                             (smex)))
-
-(global-set-key [(shift meta x)] (lambda ()
-                                   (interactive)
-                                   (or (boundp 'smex-cache)
-                                      (smex-initialize))
-                                   (global-set-key [(shift meta x)] 'smex-major-mode-commands)
-                                   (smex-major-mode-commands)))
-
-;; TODO sml-mode
-
-;; [[http://www.smlnj.org/doc/Emacs/sml-mode.html][SML mode]] is a major mode for Emacs for editing Standard ML.
-;; It provides syntax highlighting and automatic indentation and
-;; comes with sml-proc which allows interaction with an inferior SML
-;; interactive lo
-
-(use-package sml-mode
-  :ensure t
-  :defer t)
-
-;; speed-type
-
-;; [[./img/speed-type.png]]
-
-;; [[https://github.com/hagleitn/speed-type][speed-type]] is for practice touch/speed typing in Emacs.
-
-(use-package speed-type
-  :ensure t
-  :defer t)
-
-;; sublime-themes
-
-;; [[https://github.com/owainlewis/emacs-color-themes][sublime-themes]] is a collection of color themes for Emacs24 +
-
-;; The themes are named after important/influential programmers.
-
-(use-package sublime-themes
-  :ensure t
-  :defer t)
-
-;; sx
-
-;; [[./img/sx.png]]
-
-;; [[https://github.com/vermiculus/sx.el][sx]] is Stack Exchange for Emacs.
-
-(use-package sx
-  :ensure t
-  :defer t
-  :config
-  (setq sx-cache-directory (concat antares-emacs-temporal-directory "sx")))
-
-;; TODO swiper
-
-;; [[https://github.com/abo-abo/swiper][swiper]] is a package for GNU Emacs that gives you an overview as you search for a
-;; regex.
-
-(use-package swiper
-  :ensure t
-  :diminish ivy-mode
-  :config
-  (setq ivy-use-virtual-buffers t)
-  (bind-keys :map swiper-map
-             ("<escape>" . minibuffer-keyboard-quit))
-  (bind-keys :map ivy-minibuffer-map
-             ("<escape>" . minibuffer-keyboard-quit)
-             ("C-k"      . delete-minibuffer-contents))
-  (defun antares-swiper ()
-     (interactive)
-     (swiper)
-     (add-to-list 'regexp-search-ring (ivy--regex ivy-text)))
-  (ivy-mode t)
-  (use-package counsel
-    :init
-    (bind-key "<menu>" 'counsel-M-x)
-    :ensure t))
-
-;; ujelly-theme
-
-;; [[https://github.com/marktran/color-theme-ujelly][ujelly-theme]] is a Emacs theme inspired by the [[https://github.com/nanotech/jellybeans.vim][jellybeans]] theme for Vim.
-
-(use-package ujelly-theme
-  :ensure t
-  :defer t)
-
-;; undo-tree
-
-;; [[http://www.dr-qubit.org/emacs.php#undo-tree][undo-tree]] is a version of the same Vim's feature for Emacs
-
-;; Emacs's undo system allows you to recover any past state of a buffer
-;; (the standard undo/redo system loses any "redoable" states whenever
-;; you make an edit). However, Emacs's solution, to treat "undo" itself
-;; as just another editing action that can be undone, can be confusing
-;; and difficult to use.
-
-;; Both the loss of data with standard undo/redo and the confusion of
-;; Emacs' undo stem from trying to treat undo history as a linear
-;; sequence of changes. =undo-tree-mode= instead treats undo history as
-;; what it is: a branching tree of changes (the same system that Vim has
-;; had for some time now). This makes it substantially easier to undo and
-;; redo any change, while preserving the entire history of past states.
-
-(use-package undo-tree
-  :ensure t
-  :diminish undo-tree-mode
-  :init
-  (progn
-    (global-undo-tree-mode)
-    (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/tmp/undo"))
-          undo-tree-visualizer-timestamps t
-          undo-tree-visualizer-diff t)))
-
-;; web-mode
-
-;; [[https://github.com/fxbois/web-mode][web-mode.el]] is an emacs major mode for editing web templates aka HTML files
-;; embedding parts (CSS/JavaScript) and blocks (pre rendered by client/server side
-;; engines).
-
-;; web-mode.el is compatible with many template engines: PHP, JSP, ASP, Django,
-;; Twig, Jinja, Mustache, ERB, FreeMarker, Velocity, Cheetah, Smarty, CTemplate,
-;; Mustache, Blade, ErlyDTL, Go Template, Dust.js, Google Closure (soy), JSX,
-;; Angularjs, ejs, etc.
-
-(use-package web-mode
-  :ensure t
-  :config
-  (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.js?\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.css?\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.xml?\\'" . web-mode)))
-
-;; TODO yasnippet
-
-;; [[https://github.com/capitaomorte/yasnippet][YASnippet]] is a template system for Emacs. It allows you to type an
-;; abbreviation and automatically expand it into function templates.
-
-;; [[https://github.com/emacs-helm/helm-c-yasnippet][helm-c-yasnippet]] is a helm source to display available yasnippets for the
-;; current mode.
-
-(use-package yasnippet
-  :ensure t
-  :defer 5
-  :diminish yas-minor-mode
-  :config
-  (yas-global-mode)
-  (use-package helm-c-yasnippet
-    :ensure t
-    :ensure helm))
-
-;; Disable it in ansi-term
-
-(add-hook 'after-change-major-mode-hook
-          (lambda ()
-            (when (find major-mode
-                        '(term-mode ansi-term))
-              (yas-minor-mode 0))))
-
-;; ztree
-
-;; [[./img/ztree.png]]
-
-;; [[https://github.com/fourier/ztree][Ztree]] is a project dedicated to implementation of several text-tree applications
-;; inside Emacs. It consists of 2 subprojects: ztree-diff and ztree-dir.
-;; *ztree-diff* is a directory-diff tool for Emacs inspired by commercial tools like
-;; Beyond Compare or Araxis Merge. It supports showing the difference between two
-;; directories; calling Ediff for not matching files, copying between directories,
-;; deleting file/directories, hiding/showing equal files/directories.
-;; *ztree-dir* is a simple text-mode directory tree for Emacs.
-
-(use-package ztree-diff
-  :ensure ztree
-  :config
-  (set-face-attribute 'ztreep-diff-model-add-face  nil :foreground "deep sky blue")
-  (setq ztree-draw-unicode-lines t)
-  (bind-keys :map ztreediff-mode-map
-                 ("p" . previous-line)
-                 ("k" . previous-line)
-                 ("j" . next-line)
-                 ("n" . next-line))
-
-  (when (package-installed-p 'hydra)
-      (bind-keys :map ztreediff-mode-map
-                 ("\\" . hydra-ztree/body))
-      (defhydra hydra-ztree (:color blue :hint nil)
-          "
-                                                                      ╭────────────┐
-       Move      File                 Do                              │ Ztree diff │
-    ╭─────────────────────────────────────────────────────────────────┴────────────╯
-      _k_/_p_   [_C_] copy                  [_h_] toggle equal files
-      ^ ^↑^ ^   [_D_] delete                [_x_] toggle subtree
-      ^_TAB_^   [_v_] view                  [_r_] partial rescan
-      ^ ^↓^ ^   [_d_] simple diff           [_R_] full rescan
-      _j_/_n_   [_RET_] diff/expand         [_g_] refresh
-      ^ ^ ^ ^   [_SPC_] simple diff/expand
-    --------------------------------------------------------------------------------
-          "
-         ("\\" hydra-master/body "back")
-         ("<ESC>" nil "quit")
-         ("p" previous-line)
-         ("k" previous-line)
-         ("j" next-line)
-         ("n" next-line)
-         ("C" ztree-diff-copy)
-         ("h" ztree-diff-toggle-show-equal-files)
-         ("D" ztree-diff-delete-file)
-         ("v" ztree-diff-view-file)
-         ("d" ztree-diff-simple-diff-files)
-         ("r" ztree-diff-partial-rescan)
-         ("R" ztree-diff-full-rescan)
-         ("RET" ztree-perform-action)
-         ("SPC" ztree-perform-soft-action)
-         ("TAB" ztree-jump-side)
-         ("g" ztree-refresh-buffer)
-         ("x" ztree-toggle-expand-subtree))))
-
-;; emmet-mode
-
-;; [[https://github.com/smihica/emmet-mode][emmet-mode]] is a minor mode providing support for [[http://emmet.io/][Emmet]], that produces HTML and
-;; CSS from CSS-like selectors.
-
-;; Here is an example, typing
-;;      : a#q.x>b#q.x*2
-;; produces this HTML:
-;; #+BEGIN_EXAMPLE
-;; <a id="q" class="x" href="">
-;;     <b id="q" class="x"></b>
-;;     <b id="q" class="x"></b>
-;; </a>
-;; #+END_EXAMPLE
-
-;; | Binding  | Call                   | Do                        |
-;; |----------+------------------------+---------------------------|
-;; | C-j      | emmet-expand-line      | expand the emmet snippet  |
-;; | C-return | emmet-expand-line      | expand the emmet snippet  |
-;; | C-n      | emmet-next-edit-point  | go to the next edit point |
-;; | C-p      | emmet-prev-edit-point  | go to the next edit point |
-;; | C-c w    | emmet-wrap-with-markup | Wrap region with markup   |
-;; |----------+------------------------+---------------------------|
-
-;; [[https://github.com/yasuyk/helm-emmet][helm-emmet]] provides helm sources for emmet-mode's snippets.
-
-;; [[https://github.com/yasuyk/ac-emmet][ac-emmet]] are auto-complete sources for emmet-mode's snippets
-
-(use-package emmet-mode
-  :ensure t
-  :config
-  (add-hook 'sgml-mode-hook 'emmet-mode)
-  (add-hook 'css-mode-hook  'emmet-mode)
-  (bind-keys :map emmet-mode-keymap
-             ("C-n" . emmet-next-edit-point)
-             ("C-p" . emmet-prev-edit-point))
-
-  (use-package helm-emmet
-    :ensure t
-    :ensure helm
-    :commands helm-emmet)
-
-  (use-package ac-emmet
-    :ensure t
-    :ensure auto-complete
-    :config
-    (add-hook 'sgml-mode-hook 'ac-emmet-html-setup)
-    (add-hook 'css-mode-hook  'ac-emmet-css-setup)))
-
-;; epresent
-
-;; [[https://github.com/eschulte/epresent][epresent]] is a simple presentation mode for Emacs Org-mode
-
-;; | Binding   | Call                        | Do                                         |
-;; |-----------+-----------------------------+--------------------------------------------|
-;; | j         | scroll-up                   | scroll up one "line" of the same "slide"   |
-;; | ↓         | scroll-up                   | scroll up one "line" of the same "slide"   |
-;; | k         | scroll-down                 | scroll down one "line" of the same "slide" |
-;; | ↑         | scroll-down                 | scroll down one "line" of the same "slide" |
-;; |-----------+-----------------------------+--------------------------------------------|
-;; | 1         | epresent-top                | top level of the presentation              |
-;; | t         | epresent-top                | top level of the presentation              |
-;; | q         | epresent-quit               | quit                                       |
-;; |-----------+-----------------------------+--------------------------------------------|
-;; | SPC       | epresent-next-page          | next "slide"                               |
-;; | n         | epresent-next-page          | next "slide"                               |
-;; | f         | epresent-next-page          | next "slide"                               |
-;; | →         | epresent-next-page          | next "slide"                               |
-;; | BACKSPACE | epresent-previous-page      | previous "slide"                           |
-;; | p         | epresent-previous-page      | previous "slide"                           |
-;; | b         | epresent-previous-page      | previous "slide"                           |
-;; | ←         | epresent-previous-page      | previous "slide"                           |
-;; |-----------+-----------------------------+--------------------------------------------|
-;; | c         | epresent-next-src-block     | move to the next code block                |
-;; | C         | epresent-previous-src-block | move to the previous code block            |
-;; | e         | org-edit-src-code           | edit the source block                      |
-;; | x         | org-babel-execute-src-block | execute the source block                   |
-;; | r         | epresent-refresh            | refresh the page to show the results       |
-;; | g         | epresent-refresh            | refresh the page to show the results       |
-;; | C-c C-c   |                             | refresh the page to show the results       |
-;; |-----------+-----------------------------+--------------------------------------------|
-
-(use-package epresent
-  :ensure t
-  :defer t)

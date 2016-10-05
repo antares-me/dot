@@ -45,4 +45,4 @@
     tool = kompare
 [commit]
     gpgsign = true
-    template = /home/anton/.gitmessage.txt
+    template = ~/.gitmessage.txt

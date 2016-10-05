@@ -1,36 +1,48 @@
 [user]
-	email = antares@antares.me
-	name = antares-me (Anton Salnikov)
+    email = antares@antares.me
+    name = Anton Salnikov
+    signingkey = 1409F9C32E91DD07
 [github]
-	user = antares-me
+    user = antares-me
 [push]
-	default = current
+    default = current
 [filter "lfs"]
-	smudge = git-lfs smudge %f
-	required = true
-	clean = git-lfs clean %f
+    smudge = git-lfs smudge %f
+    required = true
+    clean = git-lfs clean %f
 [core]
-	editor = vim
-	pager = less -SR
+    editor = vim
+#   pager = less -SR
+    pager = more
+    autocrlf = true
+    whitespace = trailing-space,space-before-tab,indent-with-non-tab
 [merge]
-        conflictstyle = diff3
+    conflictstyle = diff3
+    tool = kompare
+[color]
+    ui = true
 [color "branch"]
-        current = yellow reverse
-        local = yellow
-        remote = green
+    current = yellow reverse
+    local = yellow
+    remote = green
 [color "diff"]
-        meta = yellow bold
-        frag = magenta bold
-        old = red bold
-        new = green bold
+    meta = yellow bold
+    frag = magenta bold
+    old = red bold
+    new = green bold
 [color "status"]
-        added = yellow
-        changed = green
-        untracked = cyan
+    added = yellow
+    changed = green
+    untracked = cyan
 [alias]
-        st = status
-        ci = commit
-        br = branch
-        co = checkout
-        df = diff
-        lg = log --oneline --graph --decorate
+    st = status
+    ci = commit
+    br = branch
+    co = checkout
+    df = diff
+    lg = log --oneline --graph --decorate
+[diff]
+    tool = kompare
+[commit]
+    gpgsign = true
+    template = /home/anton/.gitmessage.txt

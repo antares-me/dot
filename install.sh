@@ -32,7 +32,8 @@ apt update && apt -y upgrade && apt -y install \
     vlc
 
 git clone https://github.com/antares-me/dotfiles/
-cp ./dotfiles/lightdm/lightdm.conf /etc/lightdm/lightdm.conf
+cd ./dotfiles
+cp ./lightdm/lightdm.conf /etc/lightdm/lightdm.conf
 chsh -s /bin/zsh
 prelink -amfR
 service lightdm restart

@@ -14,7 +14,7 @@
     editor = vim
 #   pager = less -SR
     pager = more
-#   autocrlf = true
+    autocrlf = input
     whitespace = trailing-space,space-before-tab,indent-with-non-tab
 [merge]
     conflictstyle = diff3
@@ -46,3 +46,5 @@
 [commit]
     gpgsign = true
     template = ~/.gitmessage.txt
+[help]
+    autocorrect = 1

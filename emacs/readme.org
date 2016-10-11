@@ -52,7 +52,7 @@ Tangling происходит автоматически каждый раз п�
            (equal (buffer-file-name)
                   (expand-file-name (concat user-emacs-directory "readme.org")))
            (equal (buffer-file-name)
-                  (expand-file-name "~/gitRepos/dotfiles/emacs/readme.org")))
+                  (expand-file-name "~/dotfiles/emacs/readme.org")))
       (call-process-shell-command
        "emacs ~/.emacs.d/readme.org --batch --eval='(org-babel-tangle)' && notify-send -i 'emacs' 'Emacs' 'init-файл собран'" nil 0)))
       ;; (byte-compile-file (concat user-emacs-directory "init.el")))
@@ -743,7 +743,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
         (setq org-confirm-babel-evaluate 'antares-org-confirm-babel-evaluate)))
 #+END_SRC
 
-* Пакеты [0/17]
+* Пакеты [0/18]
 
 Здесь я пытаюсь настроить кахдый пакет отдельно от других насколько это возможно
 чтобы быть уверенным в том, что при добавлении или удалении пакета не сломается
@@ -4491,6 +4491,18 @@ quickrun.el похож на интерпретатор, но quickrun.el пре�
           ranger-show-literal nil))
 #+END_SRC
 
+** TODO web-mode
+   
+   [[./img/web-mode.png]]
+   [[http://web-mode.org/][Web-mode]] щсновной режим для редактирования web-шаблонов
+   [[https://github.com/fxbois/web-mode][Github]]
+
+#+BEGIN_SRC emacs-lisp
+  (use-package web-mode
+    :ensure t
+    )
+#+END_SRC
+   
 * Footnotes
 
 [fn:1] Логотип Emacs взят с [[http://th.nao.ac.jp/MEMBER/zenitani/emacs-e.html][Carbon Emacs Package]] и предоставлен под лицензией

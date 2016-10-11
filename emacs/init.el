@@ -21,7 +21,7 @@
          (equal (buffer-file-name)
                 (expand-file-name (concat user-emacs-directory "readme.org")))
          (equal (buffer-file-name)
-                (expand-file-name "~/gitRepos/dotfiles/emacs/readme.org")))
+                (expand-file-name "~/dotfiles/emacs/readme.org")))
     (call-process-shell-command
      "emacs ~/.emacs.d/readme.org --batch --eval='(org-babel-tangle)' && notify-send -i 'emacs' 'Emacs' 'init-файл собран'" nil 0)))
     ;; (byte-compile-file (concat user-emacs-directory "init.el")))
@@ -3522,3 +3522,13 @@
   (setq ranger-cleanup-on-disable t
         ranger-show-dotfiles nil
         ranger-show-literal nil))
+
+;; TODO web-mode
+   
+;;    [[./img/web-mode.png]]
+;;    [[http://web-mode.org/][Web-mode]] щсновной режим для редактирования web-шаблонов
+;;    [[https://github.com/fxbois/web-mode][Github]]
+
+(use-package web-mode
+  :ensure t
+  )

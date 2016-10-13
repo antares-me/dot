@@ -408,6 +408,15 @@ NeoBundle 'eshion/vim-sftp-sync'
 NeoBundle 'vim-scripts/FastFold'
 "}}}
 
+" Org-mode {{{
+
+" Таск-менеджер
+NeoBundle 'jceb/vim-orgmode'
+
+" Органайзер
+NeoBundle 'hsitz/VimOrganizer'
+"}}}
+
 " END BUNDLES }}}
 
 call neobundle#end()

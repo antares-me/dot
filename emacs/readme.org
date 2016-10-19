@@ -743,7 +743,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
         (setq org-confirm-babel-evaluate 'antares-org-confirm-babel-evaluate)))
 #+END_SRC
 
-* Пакеты [0/18]
+* Пакеты [0/19]
 
 Здесь я пытаюсь настроить кахдый пакет отдельно от других насколько это возможно
 чтобы быть уверенным в том, что при добавлении или удалении пакета не сломается
@@ -1695,6 +1695,18 @@ Text, разработанной Pixel Lab.
         :ensure t
         :ensure helm
         :commands helm-flycheck))
+#+END_SRC
+
+** TODO geben
+   
+   [[https://github.com/pokehanai/geben-on-emacs][geben]] плагин для дебага через протокол DBGp.
+
+#+BEGIN_SRC emacs-lisp
+    (use-package geben
+      :ensure t
+      :defer t
+      :config
+    )
 #+END_SRC
 
 ** git-modes

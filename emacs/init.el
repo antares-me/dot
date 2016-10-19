@@ -1536,6 +1536,16 @@
     :ensure helm
     :commands helm-flycheck))
 
+;; TODO geben
+   
+;;    [[https://github.com/pokehanai/geben-on-emacs][geben]] плагин для дебага через протокол DBGp.
+
+(use-package geben
+  :ensure t
+  :defer t
+  :config
+)
+
 ;; git-modes
 
 ;; [[https://github.com/magit/git-modes][Git modes]] GNU Emacs режимы для файлов связанных с Git.

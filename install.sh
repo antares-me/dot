@@ -19,17 +19,24 @@ apt update && apt -y upgrade && apt -y install \
     firefox \
     firefox-locale-ru \
     git \
-    libncurses5-dev \
-    libncursesw5-dev \
+#    libncurses5-dev \
+#    libncursesw5-dev \
     lightdm \
     lightdm-webkit-greeter \
+    mc \
+    pass \
     prelink \
     preload \
     ranger \
+    stow \
+    termonology \
+    tmux \
     xterm \
     vim \
     vim-nox \
-    vlc
+    vlc \
+    zram-config \
+    zsh
 
 git clone https://github.com/antares-me/dotfiles/
 cd ./dotfiles
@@ -38,3 +45,4 @@ chsh -s /bin/zsh
 prelink -amfR
 service lightdm restart
 
+#Для сборки debugclient понадобится libtool-bin

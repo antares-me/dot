@@ -917,6 +917,14 @@
           )
           )
 
+;; TODO CIDER
+;;    [[https://github.com/clojure-emacs/cider][CIDER]] интерактивная среда разработки для Clojure
+
+(use-package cider
+  :defer t
+  :ensure t
+)
+
 ;; charmap
 
 ;; [[./img/charmap.png]]
@@ -954,6 +962,14 @@
 ;; [[https://github.com/cosmicexplorer/cloc-emacs][cloc]] количество строк кода в буфере
 
 (use-package cloc
+  :ensure t
+  :commands cloc)
+
+;; TODO clojure-mode
+;;    [[https://github.com/clojure-emacs/clojure-mode][Clojure-mode]] интеграция,
+;;    навигация и рефакторинг для Clojure(Script)
+
+(use-package clojure-mode
   :ensure t
   :commands cloc)
 
@@ -3273,6 +3289,26 @@
   (setq paradox-github-token t
         paradox-automatically-star nil
         paradox-execute-asynchronously t))
+
+;; TODO parinfer
+;;    [./img/parinfer.gif]
+;;    [[https://github.com/DogLooksGood/parinfer-mode][parinfer]] умное расставление скобок
+
+(use-package parinfer
+  :ensure t
+  :bind
+  (("C-," . parinfer-toggle-mode))
+  :init
+  (progn
+    (setq parinfer-extensions
+          '(defaults       ; should be included.
+            pretty-parens  ; different paren styles for different modes.
+            evil           ; If you use Evil.
+            lispy          ; If you use Lispy. With this extension, you should install Lispy and do not enable lispy-mode directly.
+            smart-tab      ; C-b & C-f jump positions and smart shift with tab & S-tab.
+            smart-yank))   ; Yank behavior depend on mode.
+    (add-hook 'clojure-mode-hook #'parinfer-mode)
+    (add-hook 'emacs-lisp-mode-hook #'parinfer-mode)))
 
 ;; TODO password-store
 

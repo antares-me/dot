@@ -5,6 +5,9 @@
 #     exit 1
 # fi
 
+# Для снятия блокировки необходимо выполнить
+# sudo fuser -vki /var/lib/dpkg/lock
+
 if [ "$(id -u)" != "0"  ]; then
     echo "Sorry, you are not root."
     exit 1
@@ -16,6 +19,7 @@ apt update && apt -y upgrade && apt -y install \
     chromium-browser \
     cloc \
     emacs \
+    fim \
     firefox \
     firefox-locale-ru \
     git \
@@ -34,6 +38,7 @@ apt update && apt -y upgrade && apt -y install \
     xterm \
     vim \
     vim-nox \
+    vim-nox-py2 \
     vlc \
     zram-config \
     zsh
@@ -46,3 +51,5 @@ prelink -amfR
 service lightdm restart
 
 #Для сборки debugclient понадобится libtool-bin
+#Doom
+#sudo apt install prboom-plus doom-wad-shareware

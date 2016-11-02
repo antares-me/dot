@@ -314,6 +314,14 @@ NeoBundle 'tobyS/pdv', {'autoload':{'filetypes': ['php']}}
 " JSBeautifier
 NeoBundle 'maksimr/vim-jsbeautify', {'autoload':{'filetypes':
             \ ['php', 'css', 'js', 'html']}}
+" Отступы в php файлах
+NeoBundle '2072/PHP-Indenting-for-VIm', {'autoload':{'filetypes':['php']}}
+" Дебаггер
+NeoBundle 'joonty/vdebug', {'autoload':{'filetypes':['php']}}
+
+" Дебаггер
+"NeoBundle 'brookhong/DBGPavim', {'autoload':{'filetypes' : ['php']}}
+
 " JSBeautifier {{{
 " NeoBundle 'michalliu/sourcebeautify.vim'
 " NeoBundle 'michalliu/jsruntime.vim'
@@ -2165,6 +2173,39 @@ if exists("g:loaded_webdevicons")
 endif
 " Убрать артефакты NERDTree в GVim
 autocmd FileType nerdtree setlocal nolist
+" }}}
+
+" Vdebug {{{
+let g:vdebug_keymap = {
+            \    "run_to_cursor" : "<Down>",
+            \    "step_over" : "<Up>",
+            \    "step_into" : "<Right>",
+            \    "step_out" : "<Left>",
+            \}
+"            \    "run" : "<Leader>/",
+"            \    "close" : "q",
+"            \    "detach" : "x",
+"            \    "set_breakpoint" : "<Leader>p",
+"            \    "eval_visual" : "<Leader>e"
+
+let g:vdebug_options= {
+            \    "port" : 9000,
+            \    "server" : '',
+            \    "timeout" : 30,
+            \    "on_close" : 'detach',
+            \    "break_on_open" : 1,
+            \    "ide_key" : 'xdebug',
+            \    "path_maps" : {
+            \       "/var/www/demo30" : "/home/antares/develop/demo30",
+            \     },
+            \    "debug_window_level" : 0,
+            \    "debug_file_level" : 0,
+            \    "debug_file" : "",
+            \    "watch_window_style" : 'expanded',
+            \    "marker_default" : '⬦',
+            \    "marker_closed_tree" : '▸',
+            \    "marker_open_tree" : '▾'
+            \}
 " }}}
 
 " Настройки плагинов }}}

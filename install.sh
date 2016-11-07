@@ -32,6 +32,7 @@ apt update && apt -y upgrade && apt -y install \
     prelink \
     preload \
     ranger \
+    silversearcher-ag \
     stow \
     termonology \
     tmux \
@@ -51,5 +52,6 @@ prelink -amfR
 service lightdm restart
 
 #Для сборки debugclient понадобится libtool-bin
+
 #Doom
 #sudo apt install prboom-plus doom-wad-shareware

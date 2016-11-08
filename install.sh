@@ -14,17 +14,23 @@ if [ "$(id -u)" != "0"  ]; then
 fi
 
 apt update && apt -y upgrade && apt -y install \
+    alsa \
     awesome \
     awesome-extra \
     chromium-browser \
     cloc \
+    cowsay \
     emacs \
     fim \
     firefox \
     firefox-locale-ru \
     git \
-#    libncurses5-dev \
-#    libncursesw5-dev \
+    git-extras \
+    hddtemp \
+    htop \
+    kbdd \
+    libncurses5-dev \
+    libncursesw5-dev \
     lightdm \
     lightdm-webkit-greeter \
     mc \
@@ -32,15 +38,18 @@ apt update && apt -y upgrade && apt -y install \
     prelink \
     preload \
     ranger \
+    rxvt-unicode-256color \
     silversearcher-ag \
     stow \
     termonology \
     tmux \
-    xterm \
     vim \
     vim-nox \
     vim-nox-py2 \
     vlc \
+    w3m \
+    xterm \
+    zathura \
     zram-config \
     zsh
 

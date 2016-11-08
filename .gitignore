@@ -1,2 +1,6 @@
 vim/.vim/bundle/*
 vim/.vim/tmp/*
+gnupg/.gnupg/pubring.gpg*
+gnupg/.gnupg/random_seed
+gnupg/.gnupg/secring.gpg
+gnupg/.gnupg/trustdb.gpg

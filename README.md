@@ -3,6 +3,8 @@
 Для корректной работы необходимо установить дополнительные пакеты:
 - awesome
 - [cowsay][cowsay]
+- festival
+- festvox-ru
 - git
 - [lightdm][lightdm]
 - prelink
@@ -13,6 +15,7 @@
 - [tmux][tmux]
 - vim
 - w3m
+- xsel
 - [zsh][zsh]
 - ledger
 - task

@@ -3572,7 +3572,7 @@
 ;; TODO web-mode
    
 ;;    [[./img/web-mode.png]]
-;;    [[http://web-mode.org/][Web-mode]] щсновной режим для редактирования web-шаблонов
+;;    [[http://web-mode.org/][Web-mode]] основной режим для редактирования web-шаблонов
 ;;    [[https://github.com/fxbois/web-mode][Github]]
 
 (use-package web-mode

@@ -3,6 +3,8 @@
 Для корректной работы необходимо установить дополнительные пакеты:
 - awesome
 - [cowsay][cowsay]
+- festival
+- festvox-ru
 - git
 - [lightdm][lightdm]
 - prelink
@@ -13,8 +15,10 @@
 - [tmux][tmux]
 - vim
 - w3m
+- xsel
 - [zsh][zsh]
 - ledger
+- task
 
 `sudo apt-get install cowsay ranger vim vim-nox awesome awesome-extra git zsh
 zsh-common w3m w3m-img curl tmux lightdm ubuntu-session xterm emacs

@@ -249,6 +249,8 @@ NeoBundleLazy 'chrisbra/csv.vim', {'filetypes' : 'csv'}
 " NeoBundle 'mattn/vim-maketable'
 " Форматирование кода
 NeoBundle 'aserebryakov/filestyle'
+" Автопереключение раскладки в режиме команд
+NeoBundle 'evindor/vim-rusmode'
 
 " Текстовые объекты {{{
 
@@ -415,6 +417,10 @@ NeoBundle 'eshion/vim-sftp-sync'
 " Складки {{{
 NeoBundle 'vim-scripts/FastFold'
 "}}}
+
+" REPL {{{
+NeoBundle 'jpalardy/vim-slime'
+" }}}
 
 " Org-mode {{{
 
@@ -2208,6 +2214,12 @@ let g:vdebug_options= {
             \}
 " }}}
 
+" Rusmode {{{
+let g:rusmode_get_layout_command = "setxkbmap -print | grep xkb_symbols | awk '{split($0,arr,"+")} END{print arr[2]}'"
+let g:rusmode_set_layout_command = 'setxkbmap -option "grp:ctrl_shift_toggle,grp_led:scroll" -layout "us,ru"'
+let g:rusmode_normal_layout='us'
+" }}}
+
 " Настройки плагинов }}}
 
 " FILETYPES  {{{ ==============================================================
@@ -2230,6 +2242,14 @@ augroup END
 
 au BufRead,BufNewFile rc.lua setlocal foldmethod=marker
 
+" }}}
+
+" REPL {{{
+let g:slime_target = "tmux"
+let g:slime_no_mappings = 1
+xmap <leader>s <Plug>SlimeRegionSend
+nmap <leader>s <Plug>SlimeMotionSend
+nmap <leader>ss <Plug>SlimeLineSend
 " }}}
 
 " PYTHON {{{

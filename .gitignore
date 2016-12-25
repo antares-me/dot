@@ -4,3 +4,7 @@ gnupg/.gnupg/pubring.gpg*
 gnupg/.gnupg/random_seed
 gnupg/.gnupg/secring.gpg
 gnupg/.gnupg/trustdb.gpg
+ranger/.config/ranger/bookmarks
+ranger/.config/ranger/history
+ranger/.config/ranger/tagged
+

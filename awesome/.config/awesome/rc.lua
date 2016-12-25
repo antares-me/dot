@@ -363,10 +363,9 @@ mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon,
 
 -- {{{ Wibox
 
--- {{{ Wibox Widgets
--- Widgets to show on Wibox
+-- {{{ Виджеты Wibox
 
--- {{{ MPD widget
+-- {{{ Виджет MPD (music player daemon)
 mpdwidget = wibox.widget.textbox()
 vicious.register(mpdwidget, vicious.widgets.mpd,
     function (widget, args)
@@ -387,7 +386,9 @@ vicious.cache(vicious.widgets.mem)
 vicious.register(memwidget, vicious.widgets.mem, "$1% $2MB", 10)
 -- }}}
 
--- {{{ Cpu widget
+-- {{{ Виджет загрузки процессора
+-- $1 - общая загрузка процессора
+-- $2 и $3 - ядра процессора
 cpuwidget = wibox.widget.textbox()
 cpuwidget.width, cpuwidget.align = 150, "center"
 vicious.cache(vicious.widgets.cpu)
@@ -414,8 +415,8 @@ vicious.register(cputemp, vicious.contrib.sensors, " $1 ºC" , 3, "Physical id 0
 netwidget = wibox.widget.textbox()
 vicious.cache(vicious.widgets.net)
 vicious.register(netwidget, vicious.widgets.net,
-                '<span color="#CC9393">${enp4s25 down_kb}</span>' ..
-                ' <span color="#7F9F7F">${enp4s25 up_kb}</span>', 2)
+                '<span color="#CC9393">${enp4s0 down_kb}</span>' ..
+                ' <span color="#7F9F7F">${enp4s0 up_kb}</span>', 2)
 -- }}}
 
 -- {{{ Wi-Fi
@@ -426,11 +427,11 @@ vicious.register(wifiwidget, vicious.widgets.wifi,
                 ' <span color="#7F9F7F">${enp4s25 up_kb}</span>', 2)
 -- }}}
 
--- {{{ Textclock widget
+-- {{{ Виджет текстовых часов
 mytextclock = awful.widget.textclock(" %a %d %b %H:%M ", 15)
 -- }}}
 
--- Sound Volume {{{
+-- {{{ Виджет громкости звука
 mute = wibox.widget.textbox()
 vicious.register(mute, vicious.widgets.volume, "$2", 2, "Master")
 soundvol = wibox.widget.textbox()
@@ -455,14 +456,14 @@ vicious.register(batwidget, vicious.widgets.bat, battery_status_text, 120, "BAT0
 vicious.register(batwidgetadd, vicious.widgets.bat, battery_status_text, 120, "BAT1")
 -- }}}
 
--- {{{ Space & Separator
+-- {{{ Разделители
 space = wibox.widget.textbox()
-space:set_text(' || ')
+space:set_text(' | ')
 -- }}}
 
 -- }}}
 
--- {{{ Wibox itself
+-- {{{ Сам Wibox
 -- Create a wibox for each screen and add it
 mywibox = {}
 mypromptbox = {}
@@ -772,7 +773,7 @@ client.connect_signal("focus", function(c) c.border_color = beautiful.border_foc
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
 
--- {{{ Autostarting programm
+-- {{{ Автозапуск программ
 -- Network manager applet
 os.execute("pgrep -u $USER -x nm-applet || (nm-applet &)" )
 os.execute("pgrep -u $USER -x kbdd || (kbdd &)" )
@@ -781,16 +782,10 @@ os.execute("pgrep -u $USER -x xscreensaver || (xscreensaver -nosplash &)" )
 
 -- {{{ Widgets
 
--- Виджет-разделитель
--- separator = wibox.widget ({type = "textbox"})
--- separator.text = "::"
-
 -- -- Загрузка процессора
 -- cpuicon = widget ({type = "imagebox" })
 -- cpuicon.image = image(beautiful.widget_cpu)
 -- cpuwidget = widget({type = "textbox"})
--- -- $1 - общая загрузка процессора
--- -- $2 и $3 - ядра процессора
 -- vicious.register(cpuwidget, vicious.widgets.cpu, "Cpu: $1%|$2%|$3%")
 
 -- -- Температура процессора

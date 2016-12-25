@@ -20,6 +20,7 @@ apt update && apt -y upgrade && apt -y install \
     chromium-browser \
     cloc \
     cowsay \
+    dunst \
     emacs \
     fim \
     firefox \
@@ -31,9 +32,12 @@ apt update && apt -y upgrade && apt -y install \
     kbdd \
     libncurses5-dev \
     libncursesw5-dev \
+    libnotify4 \
+    libnotify-bin \
     lightdm \
     lightdm-webkit-greeter \
     mc \
+    mediainfo \
     pass \
     prelink \
     preload \
@@ -64,3 +68,5 @@ service lightdm restart
 
 #Doom
 #sudo apt install prboom-plus doom-wad-shareware
+
+pip install img2txt.py

@@ -2187,11 +2187,11 @@ let g:vdebug_keymap = {
             \    "step_over" : "<Up>",
             \    "step_into" : "<Right>",
             \    "step_out" : "<Left>",
+            \    "set_breakpoint" : "<Leader>p",
             \}
 "            \    "run" : "<Leader>/",
 "            \    "close" : "q",
 "            \    "detach" : "x",
-"            \    "set_breakpoint" : "<Leader>p",
 "            \    "eval_visual" : "<Leader>e"
 
 let g:vdebug_options= {
@@ -2203,10 +2203,11 @@ let g:vdebug_options= {
             \    "ide_key" : 'xdebug',
             \    "path_maps" : {
             \       "/var/www/demo30" : "/home/antares/develop/demo30",
+            \       "/var/www/demo31" : "/home/antares/develop/demo31",
             \     },
             \    "debug_window_level" : 0,
-            \    "debug_file_level" : 0,
-            \    "debug_file" : "",
+            \    "debug_file_level" : 2,
+            \    "debug_file" : "~/develop/vdebug.log",
             \    "watch_window_style" : 'expanded',
             \    "marker_default" : '⬦',
             \    "marker_closed_tree" : '▸',

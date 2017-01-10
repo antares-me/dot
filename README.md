@@ -3,6 +3,7 @@
 Для корректной работы необходимо установить дополнительные пакеты:
 - awesome
 - [cowsay][cowsay]
+- [fim][fim]
 - festival
 - festvox-ru
 - git
@@ -31,6 +32,7 @@ xserver-xephyr silversearcher-ag ledger libnotify-bin`
 сопутствующие библиотеки и программы
 
 ### [Awesome](awesome)
+
 ### LightDM
 LightDM — это дисплейный менеджер X, который стремится быть лёгким, быстрым,
 расширяемым и поддерживающим множество рабочих столов. Фронтенд Unity Greeter
@@ -39,6 +41,7 @@ LightDM — это дисплейный менеджер X, который ст�
 `sudo apt install lightdm`
 
 ### xTerm
+
 ### Preload
 Preload - это демон, который работает в фоновом режиме, и определяет наиболее 
 часто используемые приложения и хранит их в кэше, благодаря этому они быстрее 
@@ -86,8 +89,9 @@ Z shell, zsh — одна из современных командных обо�
 `chsh -s /bin/zsh your_user`
 
 [cowsay]:https://ru.wikipedia.org/wiki/Cowsay
+[fim]:http://www.nongnu.org/fbi-improved/
 [lightdm]:https://ru.wikipedia.org/wiki/LightDM
 [preload]:http://preload.sourceforge.net/
+[silversearcher-ag]:https://github.com/ggreer/the_silver_searcher
 [tmux]:https://ru.wikipedia.org/wiki/Tmux
 [zsh]:https://ru.wikipedia.org/wiki/Zsh
-[silversearcher-ag]:https://github.com/ggreer/the_silver_searcher

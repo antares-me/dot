@@ -22,6 +22,8 @@ apt update && apt -y upgrade && apt -y install \
     cowsay \
     dunst \
     emacs \
+    festival \
+    festvox-ru \
     fim \
     firefox \
     firefox-locale-ru \

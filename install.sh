@@ -14,6 +14,7 @@ if [ "$(id -u)" != "0"  ]; then
 fi
 
 apt update && apt -y upgrade && apt -y install \
+    abook \
     alsa \
     awesome \
     awesome-extra \

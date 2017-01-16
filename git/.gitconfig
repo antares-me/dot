@@ -55,7 +55,9 @@
 [diff]
     tool = kompare
 [commit]
-    gpgsign = true
+	gpgsign = true
     template = ~/.gitmessage.txt
 [help]
     autocorrect = 1
+[gpg]
+	program = gpg2

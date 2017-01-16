@@ -46,6 +46,7 @@ apt update && apt -y upgrade && apt -y install \
     preload \
     ranger \
     rxvt-unicode-256color \
+    scrot \
     silversearcher-ag \
     stow \
     termonology \

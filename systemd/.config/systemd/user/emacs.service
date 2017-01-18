@@ -10,4 +10,3 @@ ExecStop = /usr/bin/emacsclient --eval "(save-buffers-kill-emacs)"
 [Install]
 WantedBy = xsession.target
 
-

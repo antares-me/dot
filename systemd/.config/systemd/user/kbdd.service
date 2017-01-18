@@ -1,0 +1,12 @@
+[Unit]
+Description = Start kbdd as daemon
+PartOf = xsession.target
+
+[Service]
+Type = forking
+ExecStart = /usr/bin/kbdd
+Restart=on-abort
+
+[Install]
+WantedBy = xsession.target
+

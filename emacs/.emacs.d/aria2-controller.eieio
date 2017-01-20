@@ -1,0 +1,8 @@
+;; Object aria2-controller
+;; EIEIO PERSISTENT OBJECT
+(aria2-controller "aria2-controller"
+  :file "aria2-controller.eieio"
+  :request-id 130
+  :rcp-url "http://localhost:6800/jsonrpc"
+  :secret "ebe9ec05-2c92-456a-9c46-9e36a1c5d81a"
+  :pid 31353)

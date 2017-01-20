@@ -3,14 +3,14 @@
    
 ;; Используется один из стандартнх init файлов Emacs, =init.el= для загрузки всей
 ;; конфигурации. Предпологается, что настройки хранятся в стандартном =~/.emacs.d=
-;; каталоге и для установки конфигурации вам нужна символическая ссылка с этого
-;; каталога =emacs= на него. Файл =~/.emacs.d/init.el= собирается из всех блоков
+;; каталоге и для установки конфигурации вам нужна символическая ссылка с него на этот
+;; каталог =emacs=. Файл =~/.emacs.d/init.el= собирается из всех блоков
 ;; кода этого файла =~/emacs.d/readme.org=, экспортируемых в процессе, который
 ;; называется "tangling". Если блок помечен как =:tangle no=, он будет пропущен.
 ;; Tangling происходит автоматически каждый раз при изменении =readme.org=, с
 ;; помощью хука, чтобы быть уверенным в синхронизации файлов.
 
-;; Это хук для создаёт новый =~/.emacs.d/init.el= каждый раз при изменении этого
+;; Этот хук для создаёт новый =~/.emacs.d/init.el= каждый раз при изменении этого
 ;; файла.
 
 ;; Оригинал взят отсюда
@@ -21,9 +21,9 @@
          (equal (buffer-file-name)
                 (expand-file-name (concat user-emacs-directory "readme.org")))
          (equal (buffer-file-name)
-                (expand-file-name "~/dotfiles/emacs/readme.org")))
+                (expand-file-name "~/dotfiles/emacs/.emacs.d/readme.org")))
     (call-process-shell-command
-     "emacs ~/.emacs.d/readme.org --batch --eval='(org-babel-tangle)' && notify-send -i 'emacs' 'Emacs' 'init-файл собран'" nil 0)))
+     "/usr/bin/emacs ~/.emacs.d/readme.org --batch --eval='(org-babel-tangle)' && notify-send -i 'emacs' 'Emacs' 'init-файл собран'" nil 0)))
     ;; (byte-compile-file (concat user-emacs-directory "init.el")))
 
 (add-hook 'after-save-hook 'antares-tangle-init)
@@ -47,8 +47,8 @@
 ;; загрузки.
 
 ;; Он поставляется также с модулем =bind-key=, который помогает нам
-;; управлять привязками клавиш более простоым способом. С помощью этих двух
-;; утилит, работающих совместно, мы можем установить пакеты атомарно, как острова,
+;; управлять привязками клавиш удобным способом. С помощью этих двух
+;; утилит, работающих совместно, мы можем установить пакеты атомарно,
 ;; будучи в состоянии добавить/отключить/удалить пакеты, не вмешиваясь в другие.
 
 ;; Во избежание проблем с файлами более новые, чем их байт скомпилированные
@@ -2525,7 +2525,7 @@
     (defvar antares-rfc-index-file (concat irfc-directory "/rfc0000.txt" ))
     (defvar antares-rfc-index-url "https://www.ietf.org/download/rfc-index.txt")
     (unless (file-exists-p antares-rfc-index-file)
-      (url-copy-file antares-rfc-index-url joe-rfc-index-file))
+      (url-copy-file antares-rfc-index-url antares-rfc-index-file))
     (find-file antares-rfc-index-file))
   :config
   (bind-keys :map irfc-mode-map
@@ -3206,7 +3206,8 @@
 ;; TODO org-plus-contrib
 
 (use-package org-plus-contrib
-  :ensure t)
+  :ensure t
+  :defer t)
 
 ;; org-protocol intercepts calls from emacsclient to trigger
 ;; custom actions without external dependencies. Only one protocol
@@ -3274,6 +3275,7 @@
 
 (use-package page-break-lines
   :ensure t
+  :diminish page-break-lines-mode
   :config
   (global-page-break-lines-mode t))
 
@@ -3471,9 +3473,11 @@
           ("*slime-xref*")
           ("*Flycheck errors*")
           ("*Warnings*")
+          ("*Error*")
           ("*Process List*")
           ("*Smex: Unbound Commands*")
           ("*Paradox Report*" :noselect nil)
+          ("*Package Commit List*" :noselect nil)
           ("*Diff*" :noselect nil)
           ("*Messages*" :noselect nil)
           ("*Google Maps*" :noselect nil)

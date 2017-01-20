@@ -1,0 +1,12 @@
+[Unit]
+Description = adjust the color temperature of the screen acording the daylight
+PartOf = xsession.target
+
+[Service]
+Type = simple
+ExecStart = /usr/bin/aria2c -c -D --enable-rpc=true --rpc-allow-origin-all=true --rpc-listen-all=true --rpc-listen-port=6800 --dir=/home/antares/ariaDownloads --max-connection-per-server=8 --max-concurrent-downloads=5 --user-agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.56 Safari/537.17'
+
+[Install]
+WantedBy = xsession.target
+
+

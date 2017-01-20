@@ -425,10 +425,10 @@ NeoBundle 'jpalardy/vim-slime'
 " Org-mode {{{
 
 " Таск-менеджер
-NeoBundle 'jceb/vim-orgmode'
+" NeoBundle 'jceb/vim-orgmode'
 
 " Органайзер
-NeoBundle 'hsitz/VimOrganizer'
+" NeoBundle 'hsitz/VimOrganizer'
 "}}}
 
 " END BUNDLES }}}

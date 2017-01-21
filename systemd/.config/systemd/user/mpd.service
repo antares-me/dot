@@ -1,0 +1,7 @@
+[Unit]
+Description = music player daemon
+
+[Service]
+ExecStart = /usr/bin/mpd --no-daemon
+Restart = always
+

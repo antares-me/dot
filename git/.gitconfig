@@ -13,7 +13,7 @@
 [core]
     editor = vim
 #   pager = less -SR
-    pager = more
+	pager = diff-so-fancy | less --tabs=4 -RFX
     autocrlf = input
     whitespace = trailing-space,space-before-tab,indent-with-non-tab
 [merge]
@@ -52,6 +52,7 @@
 	staaash = stash --all
 	shorty = status --short --branch
 	merc = merge --no-ff
+	dsf = "!f() { [ -z \"$GIT_PREFIX\" ] || cd \"$GIT_PREFIX\" && git diff --color \"$@\" | diff-so-fancy  | less --tabs=4 -RFX; }; f"
 [diff]
     tool = kompare
 [commit]

@@ -248,7 +248,7 @@ NeoBundleLazy 'chrisbra/csv.vim', {'filetypes' : 'csv'}
 " Плагин для форматирования текста в таблицу
 " NeoBundle 'mattn/vim-maketable'
 " Форматирование кода
-NeoBundle 'aserebryakov/filestyle'
+" NeoBundle 'aserebryakov/filestyle'
 " Автопереключение раскладки в режиме команд
 NeoBundle 'evindor/vim-rusmode'
 

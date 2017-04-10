@@ -56,6 +56,9 @@ apt update && apt -y upgrade && apt -y install \
     vim-nox-py2 \
     vlc \
     w3m \
+    wicd \
+    wicd-curses \
+    wicd-cli \
     xterm \
     zathura \
     zram-config \

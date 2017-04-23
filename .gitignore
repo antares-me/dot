@@ -10,4 +10,5 @@ gnupg/.gnupg/trustdb.gpg
 ranger/.config/ranger/bookmarks
 ranger/.config/ranger/history
 ranger/.config/ranger/tagged
+systemd/.config/systemd/user/xsession.target.wants
 

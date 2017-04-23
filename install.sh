@@ -77,3 +77,5 @@ service lightdm restart
 #sudo apt install prboom-plus doom-wad-shareware
 
 pip install img2txt.py
+
+sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"

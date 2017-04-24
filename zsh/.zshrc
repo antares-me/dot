@@ -52,7 +52,7 @@ export WORKON_HOME=$HOME/.venv
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git vi-mode gitignore lein svn)
+plugins=(git vi-mode gitignore lein pip virtualenv virtualenvwrapper docker docker-compose)
 
 # User configuration
 

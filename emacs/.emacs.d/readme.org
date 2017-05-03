@@ -2414,8 +2414,8 @@ Unite работал в качестве интерфейса для неско�
         "
         ("w" eww)
         ("u" browse-url-at-point)
-        ("b" (joe-duckduckgo-search t))
-        ("e" (joe-duckduckgo-search nil))
+        ("b" (antares-duckduckgo-search t))
+        ("e" (antares-duckduckgo-search nil))
         ("m" google-maps)
         ("d" define-word-at-point)
         ("f" elfeed)
@@ -4776,7 +4776,7 @@ interactive ][systemd]] is a major mode for Emacs for edit systemd units.
     :ensure t
     :defer t
     :config
-    (setq sx-cache-directory (concat joe-emacs-temporal-directory "sx")))
+    (setq sx-cache-directory (concat antares-emacs-temporal-directory "sx")))
 #+END_SRC
 
 ** TODO swiper & ivy & counsel
@@ -4797,7 +4797,7 @@ the best use of ivy.
     :ensure ivy-hydra
     :diminish ivy-mode
     :config
-    (setq smex-save-file (concat joe-emacs-temporal-directory "smex-items"))
+    (setq smex-save-file (concat antares-emacs-temporal-directory "smex-items"))
     (smex-initialize)
     (setq ivy-use-virtual-buffers t
           ivy-height 15)
@@ -4808,7 +4808,7 @@ the best use of ivy.
   (use-package swiper
       :ensure t
       :config
-      (defun joe-swiper ()
+      (defun antares-swiper ()
           (interactive)
           (swiper)
           (add-to-list 'regexp-search-ring (ivy--regex ivy-text))))

@@ -1,7 +1,7 @@
 #+TITLE:     My Emacs Configuration
 #+AUTHOR:    Anton Salnikov
 #+EMAIL:     antares@antares.me
-#+DATE:      2016-08-30
+#+DATE:      2017-04-25
 #+LANGUAGE:  ru
 #+PROPERTY: header-args :tangle init.el :comments org
 #+OPTIONS: author:nil date:nil toc:nil title:nil e:nil
@@ -37,14 +37,14 @@ Emacs. Конфигурация использует [[http://orgmode.org/][Org-
 Используется один из стандартнх init файлов Emacs, =init.el= для загрузки всей
 конфигурации. Предпологается, что настройки хранятся в стандартном =~/.emacs.d=
 каталоге и для установки конфигурации вам нужна символическая ссылка с него на этот
-каталог =emacs=. Файл =~/.emacs.d/init.el= собирается из всех блоков
-кода этого файла =~/emacs.d/readme.org=, экспортируемых в процессе, который
-называется "tangling". Если блок помечен как =:tangle no=, он будет пропущен.
+каталог =emacs= (автоматически создастся если вы используете stow).
+Файл =~/.emacs.d/init.el= собирается из всех блоков кода этого файла 
+=~/emacs.d/readme.org=, экспортируемых в процессе, которыйназывается "tangling".
+Если блок помечен как =:tangle no=, он будет пропущен.
 Tangling происходит автоматически каждый раз при изменении =readme.org=, с
 помощью хука, чтобы быть уверенным в синхронизации файлов.
 
-Этот хук для создаёт новый =~/.emacs.d/init.el= каждый раз при изменении этого
-файла.
+Этот хук создаёт новый =~/.emacs.d/init.el= каждый раз при изменении этого файла.
 
 #+BEGIN_SRC emacs-lisp
   ;; Оригинал взят отсюда
@@ -57,29 +57,29 @@ Tangling происходит автоматически каждый раз п�
            (equal (buffer-file-name)
                   (expand-file-name "~/dotfiles/emacs/.emacs.d/readme.org")))
       (call-process-shell-command
-       "/usr/bin/emacs ~/.emacs.d/readme.org --batch --eval='(org-babel-tangle)' && notify-send -i 'emacs' 'Emacs' 'init-файл собран'" nil 0)))
+       "/usr/bin/emacs ~/.emacs.d/readme.org --batch --eval='(org-babel-tangle)' && notify-send -a 'Emacs' 'Emacs' 'init-файл собран'" nil 0)))
       ;; (byte-compile-file (concat user-emacs-directory "init.el")))
 
   (add-hook 'after-save-hook 'antares-tangle-init)
 #+END_SRC
 
-Крутая фишка такой настройки в том, что этот файл можно экспортировать как
-документацию в HTML, PDF или LaTeX достаточно легко. Например сделать это из Org
-mode можно нажав =C-c C-e=, выберите =h= и после одну из опций для создания HTML.
-В то же время это позволяет с удовольствием управлять конфигурацией и легко
-находить настройки и управлять ими.
+Крутая фишка такой настройки в том, что этот файл можно достаточно легко 
+экспортировать как документацию в HTML, PDF или LaTeX. Например сделать 
+это из Org mode можно нажав =C-c C-e=, выберите =h= и после одну из опций 
+для создания HTML. В то же время это позволяет с удовольствием настраивать 
+конфигурацию и легко находить настройки и управлять ими.
 
 *** Как сгенерировать init.el-файл
 
 Таким образом, из кода выше вы, вероятно, уже поняли команду, необходимую для
-генерации ~/.emacs.d/init.el~ файла. Во всяком случае вам надо выполнить эту
+генерации ~/.emacs.d/init.el~ файла. В любом случае вам надо выполнить эту
 команду в терминале, чтобы получить elisp файл из текущего файла org-mode. 
 
 #+BEGIN_EXAMPLE bash
   $ /usr/bin/emacs ~/.emacs.d/readme.org --batch --eval='(org-babel-tangle)'
 #+END_EXAMPLE
 
-* Предустанавливаемые приложения
+* TODO Предустанавливаемые приложения
 
 Тут список приложений, которые необходимо установить перед тем, как использовать
 эту конфигурацию и наслаждаться всеми её возможностями.
@@ -87,15 +87,15 @@ mode можно нажав =C-c C-e=, выберите =h= и после одн�
 - [[http://geoff.greer.fm/2011/12/27/the-silver-searcher-better-than-ack][Ag (aka "The Silver Searcher")]] или [[https://github.com/BurntSushi/ripgrep][rg ("ripgrep")]] или [[https://github.com/monochromegane/the_platinum_searcher][pt ("platinum searcher")]]
 - [[http://git-scm.com/][git]]
 - [[https://github.com/djcb/mu][mu]] (а также утилиту для получения почты например [[http://pyropus.ca/software/getmail/][getmail]] или [[http://offlineimap.org/][OfflineImap]])
-- [[http://surfraw.alioth.debian.org/][surfraw]]
 - [[https://www.gnupg.org/][GnuPG]]
 - [[http://www.latex-project.org/][LaTeX]] и [[http://pygments.org/][Pygments]] для экспорта в PDF с подсветкой синтаксиса
 - [[http://www.mupdf.com/][MuPDF]] для DocView, [[http://poppler.freedesktop.org/][poppler]] для pdf-tools
 - [[http://pandoc.org/][pandoc]] для ox-pandoc
 - [[http://www.zx2c4.com/projects/password-store/][pass]]
 - [[http://www.gzip.org/][gzip]]
-- [[https://stockfishchess.org/][Stockfish]] для шахмат
 - [[https://aria2.github.io/][aria2]]
+- [[https://stockfishchess.org/][Stockfish]] для шахмат
+- [[https://github.com/AlDanial/cloc][cloc]] для подсчёта строк кода
 
 * Настройка пакетов
 ** Репозитории
@@ -112,8 +112,8 @@ mode можно нажав =C-c C-e=, выберите =h= и после одн�
 ** use-package и bind-key
 
 Макрос [[https://github.com/jwiegley/use-package][use-package]] позволяет использовать изолированные конфигурации пакетов в
-настройках emacs таким образом, это становится более производительно и, ну,
-просто аккуратно. А это позволяет нам установить автоматически те пакеты,
+настройках emacs таким образом, что конфигурация становится более производительной 
+и, ну, просто аккуратно. А это позволяет нам установить автоматически те пакеты,
 которые еще не установлены (с использованием ключевого слова =:ensure t=) и
 освобождая нас от использования пользовательского процесса начальной
 загрузки.
@@ -125,7 +125,7 @@ mode можно нажав =C-c C-e=, выберите =h= и после одн�
 
 
 #+BEGIN_SRC emacs-lisp
-;; Во избежание проблем с файлами более новые, чем их байт скомпилированные
+;; Во избежание проблем с файлами более новыми, чем их байт скомпилированные
 ;; аналоги, лучше более медленный запуск, чем загрузка устаревших и, возможно,
 ;; сломанных пакетов.
     (setq load-prefer-newer t)
@@ -141,13 +141,13 @@ mode можно нажав =C-c C-e=, выберите =h= и после одн�
     (eval-when-compile
       (require 'use-package))
     (require 'diminish)                ;; Если используется :diminish
-    (require 'bind-key)                ;; Если используется другой :bind variant
+    (require 'bind-key)                ;; Если используется :bind
 #+END_SRC
 
 * Встроенные возможности
 ** Сообщения отладки с метками времени
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 ;; Временные метки (timestamp) в *Messages*
 ;; via https://www.reddit.com/r/emacs/comments/3hagxf/how_to_automatically_timestamp_messages_in/
 (defun current-time-microseconds ()
@@ -229,6 +229,9 @@ mode можно нажав =C-c C-e=, выберите =h= и после одн�
   (setq size-indication-mode t)
   (which-function-mode 1)
 
+  ;; Использовать основное выделение X сервера по умолчанию
+  (setq select-enable-primary t)
+
   ;; backward-kill-word альтернатива Backspace:
   ;; Удалить слово целиком вместо нескольких нажатий Backspace
   ;; Для этого привяжем =backward-kill-region= к комбинации =C-w=
@@ -275,12 +278,12 @@ mode можно нажав =C-c C-e=, выберите =h= и после одн�
     (make-directory antares-emacs-temporal-directory))
 #+END_SRC
 
-Сохраним все временные файлы во временных каталогах вместотого, чтобы плодить их
+Сохраним все временные файлы во временных каталогах вместо того, чтобы плодить их
 в $HOME директории.
 
 #+BEGIN_SRC emacs-lisp
   (setq-default
-   ;; Tramp история
+   ;; История tramp
    tramp-persistency-file-name (concat antares-emacs-temporal-directory "tramp")
    ;; Файл закладок
    bookmark-default-file (concat antares-emacs-temporal-directory "bookmarks")
@@ -375,7 +378,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
 буфере.
 
 *Внимание: когда тестируете новую тему, сначала отключите эту
-или используйте =helm-themes=.*
+или используйте =counsel-load-theme=.*
 
 Этот код служит для предотвращения перезагрузки темы каждый раз, когда вы
 открываете новый клиент в режиме сервера (из GUI или терминала)
@@ -408,6 +411,18 @@ Desktop Save Mode - функция сохранения состояния Emacs
     (progn (load-theme antares-color-theme t)))
 #+END_SRC
 
+Этот код должен предоставить возможность выполнить некоторые действия после загрузки
+темы, например, переопределить интерфейс в определенной теме или всегда перезагружать
+тему smart-mode-line.
+
+#+BEGIN_SRC emacs-lisp
+  (defvar after-load-theme-hook nil
+    "Хук, запускаемый после загрузки цветовой схемы, используя `load-theme'.")
+  (defadvice load-theme (after run-after-load-theme-hook activate)
+    "Запуск `after-load-theme-hook'."
+    (run-hooks 'after-load-theme-hook))
+#+END_SRC
+
 ** Шрифт
 
 Используемый шрифт. Мой выбор моноширинный /Dejavu Sans Mono/ потому что он
@@ -416,9 +431,9 @@ Desktop Save Mode - функция сохранения состояния Emacs
 #+BEGIN_SRC emacs-lisp
   (set-face-attribute 'default nil :family "Dejavu Sans Mono" :height 110)
 
-  ;; Set a font with great support for Unicode Symbols to fallback in
-  ;; those case where certain Unicode glyphs are missing in the current
-  ;; font.
+  ;; Установим шрифт с отличной поддержкой символов Unicode, чтобы в случае
+  ;; отсутствия определённых символов в текущем шрифте показать их из 
+  ;; резервного
   (set-fontset-font "fontset-default" nil
                     (font-spec :size 20 :name "Symbola"))
 #+END_SRC
@@ -453,7 +468,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
 #+BEGIN_SRC emacs-lisp
   ;; from http://stackoverflow.com/a/11701899/634816
   (defun antares-toggle-show-trailing-whitespace ()
-    "Toggle show-trailing-whitespace between t and nil"
+    "Переключение show-trailing-whitespace между t и nil"
     (interactive)
     (setq show-trailing-whitespace (not show-trailing-whitespace)))
 #+END_SRC
@@ -463,7 +478,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
 Добавляет функционал возможности завершения процесса прямо в =list process=
 буфере
 
-#+BEGIN_src emacs-lisp
+#+BEGIN_src emacs-lisp :tangle no
   ;; seen at http://stackoverflow.com/a/18034042
   (defun antares-delete-process-at-point ()
     (interactive)
@@ -512,16 +527,50 @@ Desktop Save Mode - функция сохранения состояния Emacs
     (interactive)
     (revert-buffer nil t))
 
-  (defun antares-kill-this-buffer ()
-    "Удалить текущий буфер"
-    (interactive)
-    (kill-buffer (current-buffer)))
+  ;;(defun antares-kill-this-buffer ()
+  ;;  "Удалить текущий буфер"
+  ;;  (interactive)
+  ;;  (kill-buffer (current-buffer)))
 
   (defun antares-diff-buffer-with-file ()
     "Сравнить текущий изменённый буфер с сохранённой версией"
     (interactive)
     (let ((diff-switches "-u"))
       (diff-buffer-with-file (current-buffer))))
+#+END_SRC
+
+** Поиск в интернете из Emacs
+
+Эта функция использует DuckDuckGo для поиска в web из Emacs. Результат может быть
+показан в браузере или в ewww. По умолчанию [[https://duckduckgo.com/bang][bang (!)]] включён в поиск, но может
+быть отключен напрямую в DuckDuckGo.
+
+#+BEGIN_SRC emacs-lisp
+(defun antares-duckduckgo-search (browser)
+  "Поиск в DuckDuckGo из Emacs."
+  (let* ((duckduckgo-string "https://duckduckgo.com/?q=")
+         (duckduckgo-prompt "sDuckDuckGo: ")
+         (duckduckgo-google-bang "!g ")
+         (search-string
+          (cond
+           ((region-active-p)
+            (concat duckduckgo-google-bang
+                    (buffer-substring-no-properties
+                     (region-beginning) (region-end))))
+           ((thing-at-point 'symbol)
+            (concat duckduckgo-google-bang
+                    (thing-at-point 'symbol)))
+           ((thing-at-point 'word)
+            (concat duckduckgo-google-bang
+                    (thing-at-point 'word)))
+           (t "!")))
+         (search
+          (concat duckduckgo-string
+                  (read-from-minibuffer
+                   duckduckgo-prompt search-string))))
+    (if browser
+        (browse-url search)
+      (browse-web search))))
 #+END_SRC
 
 ** Использование шифрования
@@ -535,6 +584,14 @@ Desktop Save Mode - функция сохранения состояния Emacs
     :config
     (progn
       (setq auth-sources '("~/.authinfo.gpg" "~/.authinfo" "~/.netrc"))))
+#+END_SRC
+
+** Сетевая безопасность
+
+Установить уровень безопасности Emacs Network Security Manager
+
+#+BEGIN_SRC emacs-lisp
+   (setq network-security-level 'high)
 #+END_SRC
 
 ** Правописание
@@ -560,7 +617,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
   (defun antares-turn-on-spell-check ()
     (flyspell-mode 1))
 
-  ;; enable spell-check in certain modes
+  ;; включить проверку орфографии в определённолм режиме
   (add-hook 'markdown-mode-hook 'antares-turn-on-spell-check)
   (add-hook 'text-mode-hook     'antares-turn-on-spell-check)
   (add-hook 'org-mode-hook      'antares-turn-on-spell-check)
@@ -575,7 +632,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
 #+BEGIN_SRC emacs-lisp
   (use-package dired
      :init
-     ;; human-readable sizes
+     ;; Человеко-читаемые размеры
      (setq dired-listing-switches "-alh")
      ;; 'a' использовать текущий буфер, 'RET' открыть новый
      (put 'dired-find-alternate-file 'disabled nil)
@@ -593,7 +650,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
 
 Используем ido для работы с файлами и буферами удобным способом.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package ido
     :config
     (progn
@@ -676,6 +733,14 @@ Desktop Save Mode - функция сохранения состояния Emacs
               org-src-tab-acts-natively t)
         (add-to-list 'org-src-lang-modes (quote ("dot" . graphviz-dot)))
 
+        ;; Более правильное регулярное выражение для экспорта в HTML в качестве замены Markdown
+        (org-set-emph-re 'org-emphasis-regexp-components
+                         '(" \t({"
+                           "- \t.,:!?;)}[:multibyte:]"
+                           " \t\r\n,"
+                           "."
+                           1))
+
         ;; Подсветка синтаксиса в блоках кода при экспорте в PDF
         ;; Подключим latex-exporter
         (use-package ox-latex)
@@ -756,7 +821,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
         (setq org-confirm-babel-evaluate 'antares-org-confirm-babel-evaluate)))
 #+END_SRC
 
-* Пакеты [0/22]
+* Пакеты [0/21]
 
 Здесь я пытаюсь настроить кахдый пакет отдельно от других насколько это возможно
 чтобы быть уверенным в том, что при добавлении или удалении пакета не сломается
@@ -768,7 +833,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
 
 [[https://github.com/Wilfred/ag.el][ag.el]] простой фронтенд Emacs для ag, ("the silver searcher" замена ack).
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package ag
     :ensure t
     :defer 1
@@ -781,13 +846,14 @@ Desktop Save Mode - функция сохранения состояния Emacs
 
 ** async
 
-[[https://github.com/jwiegley/emacs-async][async.el]] модуль для создания
-асинхронных процессов в Emacs.
+[[https://github.com/jwiegley/emacs-async][async.el]] модуль для создания асинхронных процессов в Emacs.
 
 #+BEGIN_SRC emacs-lisp
   (use-package async
     :defer t
-    :ensure t)
+    :ensure t
+    :config
+    (setq async-bytecomp-package-mode t))
 #+END_SRC
 
 ** автодополнение
@@ -842,7 +908,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
     (setq aria2-add-evil-quirks t))
 #+END_SRC
 
-** avy
+** avy & ace-link & ace-window
 
 [[./img/avy.png]]
 
@@ -904,13 +970,13 @@ Desktop Save Mode - функция сохранения состояния Emacs
 
           (when (package-installed-p 'hydra)
             (defhydra hydra-window-size (:color red)
-              "Размер окна"
+              "Размер окон"
               ("h" shrink-window-horizontally "сократить по горизонтали")
               ("j" shrink-window "сократить по вертикали")
               ("k" enlarge-window "увеличить по вертикали")
               ("l" enlarge-window-horizontally "увеличить по горизонтали"))
             (defhydra hydra-window-frame (:color red)
-              "Frame"
+              "Фрейм"
               ("f" make-frame "Новый фрейм")
               ("x" delete-frame "Удалить фрейм"))
             (defhydra hydra-window-scroll (:color red)
@@ -933,7 +999,6 @@ Desktop Save Mode - функция сохранения состояния Emacs
     :config
     (beacon-mode 1)
     (setq beacon-push-mark 35
-          beacon-push-mark 35
           beacon-blink-when-focused t
           beacon-color "deep sky blue"))
 #+END_SRC
@@ -969,7 +1034,8 @@ Desktop Save Mode - функция сохранения состояния Emacs
                    boxquote-top-and-tail  "────"   ; U+2500 (×4)
                    boxquote-top-corner    "╭")     ; U+256F
     (when (package-installed-p 'hydra)
-      (defhydra hydra-boxquote (:color blue :hint nil)
+      (eval-and-compile
+        (defhydra hydra-boxquote (:color blue :hint nil)
          "
                                                                       ╭──────────┐
     Текст          External           Apropos         Do              │ Boxquote │
@@ -1003,7 +1069,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
         ("F" boxquote-describe-function)
         ("V" boxquote-describe-variable)
         ("n" boxquote-narrow-to-boxquote)
-        ("c" boxquote-narrow-to-boxquote-content))))
+        ("c" boxquote-narrow-to-boxquote-content)))))
 #+END_SRC
 
 ** bug-hunter
@@ -1094,7 +1160,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
 различных движков, в том числе интернет-серверов. Библиотека может быть
 использована для анализа вариаций, просмотра исторических игр или других целей.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package chess
     :ensure t
     :commands chess
@@ -1157,6 +1223,15 @@ Desktop Save Mode - функция сохранения состояния Emacs
 
 #+BEGIN_SRC emacs-lisp
   (use-package define-word
+    :ensure t)
+#+END_SRC
+
+** devdocs
+
+[[https://github.com/xuchunyang/DevDocs.el][devdocs]] пакет Emacs, позволяющий легко искать документацию на [[https://devdocs.io][DevDocs]].
+
+#+BEGIN_SRC emacs-lisp
+  (use-package devdocs
     :ensure t)
 #+END_SRC
 
@@ -1312,7 +1387,8 @@ Desktop Save Mode - функция сохранения состояния Emacs
 
 ** emmet-mode
 
-[[https://github.com/smihica/emmet-mode][emmet-mode]] второстепенный режим, предоставляющий поддержку [[http://emmet.io/][Emmet]], который создаёт HTML и CSS из CSS-подобных селекторо.
+[[https://github.com/smihica/emmet-mode][emmet-mode]] второстепенный режим, предоставляющий поддержку [[http://emmet.io/][Emmet]], который создаёт HTML и
+CSS из CSS-подобных селекторов.
 
 Вот пример работы, набрав
      : a#q.x>b#q.x*2
@@ -1347,10 +1423,10 @@ Desktop Save Mode - функция сохранения состояния Emacs
                ("C-n" . emmet-next-edit-point)
                ("C-p" . emmet-prev-edit-point))
 
-    (use-package helm-emmet
-      :ensure t
-      :ensure helm
-      :commands helm-emmet)
+   ;; (use-package helm-emmet
+   ;;   :ensure t
+   ;;   :ensure helm
+   ;;   :commands helm-emmet)
 
     (use-package ac-emmet
       :ensure t
@@ -1383,6 +1459,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
 | p         | epresent-previous-page      | previous "slide"                           |
 | b         | epresent-previous-page      | previous "slide"                           |
 | ←         | epresent-previous-page      | previous "slide"                           |
+| v num RET | epresent-jump-to-page       | go to page                                 |
 |-----------+-----------------------------+--------------------------------------------|
 | c         | epresent-next-src-block     | move to the next code block                |
 | C         | epresent-previous-src-block | move to the previous code block            |
@@ -1390,7 +1467,12 @@ Desktop Save Mode - функция сохранения состояния Emacs
 | x         | org-babel-execute-src-block | execute the source block                   |
 | r         | epresent-refresh            | refresh the page to show the results       |
 | g         | epresent-refresh            | refresh the page to show the results       |
-| C-c C-c   |                             | refresh the page to show the results       |
+| C-c C-c   | epresent-refresh            | refresh the page to show the results       |
+| s         | epresent-toggle-hide-src    | toggle hide/show code block                |
+| S         | epresent-toggle-hide-src    | toggle hide/show code block                |
+|-----------+-----------------------------+--------------------------------------------|
+| <F5>      | epresent-edit-text          | edit slide text                            |
+| <F12>     | epresent-run                | run again epresent                         |
 |-----------+-----------------------------+--------------------------------------------|
 
 #+BEGIN_SRC emacs-lisp
@@ -1399,7 +1481,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
     :defer t)
 #+END_SRC
 
-** TODO esup
+** esup
 
 [[https://github.com/jschaf/esup][Esup]] пакет для тестирования времени запуска Emacs даже без выхода из Emacs.
 
@@ -1492,7 +1574,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
         package-menu-mode
         archive-mode
         irfc-mode
-        chess-mode
+        ;; chess-mode
         git-commit-mode
         git-rebase-mode)
       "Список режимов, которые должны запускаться в Evil Emacs статусе."
@@ -1585,10 +1667,10 @@ Desktop Save Mode - функция сохранения состояния Emacs
         :config
         (global-evil-matchit-mode t))
 
-      (use-package evil-nerd-commenter
-        :ensure t
-        :init
-        (setq evilnc-hotkey-comment-operator ""))
+      ;; (use-package evil-nerd-commenter
+      ;;   :ensure t
+      ;;   :init
+      ;;   (setq evilnc-hotkey-comment-operator ""))
 
       (use-package evil-iedit-state
         :ensure t
@@ -1672,8 +1754,8 @@ Desktop Save Mode - функция сохранения состояния Emacs
     :ensure t
     :commands fci-mode
     :config
-    (fci-mode)
-    (setq fci-rule-column 79))
+    (setq fci-rule-column 79)
+    (fci-mode))
 #+END_SRC
 
 ** fixmee
@@ -1690,12 +1772,13 @@ Desktop Save Mode - функция сохранения состояния Emacs
 
 #+BEGIN_SRC emacs-lisp
   (use-package fixmee
+    :ensure pcache
     :ensure t
     :diminish fixmee-mode
     :commands (fixmee-mode fixmee-view-listing)
     :init
+    (setq pcache-directory (concat antares-emacs-temporal-directory "pcache"))
     (add-hook 'prog-mode-hook 'fixmee-mode))
-
   (use-package button-lock
     :diminish button-lock-mode)
 #+END_SRC
@@ -1721,16 +1804,16 @@ Text, разработанной Pixel Lab.
       :defer t
       :config
       (add-hook 'prog-mode-hook 'flycheck-mode)
-      (add-hook 'sgml-mode 'flycheck-mode)
-      (use-package helm-flycheck
-        :ensure t
-        :ensure helm
-        :commands helm-flycheck))
+      (add-hook 'sgml-mode 'flycheck-mode))
+      ;; (use-package helm-flycheck
+      ;;   :ensure t
+      ;;   :ensure helm
+      ;;   :commands helm-flycheck))
 #+END_SRC
 
 ** TODO geben
    
-   [[https://github.com/pokehanai/geben-on-emacs][geben]] плагин для дебага через протокол DBGp.
+[[https://github.com/pokehanai/geben-on-emacs][geben]] плагин для дебага через протокол DBGp.
 
 #+BEGIN_SRC emacs-lisp
     (use-package geben
@@ -1767,10 +1850,40 @@ Use [[https://github.com/pidu/git-timemachine][git-timemachine]] для прос
     :ensure t
     :commands git-timemachine
     :config
-    (defadvice git-timemachine-mode (after toggle-evil activate)
-      "Отключаем `evil-local-mode' если включен `git-timemachine-mode',
-      и включаем его обратно при выключении `git-timemachine-mode'."
-      (evil-local-mode (if git-timemachine-mode -1 1))))
+    (progn
+      (bind-keys :map git-timemachine-mode
+                 ("c" . git-timemachine-show-current-revision)
+                 ("b" . git-timemachine-switch-branch))
+      (when (package-installed-p 'hydra)
+          (bind-keys :map git-timemachine-mode
+                  ("\\" . hydra-timemachine/body))
+          (defhydra hydra-timemachine (:hint nil :color blue)
+                  "
+                                                                          ╭──────────────────┐
+                Rev.   Do                                                 │ Git time-machine │
+              ╭───────────────────────────────────────────────────────────┴──────────────────╯
+                _n_      [_w_] abbrv hash
+                ^↑^      [_W_] full hash
+                ^|^      [_g_] go to revision
+                ^↓^      [_c_] show current
+                _p_      [_b_] switch branch
+                ^ ^      [_q_] quit
+              --------------------------------------------------------------------------------
+                  "
+                  ("\\" hydra-master/body "back")
+                  ("<ESC>" nil "quit")
+                  ("q"       git-timemachine-quit)
+                  ("n"       git-timemachine-show-next-revision)
+                  ("p"       git-timemachine-show-previous-revision)
+                  ("g"       git-timemachine-show-nth-revision)
+                  ("c"       git-timemachine-show-current-revision)
+                  ("w"       git-timemachine-kill-abbreviated-revision)
+                  ("W"       git-timemachine-kill-revision)
+                  ("b"       git-timemachine-switch-branch)))
+		(defadvice git-timemachine-mode (after toggle-evil activate)
+		  "Отключаем `evil-local-mode' если включен `git-timemachine-mode',
+		  и включаем его обратно при выключении `git-timemachine-mode'."
+		  (evil-local-mode (if git-timemachine-mode -1 1)))))
 #+END_SRC
 
 ** google-maps
@@ -1843,7 +1956,7 @@ Use [[https://github.com/pidu/git-timemachine][git-timemachine]] для прос
 
 [[https://github.com/Bruce-Connor/emacs-google-this][google-this]] пакет, предоставляющий набор функций и привязок клавиш для запуска поиска Google внутри Emacs.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package google-this
     :ensure t
     :defer t)
@@ -1911,7 +2024,7 @@ Use [[https://github.com/pidu/git-timemachine][git-timemachine]] для прос
 [[https://github.com/areina/helm-dash][helm-dash]] использует docsets [[https://kapeli.com/dash][Dash]] для просмотра документации.
 Не требует установки Dash или Zeal.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package helm
     :ensure t
     :config
@@ -2011,7 +2124,7 @@ Unite работал в качестве интерфейса для неско�
 конфигурации Vim на два отдельных способа:
 
 + Командный интерфейс:
-  Я использую наиболее подходящий для этого пакет - Helm. Это эквивалент Unite в
+  Я использую наиболее подходящий для этого пакет - Ivy. Это эквивалент Unite в
   Vim. Он работает в качестве основы для автодополнения и выбора для многих
   команд и задач Emacs. Пока я не использую его на полную мощь, но думаю, что
   буду применять в большом количестве задач.
@@ -2027,9 +2140,9 @@ Unite работал в качестве интерфейса для неско�
 Я использую Hydra двумя способами:
 
 + Активация через "\", для вызова всех основных и пакетных меню. Используя его,
-  а иногда команду =helm-descbinds= (C-h b), я могу видеть и запоминать все
+  а иногда команду =counsel-descbinds= (C-h b), я могу видеть и запоминать все
   наиболее полезные команды и привязки клавиш, которые есть в моём распоряжении
-  и это очень удобно.Больше не тратится времени на попытки вспомнить комбинации.
+  и это очень удобно. Больше не тратится времени на попытки вспомнить комбинации.
 
 + Активация через "," для работы в качестве Evil leader key (только когда активен
   Evil) для доступа к меню общих задач, которые мне нужны когда я редактирую
@@ -2057,7 +2170,7 @@ Unite работал в качестве интерфейса для неско�
                                                                          ╭───────┐
                                                                          │ Index │
   ╭──────────────────────────────────────────────────────────────────────┴───────╯
-    [_a_] bookmarks    [^h^]               [_o_] organization  [_v_] games
+    [_a_] bookmarks    [^h^]               [_o_] organization  [^v^]
     [_b_] buffers      [_i_] internet      [_p_] project       [_w_] window
     [_c_] flycheck     [_j_] jump          [_q_] exit          [_x_] shell
     [_d_] development  [_k_] spell         [_r_] register      [^y^]
@@ -2088,7 +2201,7 @@ Unite работал в качестве интерфейса для неско�
       ("r"     hydra-register/body nil)
       ("s"     hydra-search/body nil)
       ("t"     hydra-text/body nil)
-      ("v"     hydra-games/body nil)
+      ;; ("v"     hydra-games/body nil)
       ("w"     ace-window nil)
       ("x"     hydra-system/body nil))
 
@@ -2097,12 +2210,11 @@ Unite работал в качестве интерфейса для неско�
                                                                      ╭───────────┐
          List                          Do                            │ Bookmarks │
   ╭──────────────────────────────────────────────────────────────────┴───────────╯
-    [_h_] list bookmarks (helm)     [_j_] jump to a bookmark
-    [_l_] list bookmarks            [_m_] set bookmark at point
-    ^ ^                             [_s_] save bookmarks
+    [_l_] list bookmarks            [_j_] jump to a bookmark
+     ^ ^                            [_m_] set bookmark at point
+     ^ ^                            [_s_] save bookmarks
   --------------------------------------------------------------------------------
       "
-      ("h" helm-bookmarks)
       ("j" bookmark-jump)
       ("l" list-bookmarks)
       ("m" bookmark-set)
@@ -2113,19 +2225,17 @@ Unite работал в качестве интерфейса для неско�
                                                                        ╭─────────┐
     Switch                 Do                                          │ Buffers │
   ╭────────────────────────────────────────────────────────────────────┴─────────╯
-    [_b_] switch (ido)       [_d_] kill the buffer
+    [_b_] switch             [_d_] kill the buffer
     [_i_] ibuffer            [_r_] toggle read-only mode
     [_a_] alternate          [_u_] revert buffer changes
-    [_s_] switch (helm)      [_w_] save buffer
+     ^ ^                     [_w_] save buffer
   --------------------------------------------------------------------------------
       "
       ("a" antares-alternate-buffers)
       ("b" ivy-switch-buffer)
-      ("d" antares-kill-this-buffer)
+      ("d" kill-this-buffer)
       ("i" ibuffer)
-      ("m" ace-swap-window)
       ("r" read-only-mode)
-      ("s" helm-buffers-list)
       ("u" antares-revert-buffer)
       ("w" save-buffer))
 
@@ -2135,8 +2245,8 @@ Unite работал в качестве интерфейса для неско�
      Navigate          Show Errors                  Do                │ Flycheck │
   ╭───────────────────────────────────────────────────────────────────┴──────────╯
      ^_p_^revious     [_l_] list errors           [_t_] toggle Flycheck
-        ^^↑^^         [_e_] list errors (helm)    [_c_] select checker
-      ^_f_^irst       [_d_] clear all errors      [_r_] run via compile
+        ^^↑^^         [_d_] clear all errors      [_c_] select checker
+      ^_f_^irst        ^ ^                        [_r_] run via compile
         ^^↓^^          ^ ^                        [_h_] describe checker
       ^_n_^ext
   --------------------------------------------------------------------------------
@@ -2144,7 +2254,6 @@ Unite работал в качестве интерфейса для неско�
         ("c" flycheck-select-checker)
         ("h" flycheck-describe-checker)
         ("d" flycheck-clear)
-        ("e" helm-flycheck)
         ("f" flycheck-first-error)
         ("l" flycheck-list-errors)
         ("n" flycheck-next-error :color red)
@@ -2155,24 +2264,21 @@ Unite работал в качестве интерфейса для неско�
       (defhydra hydra-development (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
         "
                                                                    ╭─────────────┐
-       Dash                   Web                 Quickrun         │ Development │
+       Code                   Web                 Quickrun         │ Development │
   ╭────────────────────────────────────────────────────────────────┴─────────────╯
     [_d_] search docs (at point) [_c_] Web Colors          [_q_] buffer
-    [_D_] search docs            [_h_] HTTP header         [_v_] region
-    [_i_] get docset             [_m_] HTTP method         [_x_] shell
-    [_u_] get user docset        [_r_] HTTP relation       [_p_] with arg
-    [_a_] activate docset        [_s_] HTTP status code    [_k_] buffer (helm)
-     ^ ^                         [_g_] RESTclient          [_o_] only compile
-     ^ ^                         [_f_] RFC doc             [_R_] replace
-    [_l_] lines of code          [_F_] RFC index           [_e_] eval/print
+     ^ ^                         [_h_] HTTP header         [_v_] region
+     ^ ^                         [_m_] HTTP method         [_x_] shell
+     ^ ^                         [_r_] HTTP relation       [_p_] with arg
+     ^ ^                         [_s_] HTTP status code    [_o_] only compile
+     ^ ^                         [_t_] Media types         [_R_] replace
+     ^ ^                         [_g_] RESTclient          [_e_] eval/print
+     ^ ^                         [_f_] RFC doc             
+    [_l_] lines of code          [_F_] RFC index           
   --------------------------------------------------------------------------------
         "
-        ("d" helm-dash-at-point)
-        ("D" helm-dash)
-        ("i" helm-dash-install-docset)
-        ("u" helm-dash-install-user-docset)
-        ("a" helm-dash-activate-docset)
-        ("c" helm-colors)
+        ("d" devdocs-search)
+        ("c" counsel-colors-web)
         ("g" restclient-mode)
         ("f" irfc-visit)
         ("F" irfc-index)
@@ -2183,11 +2289,11 @@ Unite работал в качестве интерфейса для неско�
         ("o" quickrun-compile-only)
         ("R" quickrun-replace-region)
         ("e" quickrun-eval-print)
-        ("k" helm-quickrun)
         ("h" http-header)
         ("m" http-method)
         ("r" http-relation)
         ("s" http-status-code)
+        ("t" media-type)
         ("l" cloc))
 
     (defhydra hydra-emacs (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
@@ -2195,41 +2301,44 @@ Unite работал в качестве интерфейса для неско�
                                                                          ╭───────┐
      Execute       Packages         Help                     Misc        │ Emacs │
   ╭──────────────────────────────────────────────────────────────────────┴───────╯
-    [_s_] smex       [_p_] list      [_a_] apropos (helm)    [_t_] change theme (helm)
-    [_m_] smex mode  [_i_] install   [_f_] info manual       [_l_] list emacs process
-    [_h_] helm M-x   [_u_] upgrade   [_k_] bindings (helm)   [_c_] init time
-    [_x_] counsel M-x ^ ^            [_b_] personal bindings [_o_] unbound commands
+    [_x_] counsel M-x [_p_] list      [_f_] describe function [_t_] change theme
+     ^ ^              [_i_] install   [_v_] describe variable [_l_] list emacs process
+     ^ ^              [_u_] upgrade   [_m_] info manual       [_c_] init time
+     ^ ^               ^ ^            [_k_] bindings          [_e_] benchmark init
+     ^ ^               ^ ^            [_b_] personal bindings [_o_] unbound commands 
+     ^ ^               ^ ^             ^ ^                    [_y_] emacs colors
+     ^ ^               ^ ^             ^ ^                    [_z_] list faces
   --------------------------------------------------------------------------------
         "
-        ("C-h b" helm-descbinds "bindings")
-        ("a" helm-apropos)
+        ("C-h b" counsel-descbinds "bindings")
+        ("f" counsel-describe-function)
+        ("v" counsel-describe-variable)
         ("b" describe-personal-keybindings)
         ("c" emacs-init-time)
         ("i" package-install)
-        ("k" helm-descbinds)
+        ("k" counsel-descbinds)
         ("l" list-processes)
-        ("f" info-display-manual)
+        ("m" info-display-manual)
         ("p" paradox-list-packages)
-        ("t" helm-themes)
+        ("t" counsel-load-theme)
         ("u" paradox-upgrade-packages)
-        ("m" smex-major-mode-commands)
-        ("s" smex)
-        ("h" helm-M-x)
-        ("x" counsel-M-x)
-        ("o" smex-show-unbound-commands))
+        ("e" esup)
+        ("o" smex-show-unbound-commands)
+        ("y" counsel-colors-emacs)
+        ("z" counsel-faces)
+        ("x" counsel-M-x))
 
     (defhydra hydra-file (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
         "
                                                                           ╭──────┐
-       Ido               Helm                 Dired        Ztree          │ File │
+       Ivy                    Dired        Ztree                          │ File │
   ╭───────────────────────────────────────────────────────────────────────┴──────╯
-    [_o_] open file   [_f_] find file      [_d_] dired    [_z_] diff dirs
-     ^ ^              [_m_] mini           [_r_] ranger
+    [_o_] open file        [_d_] dired         [_z_] diff dirs
+    [_e_] open file extern [_r_] ranger
   --------------------------------------------------------------------------------
         "
-        ("o" find-file)
-        ("f" helm-find-files)
-        ("m" helm-mini)
+        ("o" counsel-find-file)
+        ("e" counsel-find-file-extern)
         ("z" ztree-diff)
         ("d" dired)
         ("r" ranger))
@@ -2243,7 +2352,7 @@ Unite работал в качестве интерфейса для неско�
     _k_  [_f_] fill column     [_d_] unicode character           [_a_] align with regex
     ^↑^  [_h_] hidden chars    [_e_] evil digraphs table         [_w_] remove trailing ' '
     ^ ^  [_l_] line numbers    [_s_] specific code block         [_n_] count words
-    ^↓^  [_t_] trailing ' '    [_u_] unicode character (helm)    [_i_] lorem ipsum
+    ^↓^  [_t_] trailing ' '    [_u_] unicode character           [_i_] lorem ipsum
     _j_  [_v_] font space      [_p_] character code              [_x_] comment box
     ^ ^  [_c_] comment          ^ ^                              [_q_] boxquote
     ^ ^  [_b_] multibyte chars  ^ ^                              [_m_] iedit (multiple)
@@ -2253,7 +2362,7 @@ Unite работал в качестве интерфейса для неско�
         "
         ("a" align-regexp)
         ("b" toggle-enable-multibyte-characters)
-        ("c" evilnc-comment-or-uncomment-lines)
+        ("c" comment-line)
         ("d" insert-char)
         ("e" evil-ex-show-digraphs)
         ("f" fci-mode)
@@ -2268,7 +2377,7 @@ Unite работал в качестве интерфейса для неско�
         ("r" er/expand-region)
         ("s" charmap)
         ("t" antares-toggle-show-trailing-whitespace)
-        ("u" helm-ucs)
+        ("u" counsel-unicode-char)
         ("v" variable-pitch-mode)
         ("w" whitespace-cleanup)
         ("U" untabify)
@@ -2295,23 +2404,23 @@ Unite работал в качестве интерфейса для неско�
     (defhydra hydra-internet (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
         "
                                                                       ╭──────────┐
-      Browse       Search             Social               Post       │ Internet │
+      Browse       Search              Social               Post      │ Internet │
   ╭───────────────────────────────────────────────────────────────────┴──────────╯
-    [_w_] eww      [_g_] google          [_f_] elfeed            [_i_] imgur
-    [_u_] url      [_m_] google maps     [_x_] stack overflow
-     ^ ^           [_s_] surfraw
-     ^ ^           [_d_] wordnik
+    [_w_] eww      [_b_] DuckDuckGo       [_f_] elfeed            [_i_] imgur
+    [_u_] url      [_e_] DuckDuckGo (eww) [_x_] stack overflow
+     ^ ^           [_m_] google maps     
+     ^ ^           [_d_] wordnik         
   --------------------------------------------------------------------------------
         "
-        ("f" elfeed)
-        ("g" google-this)
-        ("i" imgur-post)
-        ("m" google-maps)
-        ("d" define-word-at-point)
-        ("s" helm-surfraw)
         ("w" eww)
         ("u" browse-url-at-point)
-        ("x" sx-tab-newest))
+        ("b" (joe-duckduckgo-search t))
+        ("e" (joe-duckduckgo-search nil))
+        ("m" google-maps)
+        ("d" define-word-at-point)
+        ("f" elfeed)
+        ("x" sx-tab-newest)
+        ("i" imgur-post))
 
     (defhydra hydra-jump (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
         "
@@ -2345,7 +2454,7 @@ Unite работал в качестве интерфейса для неско�
                                                                          ╭───────┐
       Flyspell               Ispell                      Gtranslate      │ Spell │
   ╭──────────────────────────────────────────────────────────────────────┴───────╯
-    [_k_] correct word       [_w_] check word            [_g_] en ⇆ es
+    [_k_] correct word       [_w_] check word            [_g_] en ⇆ ru
     [_n_] next error         [_t_] toggle dictionary     [_G_] any lang
     [_f_] toggle flyspell    [_d_] change dictionary
     [_p_] toggle prog mode
@@ -2358,7 +2467,7 @@ Unite работал в качестве интерфейса для неско�
         ("G" google-translate-query-translate)
         ("f" flyspell-mode)
         ("p" flyspell-prog-mode)
-        ("k" flyspell-auto-correct-word)
+        ("k" flyspell-correct-word-generic)
         ("n" flyspell-goto-next-error))
 
     (defhydra hydra-lisp (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
@@ -2368,11 +2477,13 @@ Unite работал в качестве интерфейса для неско�
   ╭───────────────────────────────────────────────────────────────────────┴──────╯
     [_r_] eval region    [_f_] file
     [_s_] eval sexp      [_i_] init-file
+    [_b_] eval buffer
   --------------------------------------------------------------------------------
         "
         ("f" bug-hunter-file)
         ("i" bug-hunter-init-file)
         ("r" eval-region)
+        ("b" eval-buffer)
         ("s" eval-last-sexp))
 
     (defhydra hydra-narrow (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
@@ -2466,23 +2577,19 @@ Unite работал в качестве интерфейса для неско�
                                                                       ╭──────────┐
      Logs                        Registers                Undo        │ Register │
   ╭───────────────────────────────────────────────────────────────────┴──────────╯
-    [_c_] commands history       [_e_] emacs registers    [_u_] undo tree
-    [_o_] echo-area messages     [_r_] evil registers
-    [_b_] minibuffer             [_m_] evil marks
-    [_l_] messages               [_k_] kill ring
-    [_d_] diff buffer with file
+    [_c_] commands history       [^e^] emacs registers    [_u_] undo tree
+    [_o_] messages               [_r_] evil registers
+    [_l_] lossage (keystrokes)   [_m_] evil marks
+    [_d_] diff buffer with file  [_k_] kill ring
   --------------------------------------------------------------------------------
         "
-        ("c" helm-complex-command-history)
         ("d" antares-diff-buffer-with-file)
-        ("e" helm-register)
-        ("k" helm-show-kill-ring)
-        ("a" helm-all-mark-rings)
-        ("l" popwin:messages)
+        ("k" counsel-yank-pop)
+        ("l" view-lossage)
+        ("c" counsel-command-history)
         ("m" evil-show-marks)
         ("o" view-echo-area-messages)
         ("r" evil-show-registers)
-        ("b" helm-minibuffer-history)
         ("u" undo-tree-visualize))
 
     (defhydra hydra-search (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
@@ -2491,39 +2598,27 @@ Unite работал в качестве интерфейса для неско�
      Files                             Buffer                           │ Search │
   ╭─────────────────────────────────────────────────────────────────────┴────────╯
     [_a_] regex search (Ag)           [_b_] by word
-    [_A_] regex by filetype (Ag)      [_o_] by word (occur)
-    [_h_] regex search (grep & helm)  [_w_] by word (multi)
-    [_g_] regex search (grep)         [_t_] tags & titles
-    [_f_] find
-    [_l_] locate
+    [_r_] regex search (rg)           [_o_] by word (opened buffers)
+    [_p_] regex search (pt)           [_w_] by word (multi)
+    [_g_] regex search (grep)         [_h_] by word (grep or swiper)
+    [^f^] find                        [_t_] tags & titles
+    [_l_] locate                      [_s_] semantic 
   --------------------------------------------------------------------------------
         "
-        ("A" ag-files)
-        ("a" ag)
-        ("b" helm-swoop)
-        ("f" helm-find)
+        ("a" (let ((current-prefix-arg "-."))
+               (call-interactively 'counsel-ag)))
+        ("r" (let ((current-prefix-arg "-."))
+               (call-interactively 'counsel-rg)))
+        ("p" (let ((current-prefix-arg "-."))
+               (call-interactively 'counsel-pt)))
         ("g" rgrep)
-        ("h" helm-do-grep)
-        ("l" helm-locate)
-        ("o" helm-occur)
-        ("t" helm-semantic-or-imenu)
-        ("w" helm-multi-swoop))
-
-    (defhydra hydra-games (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
-        "
-                                                                         ╭───────┐
-     Game                                                                │ Games │
-  ╭──────────────────────────────────────────────────────────────────────┴───────╯
-    [_b_] bubbles       [_c_] chess (computer)
-    [_t_] tetris        [_a_] chess (internet)
-    [_g_] gomoku
-  --------------------------------------------------------------------------------
-        "
-        ("b" bubbles-set-game-hard)
-        ("c" chess)
-        ("a" chess-ics)
-        ("g" gomoku)
-        ("t" tetris))
+        ("l" counsel-locate)
+        ("b" swiper)
+        ("o" swiper-all)
+        ("h" counsel-grep-or-swiper)
+        ("t" counsel-imenu)
+        ("s" counsel-semantic)
+        ("w" swiper-multi))
 
     (defhydra hydra-system (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
         "
@@ -2534,19 +2629,18 @@ Unite работал в качестве интерфейса для неско�
     [_n_] next multi-term          [_a_] aync shell command
     [_p_] previous multi-term      [_m_] man page
     [_d_] dedicated multi-term     [_l_] list system process
-    [_e_] eshell                   [_t_] top command
+    [_e_] eshell
   --------------------------------------------------------------------------------
         "
         ("a" async-shell-command)
         ("c" shell-command)
         ("e" eshell)
-        ("m" helm-man-woman)
+        ("m" man)
         ("l" proced)
         ("s" multi-term)
         ("n" multi-term-next)
         ("p" multi-term-previous)
-        ("d" multi-term-dedicated-toggle)
-        ("t" helm-top))
+        ("d" multi-term-dedicated-toggle))
 
     (defhydra hydra-media (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
         "
@@ -2588,6 +2682,7 @@ Unite работал в качестве интерфейса для неско�
         "
         ("a" org-agenda)
         ("c" org-capture)
+        ("s" counsel-org-agenda-headlines)
         ("d" cfw:open-org-calendar)
         ("g" org-location-google-maps)
         ("h" org-address-google-geocode-set)
@@ -2595,7 +2690,6 @@ Unite работал в качестве интерфейса для неско�
         ("f" org-archive-subtree)
         ("m" mu4e)
         ("p" org-pomodoro)
-        ("s" helm-org-agenda-files-headings)
         ("t" org-contacts)
         ("x" speed-type-text))
 
@@ -2606,7 +2700,7 @@ Unite работал в качестве интерфейса для неско�
   ╭─────────────────────────────────────────────────────────────────────┴────────╯
     [_c_] comment                  [_a_] align with regex
     [_f_] fill column              [_p_] show character code
-    [_h_] hidden chars             [_i_] insert unicode character (helm)
+    [_h_] hidden chars             [_i_] insert unicode character
     [_e_] trailing whitespace      [_<SPC>_] remove trailing whitespaces
     [_v_] font space               [_u_] undo tree
      ^ ^                           [_j_] jump word
@@ -2615,17 +2709,18 @@ Unite работал в качестве интерфейса для неско�
      ^ ^                           [_m_] iedit (multiple edit)
      ^ ^                           [_g_] google translate
      ^ ^                           [_s_] swiper
-     ^ ^                           [_t_] helm-semantic-or-imenu
+     ^ ^                           [_t_] counsel imenu
+     ^ ^                           [_q_] quick-calc
   --------------------------------------------------------------------------------
         "
         ("<escape>" nil "quit")
         ("a" align-regexp)
-        ("c" evilnc-comment-or-uncomment-lines)
+        ("c" comment-lines)
         ("r" er/expand-region)
         ("f" fci-mode)
         ("g" google-translate-smooth-translate)
         ("h" whitespace-mode)
-        ("i" helm-ucs)
+        ("i" counsel-unicode-char)
         ("j" avy-goto-word-1)
         ("m" iedit-mode)
         ("n" count-words)
@@ -2635,7 +2730,8 @@ Unite работал в качестве интерфейса для неско�
         ("v" variable-pitch-mode)
         ("<SPC>" whitespace-cleanup)
         ("s" antares-swiper)
-        ("t" helm-semantic-or-imenu)
+        ("t" counsel-imenu)
+        ("q" (quick-calc t))
         ("x" comment-box)))
 #+END_SRC
 
@@ -2675,7 +2771,7 @@ Unite работал в качестве интерфейса для неско�
 =(setq ido-everywhere t)=. Заменяет стандартное автодополнение emacs на
 автодополнение ido везде, где это возможно сделать не нарушая работы.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :toggle no
   (use-package ido-ubiquitous
     :ensure t
     :disabled t
@@ -2689,7 +2785,7 @@ Unite работал в качестве интерфейса для неско�
 
 [[https://github.com/gempesaw/ido-vertical-mode.el][ido-vertical-mode]] позволяет =ido-mode= показать вертикально.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :toggle no
   (use-package ido-vertical-mode
     :ensure t
     :ensure ido
@@ -2703,6 +2799,7 @@ Unite работал в качестве интерфейса для неско�
 
 #+BEGIN_SRC emacs-lisp
   (use-package impatient-mode
+    :ensure ht
     :ensure t)
 #+END_SRC
 
@@ -2842,7 +2939,7 @@ Unite работал в качестве интерфейса для неско�
 #+BEGIN_SRC emacs-lisp
   (use-package know-your-http-well
     :ensure t
-    :commands (http-header http-method http-relation http-status-code))
+    :commands (http-header http-method http-relation http-status-code media-types))
 #+END_SRC
 
 ** lorem-ipsum
@@ -2898,8 +2995,7 @@ GNU Emacs.
   (use-package mingus
     :ensure t
     :config
-    (use-package mingus-stays-home)
-    )
+    (use-package mingus-stays-home))
 #+END_SRC
 
 ** TODO moe-theme
@@ -2921,7 +3017,14 @@ GNU Emacs.
 #+BEGIN_SRC emacs-lisp :tangle no
     (use-package monokai-theme
       :ensure t
-      :disabled t)
+      :config
+      (defun customize-monokai ()
+      "Customize monokai theme"
+      (if (member 'monokai custom-enabled-themes)
+          (custom-theme-set-faces
+           'monokai
+           '(org-block ((t (:foreground "#F8F8F0" :background "#171717")))))))
+    (add-hook 'after-load-theme-hook 'customize-monokai))
 #+END_SRC
 
 ** TODO mu4e
@@ -3033,7 +3136,7 @@ Features include:
               Drafts [label="Drafts"]
               education [label="education"]
               Inbox [label="Inbox"]
-              joedicastro [label="joedicastro"]
+              antares [label="antares"]
               lists [label="lists"]
               Local [label="Local"]
               motley [label="motley"]
@@ -3227,6 +3330,15 @@ Features include:
   So, is as simple as that:
 
     #+BEGIN_EXAMPLE
+        ## By using the f and w flags and no condition, spamassassin is going add the
+        ## X-Spam headers to every single mail, and then process other recipes.
+        ## No lockfile is used.
+
+        :0fw
+        | /usr/bin/vendor_perl/spamc
+
+        ...
+
         ## SPAM
 
         :0:
@@ -3242,16 +3354,14 @@ Features include:
         Spam/
     #+END_EXAMPLE
 
-  I use a =procmail= rule to send ~notifications~ to the desktop via =notify-sed=. I'm using it for all of them and is like this:
+  I use a =procmail= rule to send ~notifications~ to the desktop via =notify-sed=. I'm using it for almost all of them (spam and some others are skipped, to not distract me) and is like this:
 
     #+BEGIN_EXAMPLE
         ## Notification
+        ## None of the above categories sends any notification at all
 
         :0 ic:
-        * ^Subject:.*\/.*
-        | echo $MATCH \
-        | python2 -c "import email,sys; print email.Header.decode_header(sys.stdin.read())[0][0]" \
-        | while read OUTPUT;do notify-send -a 'Tienes un correo nuevo: ' "$OUTPUT";done
+        | notify-send -a 'Correo nuevo: ' "$(grep "^From:\|^To:\|^Subject:")"
     #+END_EXAMPLE
 
 + Daily, a script, [[https://github.com/joedicastro/cleanup-maildir][cleanup-maildir]], deletes all mails older than 14 days from several folders in the POP3's Maildir.
@@ -3528,8 +3638,12 @@ that I prefer to keep private (since I share this config in GitHub) to
 inquisitive eyes.
 
 #+BEGIN_SRC emacs-lisp
+  (defvar antares-mu4e-user-info nil
+    "This var is to only load this info once.")
   (add-hook 'mu4e-main-mode-hook (lambda ()
-      (load-library (concat user-emacs-directory "mail.el.gpg"))))
+      (unless antares-mu4e-user-info
+        (load-library (concat user-emacs-directory "mail.el.gpg"))
+                      (setq antares-mu4e-user-info t))))
 #+END_SRC
 
 Even when I keep this information private, I still going to share with
@@ -3553,8 +3667,8 @@ you the current code stored in that file with make up data.
            smtpmail-smtp-service 587
            mu4e-sent-messages-behavior 'sent
            message-signature
-                (concat "joe di castro\n"
-                        "http://joedicastro.com\n"))
+                (concat "Anton Salnikov\n"
+                        "http://antares.me\n"))
 
     ;; a list of stmp configurations for each additional account
     (defvar my-mu4e-account-alist
@@ -3649,7 +3763,7 @@ queuing mode and send them all turning it off.
 #+BEGIN_SRC emacs-lisp
   ;; Allow queuing mails
   (setq smtpmail-queue-mail nil ;; start in non-queuing mode
-      smtpmail-queue-dir "~/org/mail/mails/Queue")
+      smtpmail-queue-dir "~/MEGA/org/mail/mails/Queue")
 #+END_SRC
 
 *** Signature
@@ -3682,14 +3796,14 @@ The default Maildir path and subfolders.
 
 #+BEGIN_SRC emacs-lisp
   (setq
-      mu4e-maildir       "~/org/mail"        ;; top-level Maildir
+      mu4e-maildir       "~/MEGA/org/mail"        ;; top-level Maildir
       mu4e-sent-folder   "/mails/Sent"       ;; folder for sent messages
       mu4e-drafts-folder "/mails/Drafts"     ;; unfinished messages
       mu4e-trash-folder  "/mails/Trash"      ;; trashed messages
       mu4e-refile-folder "/mails/Archive")   ;; saved messages
 
   ;; where store the saved attachments
-  (setq mu4e-attachment-dir  "~/temporal")
+  (setq mu4e-attachment-dir  "~/tmp")
 #+END_SRC
 
 *** General Options
@@ -3845,7 +3959,7 @@ Define actions for message view.
       '("xsearch for sender" . antares-search-for-sender) t)
 
   ;; integration with org-contacts
-  (setq mu4e-org-contacts-file "~/org/contacts.org")
+  (setq mu4e-org-contacts-file "~/MEGA/org/contacts.org")
 
   (add-to-list 'mu4e-headers-actions
                '("org-contact-add" . mu4e-action-add-org-contact) t)
@@ -4011,7 +4125,7 @@ My defined shortcuts
       ("/mails/Drafts" . ?d)
       ("/mails/education" . ?e)
       ("/mails/Inbox" . ?i)
-      ("/mails/joedicastro" . ?j)
+      ("/mails/antares" . ?j)
       ("/mails/lists" . ?l)
       ("/mails/Local" . ?h)
       ("/mails/motley" . ?m)
@@ -4280,7 +4394,7 @@ search in your emails to get a little context in the conversation.
 
 [[https://github.com/sigma/pcache][pcache]] персистентное кэширование для Emacs. Необходимо для других пакетов таких как =fixmee=.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package pcache
     :ensure t
     :init
@@ -4492,7 +4606,7 @@ Emacs версия Vim powerline.
   (use-package pretty-mode
     :ensure t
     :defer t
-    :config
+    :init
     (add-hook 'prog-mode-hook 'turn-on-pretty-mode))
 #+END_SRC
 
@@ -4542,12 +4656,12 @@ quickrun.el похож на интерпретатор, но quickrun.el пре�
     (setq racket-mode-pretty-lambda t))
 #+END_SRC
 
-** ranger
+** DONE ranger
+   CLOSED: [2015-11-02 lun 20:40]
 
- [[https://github.com/ralesi/ranger.el][Ranger]] второстепенный режим, включаемый в Dired.
- Эмулирует многие из особенностей [[https://github.com/ralesi/ranger.el][ranger]].
- Этот второстепенный режим показывает стек родительских каталогов и обновляет
- родительские буферы во время навигации по файловой системе. 
+ [[https://github.com/ralesi/ranger.el][Ranger]] is a minor mode that runs within dired emulating many of the features of
+ [[https://github.com/ralesi/ranger.el][ranger]]. This minor mode shows a stack of the parent directories and updates the
+ parent buffers while navigating the file system. 
 
 #+BEGIN_SRC emacs-lisp
   (use-package ranger
@@ -4558,18 +4672,308 @@ quickrun.el похож на интерпретатор, но quickrun.el пре�
           ranger-show-literal nil))
 #+END_SRC
 
-** TODO web-mode
-   
-   [[./img/web-mode.png]]
-   [[http://web-mode.org/][Web-mode]] основной режим для редактирования web-шаблонов
-   [[https://github.com/fxbois/web-mode][Github]]
+** restclient
+
+[[./img/restclient.png]]
+
+[[https://github.com/pashky/restclient.el][restclient]] is a tool to manually explore and test HTTP REST webservices. Runs
+queries from a plain-text query sheet, displays results as a pretty-printed XML,
+JSON and even images.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package restclient
+    :ensure t
+    :defer t)
+#+END_SRC
+
+** smart-mode-line
+
+This package shows a very nice and very informative mode line.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package smart-mode-line
+    :ensure t
+    :defer 0.2
+    :config
+    (add-hook 'after-load-theme-hook 'smart-mode-line-enable)
+    (setq sml/no-confirm-load-theme t
+            sml/theme 'dark
+            sml/mode-width 'full
+            sml/name-width 30
+            sml/shorten-modes t)
+    (sml/setup))
+#+END_SRC
+
+** smartparens
+
+[[https://github.com/Fuco1/smartparens][smartparens]] is a minor mode for Emacs that deals with parens pairs and tries to
+be smart about it.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package smartparens
+    :ensure t
+    :diminish smartparens-mode
+    :config
+    (smartparens-global-mode))
+#+END_SRC
+
+** TODO sml-mode
+
+[[http://www.smlnj.org/doc/Emacs/sml-mode.html][SML mode]] is a major mode for Emacs for editing Standard ML.
+It provides syntax highlighting and automatic indentation and
+comes with sml-proc which allows interaction with an inferior SML
+interactive loop
+
+#+BEGIN_SRC emacs-lisp
+  (use-package sml-mode
+    :ensure t
+    :defer t)
+#+END_SRC
+
+** speed-type
+
+[[./img/speed-type.png]]
+
+[[https://github.com/hagleitn/speed-type][speed-type]] is for practice touch/speed typing in Emacs.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package speed-type
+    :ensure t
+    :defer t)
+#+END_SRC
+
+** sublime-themes
+
+[[https://github.com/owainlewis/emacs-color-themes][sublime-themes]] is a collection of color themes for Emacs24 +
+
+The themes are named after important/influential programmers.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package sublime-themes
+    :ensure t
+    :defer t)
+#+END_SRC
+
+** systemd
+
+[[with sml-proc which allows interaction with an inferior SML
+interactive ][systemd]] is a major mode for Emacs for edit systemd units.
+
+#+BEGIN_SRC emacs-lisp
+    (use-package systemd
+      :ensure t
+      :defer t)
+#+END_SRC
+
+** sx
+
+[[./img/sx.png]]
+
+[[https://github.com/vermiculus/sx.el][sx]] is Stack Exchange for Emacs.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package sx
+    :ensure t
+    :defer t
+    :config
+    (setq sx-cache-directory (concat joe-emacs-temporal-directory "sx")))
+#+END_SRC
+
+** TODO swiper & ivy & counsel
+
+[[https://github.com/abo-abo/swiper][Ivy]] is a generic completion mechanism for Emacs that aims to be more efficient,
+smaller, simpler, and smoother to use yet highly customizable. 
+
+[[https://github.com/abo-abo/swiper][Swiper]] is a package for GNU Emacs that gives you an overview as you search for a
+regex. Based in ivy.
+
+[[https://github.com/abo-abo/swiper][Counsel]] provides versions of common Emacs commands that are customised to make
+the best use of ivy.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy
+    :ensure t
+    :ensure smex
+    :ensure ivy-hydra
+    :diminish ivy-mode
+    :config
+    (setq smex-save-file (concat joe-emacs-temporal-directory "smex-items"))
+    (smex-initialize)
+    (setq ivy-use-virtual-buffers t
+          ivy-height 15)
+    (bind-keys :map ivy-minibuffer-map
+               ("<escape>" . minibuffer-keyboard-quit))
+    (ivy-mode t))
+
+  (use-package swiper
+      :ensure t
+      :config
+      (defun joe-swiper ()
+          (interactive)
+          (swiper)
+          (add-to-list 'regexp-search-ring (ivy--regex ivy-text))))
+
+  (use-package counsel
+    :bind (("<menu>"  . counsel-M-x)
+           ("C-h b" . counsel-descbinds))
+    :ensure t
+    :config
+    (setq counsel-ag-base-command "ag --nocolor --nogroup --smart-case --column %s"))
+#+END_SRC
+
+** ujelly-theme
+
+[[https://github.com/marktran/color-theme-ujelly][ujelly-theme]] is a Emacs theme inspired by the [[https://github.com/nanotech/jellybeans.vim][jellybeans]] theme for Vim.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ujelly-theme
+    :ensure t
+    :defer t)
+#+END_SRC
+
+** undo-tree
+
+[[http://www.dr-qubit.org/emacs.php#undo-tree][undo-tree]] is a version of the same Vim's feature for Emacs
+
+Emacs's undo system allows you to recover any past state of a buffer
+(the standard undo/redo system loses any "redoable" states whenever
+you make an edit). However, Emacs's solution, to treat "undo" itself
+as just another editing action that can be undone, can be confusing
+and difficult to use.
+
+Both the loss of data with standard undo/redo and the confusion of
+Emacs' undo stem from trying to treat undo history as a linear
+sequence of changes. =undo-tree-mode= instead treats undo history as
+what it is: a branching tree of changes (the same system that Vim has
+had for some time now). This makes it substantially easier to undo and
+redo any change, while preserving the entire history of past states.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package undo-tree
+    :ensure t
+    :diminish undo-tree-mode
+    :init
+    (progn
+      (global-undo-tree-mode)
+      (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/tmp/undo"))
+            undo-tree-auto-save-history t
+            undo-tree-visualizer-timestamps t
+            undo-tree-visualizer-diff t)))
+#+END_SRC
+
+** web-mode
+
+[[https://github.com/fxbois/web-mode][web-mode.el]] is an emacs major mode for editing web templates aka HTML files
+embedding parts (CSS/JavaScript) and blocks (pre rendered by client/server side
+engines).
+
+web-mode.el is compatible with many template engines: PHP, JSP, ASP, Django,
+Twig, Jinja, Mustache, ERB, FreeMarker, Velocity, Cheetah, Smarty, CTemplate,
+Mustache, Blade, ErlyDTL, Go Template, Dust.js, Google Closure (soy), JSX,
+Angularjs, ejs, etc.
 
 #+BEGIN_SRC emacs-lisp
   (use-package web-mode
     :ensure t
-    )
+    :config
+    (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.js?\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.css?\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.xml?\\'" . web-mode)))
 #+END_SRC
-   
+
+** TODO yasnippet
+
+[[https://github.com/capitaomorte/yasnippet][YASnippet]] is a template system for Emacs. It allows you to type an
+abbreviation and automatically expand it into function templates.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet
+    :ensure t
+    :defer 5
+    :diminish yas-minor-mode
+    :config
+    (yas-global-mode))
+#+END_SRC
+
+*** Disable it in ansi-term
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'after-change-major-mode-hook
+            (lambda ()
+              (when (find major-mode
+                          '(term-mode ansi-term))
+                (yas-minor-mode 0))))
+#+END_SRC
+
+** ztree
+
+[[./img/ztree.png]]
+
+[[https://github.com/fourier/ztree][Ztree]] is a project dedicated to implementation of several text-tree applications
+inside Emacs. It consists of 2 subprojects: ztree-diff and ztree-dir.
+*ztree-diff* is a directory-diff tool for Emacs inspired by commercial tools like
+Beyond Compare or Araxis Merge. It supports showing the difference between two
+directories; calling Ediff for not matching files, copying between directories,
+deleting file/directories, hiding/showing equal files/directories.
+*ztree-dir* is a simple text-mode directory tree for Emacs.
+
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ztree-diff
+    :ensure ztree
+    :config
+    (set-face-attribute 'ztreep-diff-model-add-face  nil :foreground "deep sky blue")
+    (setq ztree-draw-unicode-lines t)
+    (bind-keys :map ztreediff-mode-map
+                   ("p" . previous-line)
+                   ("k" . previous-line)
+                   ("j" . next-line)
+                   ("n" . next-line))
+
+    (when (package-installed-p 'hydra)
+        (bind-keys :map ztreediff-mode-map
+                   ("\\" . hydra-ztree/body))
+        (defhydra hydra-ztree (:color blue :hint nil)
+            "
+                                                                        ╭────────────┐
+         Move      File                 Do                              │ Ztree diff │
+      ╭─────────────────────────────────────────────────────────────────┴────────────╯
+        _k_/_p_   [_C_] copy                  [_h_] toggle equal files
+        ^ ^↑^ ^   [_D_] delete                [_x_] toggle subtree
+        ^_TAB_^   [_v_] view                  [_r_] partial rescan
+        ^ ^↓^ ^   [_d_] simple diff           [_R_] full rescan
+        _j_/_n_   [_RET_] diff/expand         [_g_] refresh
+        ^ ^ ^ ^   [_SPC_] simple diff/expand
+      --------------------------------------------------------------------------------
+            "
+           ("\\" hydra-master/body "back")
+           ("<ESC>" nil "quit")
+           ("p" previous-line)
+           ("k" previous-line)
+           ("j" next-line)
+           ("n" next-line)
+           ("C" ztree-diff-copy)
+           ("h" ztree-diff-toggle-show-equal-files)
+           ("D" ztree-diff-delete-file)
+           ("v" ztree-diff-view-file)
+           ("d" ztree-diff-simple-diff-files)
+           ("r" ztree-diff-partial-rescan)
+           ("R" ztree-diff-full-rescan)
+           ("RET" ztree-perform-action)
+           ("SPC" ztree-perform-soft-action)
+           ("TAB" ztree-jump-side)
+           ("g" ztree-refresh-buffer)
+           ("x" ztree-toggle-expand-subtree))))
+#+END_SRC
+
 * Footnotes
 
 [fn:1] Логотип Emacs взят с [[http://th.nao.ac.jp/MEMBER/zenitani/emacs-e.html][Carbon Emacs Package]] и предоставлен под лицензией

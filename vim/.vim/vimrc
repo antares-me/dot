@@ -2216,6 +2216,12 @@ let g:vdebug_options= {
             \    "marker_closed_tree" : '▸',
             \    "marker_open_tree" : '▾'
             \}
+let g:vdebug_features= {
+            \    "max_children" : 128
+            \}
+
+"            \    "max_depth" : 1000,
+"            \    "max_data" : 1000000,
 " }}}
 
 " Rusmode {{{

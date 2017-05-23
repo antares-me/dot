@@ -1285,6 +1285,8 @@ Desktop Save Mode - функция сохранения состояния Emacs
             elfeed-search-title-max-width 100)
       (setq elfeed-feeds
             '(
+              ("https://geektimes.ru/rss/" geektimes)
+              ("https://habrahabr.ru/rss/all/" habrahabr)
               ("http://endlessparentheses.com/atom.xml" emacs)
               ("http://planet.emacsen.org/atom.xml" emacs)
               ("https://www.reddit.com/r/emacs/.rss" emacs)

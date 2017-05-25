@@ -1,5 +1,6 @@
 vim/.vim/bundle/*
 vim/.vim/tmp/*
+emacs/.emacs/aria2-controller.eieio
 emacs/.emacs.d/init.el
 emacs/.emacs.d/elpa/
 emacs/.emacs.d/var/

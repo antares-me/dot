@@ -4746,7 +4746,7 @@ interactive loop
 
 ** sublime-themes
 
-[[https://github.com/owainlewis/emacs-color-themes][sublime-themes]] is a collection of color themes for Emacs24 +
+[[https://github.com/owainlewis/emacs-color-themes][sublime-themes]] коллекция цветовых схем для Emacs24 +
 
 The themes are named after important/influential programmers.
 
@@ -4771,7 +4771,7 @@ interactive ][systemd]] is a major mode for Emacs for edit systemd units.
 
 [[./img/sx.png]]
 
-[[https://github.com/vermiculus/sx.el][sx]] is Stack Exchange for Emacs.
+[[https://github.com/vermiculus/sx.el][sx]] - Stack Exchange для Emacs.
 
 #+BEGIN_SRC emacs-lisp
   (use-package sx
@@ -4893,8 +4893,8 @@ Angularjs, ejs, etc.
 
 ** TODO yasnippet
 
-[[https://github.com/capitaomorte/yasnippet][YASnippet]] is a template system for Emacs. It allows you to type an
-abbreviation and automatically expand it into function templates.
+[[https://github.com/capitaomorte/yasnippet][YASnippet]] - система шаблонов для Emacs. Она позволяет печатать 
+абривеатуру а автоматически раскрывать её в шаблоны функций.
 
 #+BEGIN_SRC emacs-lisp
   (use-package yasnippet

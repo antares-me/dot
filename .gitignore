@@ -7,9 +7,11 @@ emacs/.emacs.d/var/
 emacs/.emacs.d/tmp/
 emacs/.emacs.d/image-dired/
 gnupg/.gnupg/pubring.gpg*
+gnupg/.gnupg/pubring.kbx*
 gnupg/.gnupg/random_seed
 gnupg/.gnupg/secring.gpg
 gnupg/.gnupg/trustdb.gpg
+gnupg/.gnupg/private-keys-v1.d
 ranger/.config/ranger/bookmarks
 ranger/.config/ranger/history
 ranger/.config/ranger/tagged

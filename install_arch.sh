@@ -33,3 +33,6 @@ pacman -S pass
 # Система бухгалтерского учёта Ledger {{{
 pacman -S ledger
 # }}}
+# Firejail {{{
+pacman -S firejail
+# }}}

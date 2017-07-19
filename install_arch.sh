@@ -33,3 +33,6 @@ pacman -S pass
 # Система бухгалтерского учёта Ledger {{{
 pacman -S ledger
 # }}}
+# Просмотрщик логов {{{
+pacman -S lnav
+# }}}

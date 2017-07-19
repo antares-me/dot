@@ -36,3 +36,6 @@ pacman -S ledger
 # Просмотрщик логов {{{
 pacman -S lnav
 # }}}
+# Firejail {{{
+pacman -S firejail
+# }}}

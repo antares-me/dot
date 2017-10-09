@@ -315,7 +315,7 @@ NeoBundle 'tobyS/vmustache', {'autoload':{'filetypes': ['php']}}
 NeoBundle 'tobyS/pdv', {'autoload':{'filetypes': ['php']}}
 " JSBeautifier
 NeoBundle 'maksimr/vim-jsbeautify', {'autoload':{'filetypes':
-            \ ['php', 'css', 'js', 'html']}}
+            \ ['php', 'css', 'js', 'html', 'json', 'xml']}}
 " Отступы в php файлах
 NeoBundle '2072/PHP-Indenting-for-VIm', {'autoload':{'filetypes':['php']}}
 " Дебаггер

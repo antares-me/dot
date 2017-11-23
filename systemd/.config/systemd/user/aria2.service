@@ -1,5 +1,5 @@
 [Unit]
-Description = adjust the color temperature of the screen acording the daylight
+Description = Aria2 download manager
 PartOf = xsession.target
 
 [Service]
@@ -8,5 +8,4 @@ ExecStart = /usr/bin/aria2c -c -D --enable-rpc=true --rpc-allow-origin-all=true 
 
 [Install]
 WantedBy = xsession.target
-
 

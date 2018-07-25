@@ -77,6 +77,7 @@
 # ===================================================================
 
 import os
+import re
 
 from ranger.api.commands import *
 from ranger.ext.get_executables import get_executables

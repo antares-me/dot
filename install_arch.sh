@@ -39,3 +39,12 @@ pacman -S lnav
 # Firejail {{{
 pacman -S firejail
 # }}}
+# Pulseaudio {{{
+pacman -S pulseaudio pulseaudio-alsa pavucontrol lib32-libpulse
+# }}}
+# Утилита синхронизации с облаками Rclone {{{
+pacman -S rclone
+#}}}
+# Утилита выполнения команд при изменении файла Entr {{{
+pacman -S entr
+#}}}

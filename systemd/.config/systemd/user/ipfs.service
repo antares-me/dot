@@ -1,0 +1,11 @@
+[Unit]
+Description = IPFS daemon
+PartOf = xsession.target
+
+[Service]
+Type = simple
+ExecStart = /usr/sbin/ipfs daemon --mount
+Restart=on-abort
+
+[Install]
+WantedBy = xsession.target

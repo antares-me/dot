@@ -49,7 +49,7 @@ apt update && apt -y upgrade && apt -y install \
     scrot \
     silversearcher-ag \
     stow \
-    termonology \
+    terminology \
     tmux \
     vim \
     vim-nox \

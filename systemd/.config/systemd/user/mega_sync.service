@@ -1,0 +1,9 @@
+[Unit]
+Description=MegaSync Daemon
+
+[Service]
+ExecStart=%h/bin/mega_sync.sh
+Restart=always
+
+[Install]
+WantedBy=xsession.target

@@ -16,6 +16,8 @@
 	pager = diff-so-fancy | less --tabs=4 -RFX
     autocrlf = input
     whitespace = trailing-space,space-before-tab,indent-with-non-tab
+    eol = lf
+    autocrlf = input
 [merge]
     conflictstyle = diff3
     tool = kompare

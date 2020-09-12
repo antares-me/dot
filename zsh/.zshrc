@@ -52,7 +52,7 @@ export WORKON_HOME=$HOME/.venv
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(battery git gitfast vi-mode gitignore lein pip virtualenv virtualenvwrapper docker docker-compose kubectl golang emacsi pass)
+plugins=(battery git gitfast vi-mode gitignore lein pip virtualenv virtualenvwrapper docker docker-compose kubectl golang pass)
 
 # User configuration
 
@@ -68,7 +68,7 @@ export LANG=ru_RU.UTF-8
 if [[ -n $SSH_CONNECTION ]]; then
   export EDITOR='vim'
 else
-  export EDITOR='emacs'
+  export EDITOR='vim'
 fi
 
 # Compilation flags
@@ -102,3 +102,5 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 # export GOROOT=""
 export GOPATH="$HOME/go_projects"
 export GOBIN="$GOPATH/bin"
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

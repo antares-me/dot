@@ -1,10 +1,18 @@
-URxvt.font:                 xft:Dejavu Sans Mono for Powerline:size=11
-XTerm*faceName:             xft:Dejavu Sans Mono for Powerline:size=11
+!URxvt.font:                 xft:Dejavu Sans Mono for Powerline:size=11
+!URxvt.boldFont:             xft:Dejavu Sans Mono for Powerline:size=11
+URxvt.font:                 xft:Fira Code:size=12
+URxvt.boldFont:             xft:Fira Code Semi-Bold:size=12
+!URxvt.font:                 xft:Monoid Nerd Font Mono:size=12
+!URxvt.boldFont:             xft:Monoid Nerd Font Mono:size=12
+!URxvt.font:                 xft:NotoMono Nerd Font:size=12
+!URxvt.boldFont:             xft:NotoMono Nerd Font:size=12
+XTerm*faceName:             xft:Fira Code:size=12
 XTerm*utf8:                 2
 URxvt.iconFile:             /usr/share/icons/elementary/apps/24/terminal.svg
-URxvt.letterSpace:          -2
-URxvt.urxvtdepth: 32
+URxvt.letterSpace:          -1
+URxvt.urxvtdepth:           32
 
+! https://www.mankier.com/1/urxvt-background
 URxvt.background:           #121214
 URxvt.foreground:           #FFFFFF
 XTerm*background:           #121212
@@ -59,6 +67,14 @@ URxvt.perl-ext:             default,url-select
 URxvt.keysym.M-u:           perl:url-select:select_next
 URxvt.url-select.launcher:  /usr/bin/firefox -new-tab
 URxvt.url-select.underline: true
+URxvt*termName:             rxvt-256color
+! Прозрачность
+URxvt*transparent:          true
+URxvt*tintColor:            white
+! Затенение - 0 до 99 темнее, 101 до 200 светлее.
+URxvt*shading:              20
+! Количество строк прокрутки - 65535 максимиум
+URxvt*saveLines:            12000
 
 Xft*dpi:                    96
 Xft*antialias:              true
@@ -70,10 +86,40 @@ URxvt*scrollTtyOutput:      false
 URxvt*scrollWithBuffer:     false
 URxvt*scrollstyle:          plain
 URxvt*secondaryScroll:      true
+URxvt*scrollBar_right:      false
 
-Xft.autohint: 0
-Xft.lcdfilter:  lcddefault
-Xft.hintstyle:  hintfull
-Xft.hinting: 1
-Xft.antialias: 1
-Xft.rgba: rgb
+Xft.autohint:               0
+Xft.lcdfilter:              lcddefault
+Xft.hintstyle:              hintfull
+Xft.hinting:                1
+Xft.antialias:              1
+Xft.rgba:                   rgb
+
+! perl.ext {{{1
+URxvt*scrollstyle:          rxvt
+URxvt*perl-ext-common:      default,matcher,searchable-scrollback
+URxvt*matcher.button:       1
+URxvt*matcher.pattern.1:    \\bwww\\.[\\w-]+\\.[\\w./?&@#-]*[\\w/-]
+URxvt*urlLauncher:          firefox
+!}}}1
+
+! Tabbed Urxvt {{{1
+
+URxvt.tabbed.scrollBar:     false
+URxvt.tabbed.tabbar-fg:     1
+URxvt.tabbed.tabbar-bg:     0
+URxvt.tabbed.tab-fg:        2
+URxvt.tabbed.tab-bg:        0
+URxvt.tabbed.secondaryScroll: true
+URxvt.tabbed.font: xft:     Bitstream Vera Sans Mono:pixelsize=15
+URxvt.tabbed.perl-ext-common: mark-urls
+URxvt.tabbed.urlLauncher:   firefox
+
+URxvt.tabbed.transparent:   true
+URxvt.tabbed.tintColor:     grey
+
+URxvt.urgentOnBell:         true
+URxvt.visualBell:           true
+
+! }}}
+

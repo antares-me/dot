@@ -15,6 +15,7 @@
 #+LaTeX_HEADER: \usepackage{minted}
 #+LaTeX_HEADER: \setminted{breaklines}
 
+
 #+ATTR_LATEX: :width 5cm :align center :float t
 #+ATTR_HTML: :width 110px
 [[./img/emacs_icon.png]][fn:1]
@@ -83,7 +84,7 @@ Tangling происходит автоматически каждый раз п�
 Тут список приложений, которые необходимо установить перед тем, как использовать
 эту конфигурацию и наслаждаться всеми её возможностями.
 
-- [[http://geoff.greer.fm/2011/12/27/the-silver-searcher-better-than-ack][Ag (aka "The Silver Searcher")]] или [[https://github.com/BurntSushi/ripgrep][rg ("ripgrep")]] или [[https://github.com/monochromegane/the_platinum_searcher][pt ("platinum searcher")]]
+- [[https://github.com/monochromegane/the_platinum_searcher][pt ("platinum searcher")]]
 - [[http://git-scm.com/][git]]
 - [[https://github.com/djcb/mu][mu]] (а также утилиту для получения почты например [[http://pyropus.ca/software/getmail/][getmail]] или [[http://offlineimap.org/][OfflineImap]])
 - [[https://www.gnupg.org/][GnuPG]]
@@ -93,19 +94,31 @@ Tangling происходит автоматически каждый раз п�
 - [[http://www.zx2c4.com/projects/password-store/][pass]]
 - [[http://www.gzip.org/][gzip]]
 - [[https://aria2.github.io/][aria2]]
-- [[https://stockfishchess.org/][Stockfish]] для шахмат
 - [[https://github.com/AlDanial/cloc][cloc]] для подсчёта строк кода
 
 * Настройка пакетов
-** Репозитории
-
-Репозитории ELPA, откуда берутся пакеты.
+** straight
+Ранее я использовал =package.el=, но после того, как узнал о этом пакете
+перевёл конфигурацию на использование =straight.el= в связке с =use-package=
 
 #+BEGIN_SRC emacs-lisp
-  (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-                           ("melpa" . "http://melpa.org/packages/")
-                           ("melpa-stable" . "http://stable.melpa.org/packages/")
-                           ("org" . "http://orgmode.org/elpa/")))
+;; Во избежание проблем с файлами более новыми, чем их байт скомпилированные
+;; аналоги, лучше более медленный запуск, чем загрузка устаревших и, возможно,
+;; сломанных пакетов.
+(setq load-prefer-newer t)
+(defvar bootstrap-version)
+(defvar straight-use-package-by-default) ; для использования пакетом use-package
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
 #+END_SRC
 
 ** use-package и bind-key
@@ -113,7 +126,7 @@ Tangling происходит автоматически каждый раз п�
 Макрос [[https://github.com/jwiegley/use-package][use-package]] позволяет использовать изолированные конфигурации пакетов в
 настройках emacs таким образом, что конфигурация становится более производительной 
 и, ну, просто аккуратно. А это позволяет нам установить автоматически те пакеты,
-которые еще не установлены (с использованием ключевого слова =:ensure t=) и
+которые еще не установлены (с использованием ключевого слова =:straight t=) и
 освобождая нас от использования пользовательского процесса начальной
 загрузки.
 
@@ -124,26 +137,13 @@ Tangling происходит автоматически каждый раз п�
 
 
 #+BEGIN_SRC emacs-lisp
-;; Во избежание проблем с файлами более новыми, чем их байт скомпилированные
-;; аналоги, лучше более медленный запуск, чем загрузка устаревших и, возможно,
-;; сломанных пакетов.
-    (setq load-prefer-newer t)
-    ;; Инициализация пакетов и создание списка пакетов если он не существует
-    (package-initialize)
-    (when (not package-archive-contents)
-      (package-refresh-contents))
-
-    ;; Установка use-package если не существует
-    (unless (package-installed-p 'use-package)
-      (package-install 'use-package))
-    ;; Установка diminish, если не существуе
-    (unless (package-installed-p 'diminish)
-      (package-install 'diminish))
-
-    (eval-when-compile
-      (require 'use-package))
-    (require 'diminish)                ;; Если используется :diminish
-    (require 'bind-key)                ;; Если используется :bind
+(straight-use-package 'use-package)
+(straight-use-package 'diminish)
+;(eval-when-compile
+;    (require 'use-package)
+;)
+;(require 'diminish)                ;; Если используется :diminish
+;(require 'bind-key)                ;; Если используется :bind
 #+END_SRC
 
 * Встроенные возможности
@@ -386,7 +386,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
 открываете новый клиент в режиме сервера (из GUI или терминала)
 
 #+BEGIN_SRC emacs-lisp
-  (defvar antares-color-theme (if (package-installed-p 'monokai-theme)
+  (defvar antares-color-theme (if (straight-use-package 'monokai-theme)
                               'monokai
                             'tango))
 
@@ -431,7 +431,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
 свободный и имеет отличную поддержку Юникода, да и выглядит неплохо!
 
 #+BEGIN_SRC emacs-lisp
-  (set-face-attribute 'default nil :family "Dejavu Sans Mono" :height 110)
+  (set-face-attribute 'default nil :family "Fira Code" :height 110)
 
   ;; Установим шрифт с отличной поддержкой символов Unicode, чтобы в случае
   ;; отсутствия определённых символов в текущем шрифте показать их из 
@@ -683,7 +683,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
 #+BEGIN_SRC emacs-lisp
   (use-package eww
     :init
-    (setq eww-download-directory "~/temporal")
+    (setq eww-download-directory (concat antares-emacs-temporal-directory "temporal"))
     :config
     (bind-keys :map eww-mode-map
                ("s" . eww-view-source)))
@@ -821,11 +821,9 @@ Desktop Save Mode - функция сохранения состояния Emacs
              (not (string= lang "plantuml"))))
 
         (setq org-confirm-babel-evaluate 'antares-org-confirm-babel-evaluate)))
-(eval-after-load "org"
-  '(require 'ox-md nil t))
 #+END_SRC
 
-* Пакеты [0/21]
+* Пакеты [0/9]
 
 Здесь я пытаюсь настроить кахдый пакет отдельно от других насколько это возможно
 чтобы быть уверенным в том, что при добавлении или удалении пакета не сломается
@@ -836,33 +834,41 @@ Desktop Save Mode - функция сохранения состояния Emacs
 **** all-the-icons
 #+BEGIN_SRC emacs-lisp
   (use-package all-the-icons
-    :ensure t)
+    :straight t)
 #+END_SRC
 
 *** Темы
 **** moe-theme
 
-[[https://github.com/kuanyui/moe-theme.el][Moe-theme]] понравившаяся мне цветовая тема.
+     [[https://github.com/kuanyui/moe-theme.el][Moe-theme]] понравившаяся мне цветовая тема.
 
 #+BEGIN_SRC emacs-lisp
   (use-package moe-theme
-    :ensure t
+    :straight t
     :config
     (progn
       (use-package moe-theme-switcher) ;; Автоматически переключать тему в зависимости от времени суток
-      ;; (load-theme 'moe-dark) ;; Установить тему принудительно 'moe-dark или 'moe-light
+      ;;(load-theme 'moe-dark) ;; Установить тему принудительно 'moe-dark или 'moe-light
       ;;(moe-theme-set-color 'blue) ;; (Доступные цвета: blue, orange, green ,magenta, yellow, purple, red, cyan, w/b.)
       (setq
-          moe-theme-resize-markdown-title '(1.5 1.4 1.3 1.2 1.0 1.0)
+          ;;moe-theme-resize-markdown-title '(1.5 1.4 1.3 1.2 1.0 1.0)
           moe-theme-resize-org-title '(1.5 1.4 1.3 1.2 1.1 1.0 1.0 1.0 1.0)
           moe-theme-resize-rst-title '(1.5 1.4 1.3 1.2 1.1 1.0)
           moe-theme-highlight-buffer-id t
           moe-theme-switch-by-sunrise-and-sunset t
-          show-paren-style 'expression)))
-
+          show-paren-style 'expression)
+      (moe-dark)))
 #+END_SRC
 
-** Утилины
+*** Шрифт
+**** FiraCode
+#+BEGIN_SRC emacs-lisp
+  (use-package fira-code-mode
+    :straight t
+    :custom (fira-code-mode-disabled-ligatures '("[]" "x"))  ; ligatures you don't want
+    :hook prog-mode)                                         ; mode to enable fira-code-mode in
+#+END_SRC
+** Утилиты
 *** Работа с текстом
 *** Поиск текста
 **** TODO ag
@@ -882,18 +888,34 @@ Desktop Save Mode - функция сохранения состояния Emacs
               ag-arguments (list "--color" "--smart-case" "--nogroup" "--column" "--all-types" "--"))))
   #+END_SRC
     
+*** Разметка
+**** Markdown-mode
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+  :straight t
+  :mode (("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode)))
+#+END_SRC
 ** Программирование
 *** Go
 **** TODO Go-mode
 #+BEGIN_SRC emacs-lisp
   (use-package go-mode
-    :ensure t
+    :straight t
+    :config
+    (progn
+        (setq gofmt-command "goimports")
+        (add-hook 'before-save-hook 'gofmt-before-save)
+    )
+    :mode ("\\.go\\'" . go-mode)
     )
 #+END_SRC
+
 **** TODO Golint
 #+BEGIN_SRC emacs-lisp
   (use-package golint
-    :ensure t
+    :straight t
+    :mode ("\\.go\\'" . go-mode)
     )
 #+END_SRC
 
@@ -908,7 +930,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
 
 #+BEGIN_SRC emacs-lisp
   (use-package bug-hunter
-    :ensure t
+    :straight t
     :commands (bug-hunter-file bug-hunter-init-file))
 #+END_SRC
 
@@ -922,27 +944,27 @@ Desktop Save Mode - функция сохранения состояния Emacs
 себя пару удобных функций IDE-типа, такие как поиск документации и просмотрщик
 исходников и классов.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package php-mode
-    :ensure t
+    :straight t
     :mode ("\\.php\\'" . php-mode)
     :interpreter ("php" . php-mode))
 #+END_SRC
 
 **** TODO php-cs-fixer
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package php-cs-fixer
-    :ensure t
+    :straight t
     :mode ("\\.php\\'" . php-mode)
     :interpreter ("php" . php-mode))
 #+END_SRC
 
 **** TODO ac-php
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package ac-php
-    :ensure t)
+    :straight t)
 #+END_SRC
 
 ** DevOps
@@ -952,42 +974,43 @@ Desktop Save Mode - функция сохранения состояния Emacs
 [[https://github.com/Silex/docker.el][docker]] интеграция Emacs и Docker
 Поддерживает containers, images, volumes, networks, docker-machine и docker-compose.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-package docker
-  :ensure t
+  :straight t
   :bind ("C-c d" . docker))
 #+END_SRC
 
 **** TODO Docker-compose-mode
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package docker-compose-mode
-     :ensure t)
+     :straight t)
 #+END_SRC
 
-**** Dockerfile-mode
-#+BEGIN_SRC emacs-lisp
+**** TODO Dockerfile-mode
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package dockerfile-mode
-     :ensure t)
+     :straight t)
 #+END_SRC
 
-** TODO async
+** async
 
 [[https://github.com/jwiegley/emacs-async][async.el]] модуль для создания асинхронных процессов в Emacs.
 
 #+BEGIN_SRC emacs-lisp
   (use-package async
     :defer t
-    :ensure t
+    :straight t
     :config
     (setq async-bytecomp-package-mode t))
 #+END_SRC
-** TODO beacon
+
+** beacon
 
 [[https://github.com/Malabarba/beacon][Beacon]] дополнительный режим, который помогает в поиске курсора.
 
 #+BEGIN_SRC emacs-lisp
   (use-package beacon
-    :ensure t
+    :straight t
     :config
     (beacon-mode 1)
     (setq beacon-push-mark 35
@@ -995,7 +1018,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
           beacon-color "deep sky blue"))
 #+END_SRC
 
-** TODO charmap
+** charmap
 
 [[./img/charmap.png]]
 
@@ -1006,7 +1029,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
    (use-package charmap
      :commands charmap
      :defer t
-     :ensure t
+     :straight t
      :config
      (setq charmap-text-scale-adjust 2))
 #+END_SRC
@@ -1017,10 +1040,21 @@ Desktop Save Mode - функция сохранения состояния Emacs
 
 [[https://github.com/cosmicexplorer/cloc-emacs][cloc]] количество строк кода в буфере
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package cloc
-    :ensure t
+    :straight t
     :commands cloc)
+#+END_SRC
+
+** company-mode
+   
+#+BEGIN_SRC emacs-lisp
+    (use-package company
+      :straight t
+      :init
+      (progn
+      (add-hook 'after-init-hook 'global-company-mode))
+    )
 #+END_SRC
 
 ** TODO csv-mode
@@ -1043,9 +1077,9 @@ Desktop Save Mode - функция сохранения состояния Emacs
 | C-c C-s | csv-sort-fields         | Sort lines in region lexicographically by the ARGth field of each line |
 |---------+-------------------------+------------------------------------------------------------------------|
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
     (use-package csv-mode
-      :ensure t
+      :straight t
       :mode "\\.csv\\'")
 #+END_SRC
 
@@ -1062,9 +1096,9 @@ Desktop Save Mode - функция сохранения состояния Emacs
 | C-x v ] | diff-hl-next-hunk      | Go to the beginning of the next hunk in the current buffer          |
 |---------+------------------------+---------------------------------------------------------------------|
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package diff-hl
-    :ensure t
+    :straight t
     :defer t
     :init
     (progn
@@ -1072,16 +1106,6 @@ Desktop Save Mode - функция сохранения состояния Emacs
       (add-hook 'org-mode-hook    'turn-on-diff-hl-mode)
       (add-hook 'prog-mode-hook   'turn-on-diff-hl-mode)
       (add-hook 'vc-dir-mode-hook 'turn-on-diff-hl-mode)))
-#+end_src
-
-** TODO direx
-
-[[https://github.com/emacsorphanage/direx][direx]] позволяет просматривать дерево файлов.
-
-#+begin_src emacs-lisp
-  (use-package direx
-    :ensure t
-    :defer t)
 #+end_src
 
 ** TODO elfeed
@@ -1096,9 +1120,9 @@ Desktop Save Mode - функция сохранения состояния Emacs
 
 [[./img/elfeed_show.png]]
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package elfeed
-    :ensure t
+    :straight t
     :commands elfeed
     :config
     (add-hook 'elfeed-new-entry-hook
@@ -1140,7 +1164,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
                ("TAB"   . shr-next-link)
                ("S-TAB" . shr-previous-link))
 
-    (when (package-installed-p 'hydra)
+    (when (straight-use-package 'hydra)
         (bind-keys :map elfeed-search-mode-map
                ("\\"   . hydra-elfeed-search/body))
         (bind-keys :map elfeed-show-mode-map
@@ -1212,7 +1236,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
           ("S-TAB" shr-previous-link :color red))))
 #+END_SRC
 
-** TODO evil
+** evil
 
 [[https://gitorious.org/evil/pages/Home][Evil]] расширяемый vi слой для Emacs. Он эмулирует основные особенности Vim,
 а также предоставляет средства для написания пользовательских расширений.
@@ -1267,9 +1291,10 @@ Desktop Save Mode - функция сохранения состояния Emacs
 Просто продолжайте нажимать клавишу, пока он не выберет то, что вы хотите.
 [[https://github.com/syl20bnr/evil-iedit-state][evil-iedit-state]] выделение в Evil для iedit и расширенной области.
 
+
 #+BEGIN_SRC emacs-lisp
   (use-package evil
-    :ensure t
+    :straight t
     :config
     (progn
       (defcustom antares-evil-state-modes
@@ -1383,35 +1408,35 @@ Desktop Save Mode - функция сохранения состояния Emacs
 
 
       ;; привязки, используемые с пакетом hydra
-      (when (package-installed-p 'hydra)
+      (when (straight-use-package 'hydra)
         (define-key evil-motion-state-map "\\" 'hydra-master/body)
         (define-key evil-normal-state-map ","  'hydra-leader/body)
         (define-key evil-visual-state-map ","  'hydra-leader/body))
 
       (use-package evil-exchange
-        :ensure t
+        :straight t
         :config
         (evil-exchange-install))
 
       (use-package evil-indent-textobject
-        :ensure t)
+        :straight t)
 
       (use-package evil-matchit
-        :ensure t
+        :straight t
         :config
         (global-evil-matchit-mode t))
 
       ;; (use-package evil-nerd-commenter
-      ;;   :ensure t
+      ;;   :straight t
       ;;   :init
       ;;   (setq evilnc-hotkey-comment-operator ""))
 
       (use-package evil-iedit-state
-        :ensure t
-        :ensure expand-region
+        :straight t
+        :straight expand-region
         :config
         (add-hook 'iedit-mode-hook 'evil-iedit-state)
-        (when (package-installed-p 'hydra)
+        (when (straight-use-package 'hydra)
           (bind-keys :map evil-iedit-state-map
                      ("\\" . hydra-iedit/body))
           (bind-keys :map evil-iedit-insert-state-map
@@ -1474,25 +1499,25 @@ Desktop Save Mode - функция сохранения состояния Emacs
             ("<esc>" nil "quit"))))
 
       (use-package evil-surround
-        :ensure t
+        :straight t
         :config
         (global-evil-surround-mode 1)))
 #+END_SRC
 
 ** TODO git-modes
 
-[[https://github.com/magit/git-modes][Git modes]] GNU Emacs режимы для файлов связанных с Git.
-Доступен в репозитории на GitHub, но также доступен как независимый пакет в Melpa.
+   [[https://github.com/magit/git-modes][Git modes]] GNU Emacs режимы для файлов связанных с Git.
+   Доступен в репозитории на GitHub, но также доступен как независимый пакет в Melpa.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tnagle no
   (use-package gitconfig-mode
-    :ensure t
+    :straight t
     :defer t)
   (use-package gitignore-mode
-    :ensure t
+    :straight t
     :defer t)
   (use-package gitattributes-mode
-    :ensure t
+    :straight t
     :defer t)
 #+END_SRC
 
@@ -1501,16 +1526,16 @@ Desktop Save Mode - функция сохранения состояния Emacs
 Use [[https://github.com/pidu/git-timemachine][git-timemachine]] для просмотра истории версий файла.
 =p= (предыдущая) и =n= (следующая).
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package git-timemachine
-    :ensure t
+    :straight t
     :commands git-timemachine
     :config
     (progn
       (bind-keys :map git-timemachine-mode
                  ("c" . git-timemachine-show-current-revision)
                  ("b" . git-timemachine-switch-branch))
-      (when (package-installed-p 'hydra)
+      (when (straight-use-package 'hydra)
           (bind-keys :map git-timemachine-mode
                   ("\\" . hydra-timemachine/body))
           (defhydra hydra-timemachine (:hint nil :color blue)
@@ -1542,17 +1567,19 @@ Use [[https://github.com/pidu/git-timemachine][git-timemachine]] для прос
 		  (evil-local-mode (if git-timemachine-mode -1 1)))))
 #+END_SRC
 
-** TODO go-direx
+** TODO graphviz-dot-mode                                                           
 
-[[https://github.com/emacsorphanage/go-direx][go-direx]] позволяет просматривать код go в дереве файлов direx.
+[[https://github.com/ppareit/graphviz-dot-mode][graphviz-dot-mode]] режим для языка DOT, с использованием graphviz.
 
-#+begin_src emacs-lisp
-  (use-package go-direx
-    :ensure t
-    :defer t)
-#+end_src
+#+BEGIN_SRC emacs-lisp :tangle no
+  (use-package graphviz-dot-mode
+    :straight t
+    :defer t
+    :config
+    (setq graphviz-dot-indent-width 4))
+#+END_SRC
 
-** TODO hydra
+** hydra
 
 [[https://github.com/abo-abo/hydra][Hydra]] пакет GNU Emacs, который может использоваться для привязки команд в семейство горячих клавиш
 с общим префиксом - Hydra.
@@ -1597,7 +1624,7 @@ Unite работал в качестве интерфейса для неско�
 
 #+BEGIN_SRC emacs-lisp
   (use-package hydra
-    :ensure t
+    :straight t
     :defer 0.1
     :init
     (bind-key "\\" 'hydra-master/body)
@@ -2186,34 +2213,35 @@ Unite работал в качестве интерфейса для неско�
 отслеживаемые файлы, а также просмотреть историю последних изменений. Есть
 поддержка cherry picking, откатов, мерджей, ребэйзов и прочих общих операций Git.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package magit
-    :ensure t
-    :pin melpa-stable
+    :straight t
     :commands magit-status)
 #+END_SRC
 
-** TODO NeoTree
+** NeoTree
 [[./img/neotree.png]]
 [[https://github.com/jaypei/emacs-neotree][NeoTree]] это аналог NerdTree (менеджера файлов) в Vim.
 #+BEGIN_SRC emacs-lisp
   (use-package neotree
-    :ensure t
+    :straight t
     :after (all-the-icons)
     :config
     (progn
       (setq
-        neo-theme (if (display-graphic-p) 'icons 'arrow))))
+        neo-theme (if (display-graphic-p) 'icons 'arrow))
+      (setq
+        neo-smart-open t)))
   (global-set-key [f8] 'neotree-toggle)
 #+END_SRC
 
-** TODO org-bullets
+** org-bullets
 
 [[https://github.com/sabof/org-bullets][org-bullets]] показать org-mode маркеры как UTF-8 символы.
 
 #+BEGIN_SRC emacs-lisp
   (use-package org-bullets
-    :ensure t
+    :straight t
     :config
     (setq org-bullets-bullet-list '("◉" "○" "✸" "✿" "☼" "⚬"))
     (add-hook 'org-mode-hook 'org-bullets-mode))
@@ -2224,9 +2252,9 @@ Unite работал в качестве интерфейса для неско�
 [[https://github.com/Bruce-Connor/paradox][Paradox]] проект модернизации Emacs'овского меню пакетов. С оценками пакетов,
 статистикой использования, настраиваемостью и многим другим.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package paradox
-    :ensure t
+    :straight t
     :commands paradox-list-packages
     :config
     (setq paradox-github-token t
@@ -2234,14 +2262,14 @@ Unite работал в качестве интерфейса для неско�
           paradox-execute-asynchronously t))
 #+END_SRC
 
-** TODO popwin
+** popwin
 
 [[https://github.com/m2ym/popwin-el][Popwin]] это менеджер всплывающих окон Emacs, который освобождает вас от ада раздражающих буферов,
 таких как *Help*, *Completions*, *compilation*, и так далее.
 
 #+BEGIN_SRC emacs-lisp
   (use-package popwin
-    :ensure t
+    :straight t
     :config
     (popwin-mode 1)
     (setq popwin:popup-window-height 35
@@ -2273,6 +2301,7 @@ Unite работал в качестве интерфейса для неско�
             ("*Package Commit List*" :noselect nil)
             ("*Diff*" :noselect nil)
             ("*Messages*" :noselect nil)
+	    ("*straight-proccess*" :noselect nil)
             ("*Google Maps*" :noselect nil)
             ("*ag search*" :noselect nil)
             ("*PDF-Occur*" :noselect nil)
@@ -2288,7 +2317,7 @@ Unite работал в качестве интерфейса для неско�
                ((kbd "<escape>") . popwin:close-popup-window)))
 #+END_SRC
 
-** TODO powerline
+** powerline
 
 [[https://github.com/milkypostman/powerline][Powerline]]
 Предлагаемая версия 2.0 оригинального Emacs Powerline, которая является форком
@@ -2301,18 +2330,26 @@ Emacs версия Vim powerline.
 
 #+BEGIN_SRC emacs-lisp
       (use-package powerline
-        :ensure moe-theme
+        :straight t
+	;;:straight moe-theme
         :defer t
+	;;:after (moe-theme)
+	:config
+	(progn
+	(setq powerline-arrow-shape 'arrow)
+        (powerline-moe-theme)
         )
-    (use-package powerline-evil
-        :ensure powerline
-        :ensure t)
-    (powerline-moe-theme)
+	)
+    ;;(use-package powerline-evil
+        ;;:straight t
+	;;:straight powerline
+        ;;)
+    ;;(powerline-moe-theme)
     ;; Выбор цвета строки состояния.(Default: blue)
     ;;(moe-theme-set-color 'cyan)
 #+END_SRC
 
-** TODO projectile
+** projectile
 
 [[https://github.com/bbatsov/projectile][Projectile]] библиотека проектного взаимодействия для Emacs.
 Цель библиотеки- обеспечение набора функция, работающих на уровне проекта без
@@ -2323,7 +2360,7 @@ Emacs версия Vim powerline.
 
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
-    :ensure projectile
+    :straight t
     :diminish projectile-mode
     :config
     (progn
@@ -2333,20 +2370,92 @@ Emacs версия Vim powerline.
       (projectile-global-mode)))
 #+END_SRC
 
-** TODO ranger
+** ranger
  [[https://github.com/ralesi/ranger.el][Ranger]] is a minor mode that runs within dired emulating many of the features of
  [[https://github.com/ralesi/ranger.el][ranger]]. This minor mode shows a stack of the parent directories and updates the
  parent buffers while navigating the file system. 
 
 #+BEGIN_SRC emacs-lisp
   (use-package ranger
-    :ensure t
+    :straight t
     :config
     (setq ranger-cleanup-on-disable t
           ranger-show-dotfiles t 
           ranger-show-literal nil))
 #+END_SRC
 
+** swiper & ivy & counsel
+
+[[https://github.com/abo-abo/swiper][Ivy]] is a generic completion mechanism for Emacs that aims to be more efficient,
+smaller, simpler, and smoother to use yet highly customizable. 
+
+[[https://github.com/abo-abo/swiper][Swiper]] is a package for GNU Emacs that gives you an overview as you search for a
+regex. Based in ivy.
+
+[[https://github.com/abo-abo/swiper][Counsel]] provides versions of common Emacs commands that are customised to make
+the best use of ivy.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy
+    :straight t
+    :straight smex
+    :straight ivy-hydra
+    :diminish ivy-mode
+    :config
+    (setq smex-save-file (concat antares-emacs-temporal-directory "smex-items"))
+    (smex-initialize)
+    (setq ivy-use-virtual-buffers t
+          ivy-height 15)
+    (bind-keys :map ivy-minibuffer-map
+               ("<escape>" . minibuffer-keyboard-quit))
+    (ivy-mode t))
+
+  (use-package swiper
+      :straight t
+      :config
+      (defun antares-swiper ()
+          (interactive)
+          (swiper)
+          (add-to-list 'regexp-search-ring (ivy--regex ivy-text))))
+
+  (use-package counsel
+    :bind (("<menu>"  . counsel-M-x)
+           ("C-h b" . counsel-descbinds))
+    :straight t
+    :config
+    (setq counsel-ag-base-command "ag --nocolor --nogroup --smart-case --column %s"))
+#+END_SRC
+
+** Undo-tree
+
+#+BEGIN_SRC emacs-lisp
+(use-package undo-tree
+  :straight t
+  :diminish undo-tree-mode
+  :init
+  (progn
+    (global-undo-tree-mode)
+    (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/tmp/undo"))
+          undo-tree-auto-save-history t
+          undo-tree-visualizer-timestamps t
+          undo-tree-visualizer-diff t)))
+#+END_SRC
+
+** exec-path-from-shell
+
+#+BEGIN_SRC emacs-lisp
+  (use-package exec-path-from-shell
+    :straight t
+    :config
+    (progn
+    (setq exec-path-from-shell-shell-name "zsh")
+    (setq exec-path-from-shell-check-startup-files nil)
+    (setq exec-path-from-shell-arguments '("-l"))
+    (when (daemonp)
+    (exec-path-from-shell-initialize))
+    (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize))))
+#+END_SRC
 * Footnotes
 
 [fn:1] Логотип Emacs взят с [[http://th.nao.ac.jp/MEMBER/zenitani/emacs-e.html][Carbon Emacs Package]] и предоставлен под лицензией

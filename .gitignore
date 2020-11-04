@@ -6,6 +6,9 @@ emacs/.emacs.d/elpa/
 emacs/.emacs.d/var/
 emacs/.emacs.d/tmp/
 emacs/.emacs.d/image-dired/
+emacs/.emacs.d/straight/
+emacs/.emacs.d/transient/
+emacs/.emacs.d/network-security.data
 gnupg/.gnupg/pubring.gpg*
 gnupg/.gnupg/pubring.kbx*
 gnupg/.gnupg/random_seed

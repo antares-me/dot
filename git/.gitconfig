@@ -20,7 +20,7 @@
     autocrlf = input
 [merge]
     conflictstyle = diff3
-    tool = kompare
+    tool = meld
 [color]
     ui = true
 [color "branch"]
@@ -57,7 +57,7 @@
 	dsf = !f() { [ -z \"$GIT_PREFIX\" ] || cd \"$GIT_PREFIX\" && git diff --color \"$@\" | diff-so-fancy  | less --tabs=4 -RFX; }; f
 	copy = !git merge --ff $(git commit-tree ${1}^{tree} -p HEAD -m \"Tree copy from ${1}\")
 [diff]
-    tool = kompare
+    tool = meld
 [commit]
 	gpgsign = true
     template = ~/.gitmessage.txt

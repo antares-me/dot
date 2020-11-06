@@ -1,5 +1,5 @@
-#+TITLE:     My Emacs Configuration
 #+AUTHOR:    Anton Salnikov
+#+TITLE:     My Emacs Configuration
 #+EMAIL:     antares@antares.me
 #+DATE:      2017-04-25
 #+LANGUAGE:  ru
@@ -2455,6 +2455,14 @@ the best use of ivy.
     (exec-path-from-shell-initialize))
     (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize))))
+#+END_SRC
+** Telega
+#+BEGIN_SRC emacs-lisp
+  (use-package telega
+    :straight t
+    ;;:load-path  "~/telega.el"
+    :commands (telega)
+    :defer t)
 #+END_SRC
 * Footnotes
 

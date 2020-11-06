@@ -52,20 +52,23 @@ export WORKON_HOME=$HOME/.venv
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(battery git gitfast vi-mode gitignore lein pip virtualenv virtualenvwrapper docker docker-compose kubectl golang pass)
+plugins=(battery git gitfast vi-mode gitignore lein pip virtualenv virtualenvwrapper docker docker-compose kubectl golang pass emacs)
 
 # User configuration
 
 # export MANPATH="/usr/local/man:$MANPATH"
 
-source $ZSH/oh-my-zsh.sh
 
 # Preferred editor for local and remote sessions
-if [[ -n $SSH_CONNECTION ]]; then
-  export EDITOR='vim'
-else
-  export EDITOR='vim'
-fi
+# if [[ -n $SSH_CONNECTION ]]; then
+#     export EDITOR="emacs"
+# else
+#     export EDITOR="emacs"
+# fi
+# export EDITOR="$(if [[ -n $DISPLAY ]]; then echo 'emacs'; else echo 'emacs'; fi)"
+# export ALTERNATE_EDITOR=""
+# export EDITOR="emacsclient -t"                  # $EDITOR opens in terminal
+# export VISUAL="emacsclient -c -a emacs"         # $VISUAL opens in GUI mode
 
 # Compilation flags
 export ARCHFLAGS="-arch x86_64"
@@ -95,3 +98,5 @@ alias l='ls -CF'
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+source $ZSH/oh-my-zsh.sh

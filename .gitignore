@@ -9,6 +9,7 @@ emacs/.emacs.d/image-dired/
 emacs/.emacs.d/straight/
 emacs/.emacs.d/transient/
 emacs/.emacs.d/network-security.data
+emacs/.emacs.d/auto-save-list/
 gnupg/.gnupg/pubring.gpg*
 gnupg/.gnupg/pubring.kbx*
 gnupg/.gnupg/random_seed

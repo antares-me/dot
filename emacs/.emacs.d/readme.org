@@ -55,7 +55,7 @@ Tangling происходит автоматически каждый раз п�
            (equal (buffer-file-name)
                   (expand-file-name (concat user-emacs-directory "readme.org")))
            (equal (buffer-file-name)
-                  (expand-file-name "~/dotfiles/emacs/.emacs.d/readme.org")))
+                  (expand-file-name "~/dot/emacs/.emacs.d/readme.org")))
       (call-process-shell-command
        "/usr/bin/emacs ~/.emacs.d/readme.org --batch --eval='(org-babel-tangle)' && notify-send -a 'Emacs' 'Emacs' 'init-файл собран'" nil 0)))
       ;; (byte-compile-file (concat user-emacs-directory "init.el")))
@@ -79,7 +79,7 @@ Tangling происходит автоматически каждый раз п�
   $ /usr/bin/emacs ~/.emacs.d/readme.org --batch --eval='(org-babel-tangle)'
 #+END_EXAMPLE
 
-* TODO Предустанавливаемые приложения
+* Предустанавливаемые приложения
 
 Тут список приложений, которые необходимо установить перед тем, как использовать
 эту конфигурацию и наслаждаться всеми её возможностями.
@@ -652,7 +652,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
 
 Используем ido для работы с файлами и буферами удобным способом.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
   (use-package ido
     :config
     (progn
@@ -823,7 +823,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
         (setq org-confirm-babel-evaluate 'antares-org-confirm-babel-evaluate)))
 #+END_SRC
 
-* Пакеты [0/9]
+* Пакеты [0/1]
 
 Здесь я пытаюсь настроить кахдый пакет отдельно от других насколько это возможно
 чтобы быть уверенным в том, что при добавлении или удалении пакета не сломается
@@ -837,6 +837,36 @@ Desktop Save Mode - функция сохранения состояния Emacs
     :straight t)
 #+END_SRC
 
+*** Строка состояния
+**** Powerline
+
+[[https://github.com/milkypostman/powerline][Powerline]]
+Предлагаемая версия 2.0 оригинального Emacs Powerline, которая является форком
+Powerline для Vim.
+Emacs версия Vim powerline.
+В эту версию включена поддержка UTF-8. UTF-8 разделители будут отображаться
+юникодными символами правильно, например под mintty, так долго, сколько у вас
+будут установлены пропатченные шрифты.
+По умолчанию все терминальные режимы Emacs используют разделители UTF-8.
+
+#+BEGIN_SRC emacs-lisp
+      (use-package powerline
+        :straight t
+	;;:straight moe-theme
+        :defer t
+	:config
+	(progn
+	(setq powerline-arrow-shape 'arrow)
+        ;; (powerline-moe-theme)
+        )
+	)
+    (use-package powerline-evil
+        :straight t
+	:straight powerline)
+    ;; Выбор цвета строки состояния.(Default: blue)
+    ;;(moe-theme-set-color 'cyan)
+#+END_SRC
+
 *** Темы
 **** moe-theme
 
@@ -845,6 +875,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
 #+BEGIN_SRC emacs-lisp
   (use-package moe-theme
     :straight t
+    :after (:all powerline powerline-evil)
     :config
     (progn
       (use-package moe-theme-switcher) ;; Автоматически переключать тему в зависимости от времени суток
@@ -857,9 +888,59 @@ Desktop Save Mode - функция сохранения состояния Emacs
           moe-theme-highlight-buffer-id t
           moe-theme-switch-by-sunrise-and-sunset t
           show-paren-style 'expression)
-      (moe-dark)))
+          (moe-dark)
+      (powerline-moe-theme)))
 #+END_SRC
 
+**** Dashboard
+#+BEGIN_SRC emacs-lisp
+  (use-package dashboard
+    :straight t
+    :config
+    (progn
+      (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+      (setq dashboard-banner-logo-title "Welcome to Emacs Dashboard")
+      ;; Set the title
+      (setq dashboard-banner-logo-title "Welcome to Emacs Dashboard")
+      ;; Set the banner
+      (setq dashboard-startup-banner [VALUE])
+      ;; Value can be
+      ;; 'official which displays the official emacs logo
+      ;; 'logo which displays an alternative emacs logo
+      ;; 1, 2 or 3 which displays one of the text banners
+      ;; "path/to/your/image.png" or "path/to/your/text.txt" which displays whatever image/text you would prefer
+
+      ;; Content is not centered by default. To center, set
+      (setq dashboard-center-content t)
+
+      ;; To disable shortcut "jump" indicators for each section, set
+      (setq dashboard-show-shortcuts nil)
+      (setq dashboard-items '((recents  . 5)
+                              (bookmarks . 5)
+                              (projects . 5)
+                              (agenda . 5)
+                              (registers . 5)))
+      (defun dashboard-insert-custom (list-size)
+        (insert "Custom text"))
+      (add-to-list 'dashboard-item-generators  '(custom . dashboard-insert-custom))
+      (add-to-list 'dashboard-items '(custom) t)
+      (setq dashboard-set-heading-icons t)
+      (setq dashboard-set-file-icons t)
+      (setq dashboard-set-navigator t)
+      (setq dashboard-set-init-info t)
+      (setq dashboard-set-footer nil)
+      (setq show-week-agenda-p t)
+
+      (dashboard-setup-startup-hook)
+      ))
+#+END_SRC
+**** Random-splash-image
+#+BEGIN_SRC emacs-lisp :tangle no
+  (use-package random-splash-image
+    :disabled t
+    :config
+    (setq random-splash-image-dir (concat (getenv "HOME") "/.emacs.d/splash-images")))
+#+END_SRC
 *** Шрифт
 **** FiraCode
 #+BEGIN_SRC emacs-lisp
@@ -870,6 +951,13 @@ Desktop Save Mode - функция сохранения состояния Emacs
 #+END_SRC
 ** Утилиты
 *** Работа с текстом
+**** Rainbow-delimiters
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-delimiters
+    :straight t
+    :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+          (setq rainbow-delimiters-max-face-count 9))
+#+END_SRC
 *** Поиск текста
 **** TODO ag
 
@@ -898,7 +986,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
 #+END_SRC
 ** Программирование
 *** Go
-**** TODO Go-mode
+**** Go-mode
 #+BEGIN_SRC emacs-lisp
   (use-package go-mode
     :straight t
@@ -906,19 +994,37 @@ Desktop Save Mode - функция сохранения состояния Emacs
     (progn
         (setq gofmt-command "goimports")
         (add-hook 'before-save-hook 'gofmt-before-save)
+        (add-hook 'go-mode-hook 'go-eldoc-setup)
+;;        (add-hook 'go-mode-hook 'yas-minor-mode)
+        (add-hook 'go-mode-hook (lambda ()
+            (set (make-local-variable 'company-backends) '(company-go))
+            (company-mode)))
+        (add-hook 'go-mode-hook 'flycheck-mode)
+        (setq multi-compile-alist '(
+            (go-mode . (
+            ("go-build" "go build -v"
+            (locate-dominating-file buffer-file-name ".git"))
+            ("go-build-and-run" "go build -v && echo 'build finish' && eval ./${PWD##*/}"
+            (multi-compile-locate-file-dir ".git"))))))
     )
-    :mode ("\\.go\\'" . go-mode)
-    )
+    :mode ("\\.go\\'" . go-mode))
 #+END_SRC
 
-**** TODO Golint
+**** Golint
 #+BEGIN_SRC emacs-lisp
   (use-package golint
     :straight t
-    :mode ("\\.go\\'" . go-mode)
-    )
+    :mode ("\\.go\\'" . go-mode))
 #+END_SRC
 
+**** Go-eldoc
+#+BEGIN_SRC emacs-lisp
+  (use-package go-eldoc
+    :straight t
+    :init
+        (add-hook 'go-mode-hook 'go-eldoc-setup)
+    :mode ("\\.go\\'" . go-mode))
+#+END_SRC
 *** Emacs
 **** TODO bug-hunter
 
@@ -969,25 +1075,25 @@ Desktop Save Mode - функция сохранения состояния Emacs
 
 ** DevOps
 *** Docker
-**** TODO Docker
+**** Docker
 
 [[https://github.com/Silex/docker.el][docker]] интеграция Emacs и Docker
 Поддерживает containers, images, volumes, networks, docker-machine и docker-compose.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
 (use-package docker
   :straight t
   :bind ("C-c d" . docker))
 #+END_SRC
 
-**** TODO Docker-compose-mode
-#+BEGIN_SRC emacs-lisp :tangle no
+**** Docker-compose-mode
+#+BEGIN_SRC emacs-lisp
   (use-package docker-compose-mode
      :straight t)
 #+END_SRC
 
-**** TODO Dockerfile-mode
-#+BEGIN_SRC emacs-lisp :tangle no
+**** Dockerfile-mode
+#+BEGIN_SRC emacs-lisp
   (use-package dockerfile-mode
      :straight t)
 #+END_SRC
@@ -1034,13 +1140,13 @@ Desktop Save Mode - функция сохранения состояния Emacs
      (setq charmap-text-scale-adjust 2))
 #+END_SRC
 
-** TODO cloc
+** cloc
 
 [[./img/cloc.png]]
 
 [[https://github.com/cosmicexplorer/cloc-emacs][cloc]] количество строк кода в буфере
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
   (use-package cloc
     :straight t
     :commands cloc)
@@ -1057,7 +1163,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
     )
 #+END_SRC
 
-** TODO csv-mode
+** csv-mode
 
 [[https://github.com/emacsmirror/csv-mode][csv-mode]] основной режим для редактирования значений, разделённых запятой/символом.
 
@@ -1077,13 +1183,13 @@ Desktop Save Mode - функция сохранения состояния Emacs
 | C-c C-s | csv-sort-fields         | Sort lines in region lexicographically by the ARGth field of each line |
 |---------+-------------------------+------------------------------------------------------------------------|
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
     (use-package csv-mode
       :straight t
       :mode "\\.csv\\'")
 #+END_SRC
 
-** TODO diff-hl
+** diff-hl
 
 [[https://github.com/dgutov/diff-hl][diff-hl]] подсвечивает незакоммиченные изменения с левой стороны окна,
 позволяет перемещаться между ними и выборочно откатить их.
@@ -1096,7 +1202,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
 | C-x v ] | diff-hl-next-hunk      | Go to the beginning of the next hunk in the current buffer          |
 |---------+------------------------+---------------------------------------------------------------------|
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
   (use-package diff-hl
     :straight t
     :defer t
@@ -1108,7 +1214,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
       (add-hook 'vc-dir-mode-hook 'turn-on-diff-hl-mode)))
 #+end_src
 
-** TODO elfeed
+** elfeed
 
 [[https://github.com/skeeto/elfeed][Elfeed]] предоставляет расширяемую читалку лент новостей для Emacs с поддержкой Atom и RSS
 
@@ -1120,7 +1226,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
 
 [[./img/elfeed_show.png]]
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
   (use-package elfeed
     :straight t
     :commands elfeed
@@ -1504,12 +1610,12 @@ Desktop Save Mode - функция сохранения состояния Emacs
         (global-evil-surround-mode 1)))
 #+END_SRC
 
-** TODO git-modes
+** git-modes
 
    [[https://github.com/magit/git-modes][Git modes]] GNU Emacs режимы для файлов связанных с Git.
    Доступен в репозитории на GitHub, но также доступен как независимый пакет в Melpa.
 
-#+BEGIN_SRC emacs-lisp :tnagle no
+#+BEGIN_SRC emacs-lisp
   (use-package gitconfig-mode
     :straight t
     :defer t)
@@ -1521,12 +1627,12 @@ Desktop Save Mode - функция сохранения состояния Emacs
     :defer t)
 #+END_SRC
 
-** TODO git-timemachine
+** git-timemachine
 
 Use [[https://github.com/pidu/git-timemachine][git-timemachine]] для просмотра истории версий файла.
 =p= (предыдущая) и =n= (следующая).
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
   (use-package git-timemachine
     :straight t
     :commands git-timemachine
@@ -1567,11 +1673,11 @@ Use [[https://github.com/pidu/git-timemachine][git-timemachine]] для прос
 		  (evil-local-mode (if git-timemachine-mode -1 1)))))
 #+END_SRC
 
-** TODO graphviz-dot-mode                                                           
+** graphviz-dot-mode
 
 [[https://github.com/ppareit/graphviz-dot-mode][graphviz-dot-mode]] режим для языка DOT, с использованием graphviz.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
   (use-package graphviz-dot-mode
     :straight t
     :defer t
@@ -2206,14 +2312,14 @@ Unite работал в качестве интерфейса для неско�
         ("x" comment-box)))
 #+END_SRC
 
-** TODO magit
+** magit
 
 С помощью [[https://github.com/magit/magit][Magit]], вы можете просматривать и редактировать свои репозитории Git с помошью Emacs.
 Вы , например, можете просмотреть и закоммитить изменения, внесённые в
 отслеживаемые файлы, а также просмотреть историю последних изменений. Есть
 поддержка cherry picking, откатов, мерджей, ребэйзов и прочих общих операций Git.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
   (use-package magit
     :straight t
     :commands magit-status)
@@ -2317,44 +2423,12 @@ Unite работал в качестве интерфейса для неско�
                ((kbd "<escape>") . popwin:close-popup-window)))
 #+END_SRC
 
-** powerline
-
-[[https://github.com/milkypostman/powerline][Powerline]]
-Предлагаемая версия 2.0 оригинального Emacs Powerline, которая является форком
-Powerline для Vim.
-Emacs версия Vim powerline.
-В эту версию включена поддержка UTF-8. UTF-8 разделители будут отображаться
-юникодными символами правильно, например под mintty, так долго, сколько у вас
-будут установлены пропатченные шрифты.
-По умолчанию все терминальные режимы Emacs используют разделители UTF-8.
-
-#+BEGIN_SRC emacs-lisp
-      (use-package powerline
-        :straight t
-	;;:straight moe-theme
-        :defer t
-	;;:after (moe-theme)
-	:config
-	(progn
-	(setq powerline-arrow-shape 'arrow)
-        (powerline-moe-theme)
-        )
-	)
-    ;;(use-package powerline-evil
-        ;;:straight t
-	;;:straight powerline
-        ;;)
-    ;;(powerline-moe-theme)
-    ;; Выбор цвета строки состояния.(Default: blue)
-    ;;(moe-theme-set-color 'cyan)
-#+END_SRC
-
 ** projectile
 
 [[https://github.com/bbatsov/projectile][Projectile]] библиотека проектного взаимодействия для Emacs.
 Цель библиотеки- обеспечение набора функция, работающих на уровне проекта без
 внешних зависимостей (по фозможности). Например - поиск файлов проекта имеет
-портативную реализацию , написанную на чистом Emacs Lisp, без использования GUI
+портативную реализацию, написанную на чистом Emacs Lisp, без использования GUI
 поиска (но ради производительности используется внешний механизм индексирования
 с помощью внешних команд).
 
@@ -2464,6 +2538,15 @@ the best use of ivy.
     :commands (telega)
     :defer t)
 #+END_SRC
+** Esup
+Esup is a package for benchmark Emacs startup time without ever leaving your Emacs.
+
+#+BEGIN_SRC emacs-lisp
+(use-package esup
+  :straight t
+  :commands esup)
+#+END_SRC
+
 * Footnotes
 
 [fn:1] Логотип Emacs взят с [[http://th.nao.ac.jp/MEMBER/zenitani/emacs-e.html][Carbon Emacs Package]] и предоставлен под лицензией

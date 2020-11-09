@@ -1342,6 +1342,15 @@ Emacs версия Vim powerline.
           ("S-TAB" shr-previous-link :color red))))
 #+END_SRC
 
+** Esup
+Esup is a package for benchmark Emacs startup time without ever leaving your Emacs.
+
+#+BEGIN_SRC emacs-lisp
+(use-package esup
+  :straight t
+  :commands esup)
+#+END_SRC
+
 ** evil
 
 [[https://gitorious.org/evil/pages/Home][Evil]] расширяемый vi слой для Emacs. Он эмулирует основные особенности Vim,
@@ -1610,6 +1619,21 @@ Emacs версия Vim powerline.
         (global-evil-surround-mode 1)))
 #+END_SRC
 
+** exec-path-from-shell
+
+#+BEGIN_SRC emacs-lisp
+  (use-package exec-path-from-shell
+    :straight t
+    :config
+    (progn
+    (setq exec-path-from-shell-shell-name "zsh")
+    (setq exec-path-from-shell-check-startup-files nil)
+    (setq exec-path-from-shell-arguments '("-l"))
+    (when (daemonp)
+    (exec-path-from-shell-initialize))
+    (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize))))
+#+END_SRC
 ** git-modes
 
    [[https://github.com/magit/git-modes][Git modes]] GNU Emacs режимы для файлов связанных с Git.
@@ -2500,6 +2524,14 @@ the best use of ivy.
     (setq counsel-ag-base-command "ag --nocolor --nogroup --smart-case --column %s"))
 #+END_SRC
 
+** Telega
+#+BEGIN_SRC emacs-lisp
+  (use-package telega
+    :straight t
+    ;;:load-path  "~/telega.el"
+    :commands (telega)
+    :defer t)
+#+END_SRC
 ** Undo-tree
 
 #+BEGIN_SRC emacs-lisp
@@ -2513,38 +2545,6 @@ the best use of ivy.
           undo-tree-auto-save-history t
           undo-tree-visualizer-timestamps t
           undo-tree-visualizer-diff t)))
-#+END_SRC
-
-** exec-path-from-shell
-
-#+BEGIN_SRC emacs-lisp
-  (use-package exec-path-from-shell
-    :straight t
-    :config
-    (progn
-    (setq exec-path-from-shell-shell-name "zsh")
-    (setq exec-path-from-shell-check-startup-files nil)
-    (setq exec-path-from-shell-arguments '("-l"))
-    (when (daemonp)
-    (exec-path-from-shell-initialize))
-    (when (memq window-system '(mac ns x))
-    (exec-path-from-shell-initialize))))
-#+END_SRC
-** Telega
-#+BEGIN_SRC emacs-lisp
-  (use-package telega
-    :straight t
-    ;;:load-path  "~/telega.el"
-    :commands (telega)
-    :defer t)
-#+END_SRC
-** Esup
-Esup is a package for benchmark Emacs startup time without ever leaving your Emacs.
-
-#+BEGIN_SRC emacs-lisp
-(use-package esup
-  :straight t
-  :commands esup)
 #+END_SRC
 
 * Footnotes

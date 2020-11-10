@@ -139,6 +139,8 @@ Tangling происходит автоматически каждый раз п�
 #+BEGIN_SRC emacs-lisp
 (straight-use-package 'use-package)
 (straight-use-package 'diminish)
+(use-package use-package-ensure-system-package
+:straight t)
 ;(eval-when-compile
 ;    (require 'use-package)
 ;)
@@ -823,7 +825,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
         (setq org-confirm-babel-evaluate 'antares-org-confirm-babel-evaluate)))
 #+END_SRC
 
-* Пакеты [0/1]
+* Пакеты [0/2]
 
 Здесь я пытаюсь настроить кахдый пакет отдельно от других насколько это возможно
 чтобы быть уверенным в том, что при добавлении или удалении пакета не сломается
@@ -965,9 +967,10 @@ Emacs версия Vim powerline.
 
   [[https://github.com/Wilfred/ag.el][ag.el]] простой фронтенд Emacs для ag, ("the silver searcher" замена ack).
 
-  #+BEGIN_SRC emacs-lisp :tangle no
+  #+BEGIN_SRC emacs-lisp
     (use-package ag
-      :ensure t
+      :straight t
+      :ensure-system-package (ag . silver-searcher-git)
       :defer 1
       :config
       (progn
@@ -1149,6 +1152,7 @@ Emacs версия Vim powerline.
 #+BEGIN_SRC emacs-lisp
   (use-package cloc
     :straight t
+    :ensure-system-package cloc
     :commands cloc)
 #+END_SRC
 
@@ -1189,6 +1193,23 @@ Emacs версия Vim powerline.
       :mode "\\.csv\\'")
 #+END_SRC
 
+** define-word
+
+[[https://github.com/abo-abo/define-word][define-word]] пакет GNU Emacs, позволяющий увидеть определение слова или фразы
+в точке, без необходимости переключаться в браузер.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package define-word
+    :straight t)
+#+END_SRC
+** devdocs                                                             
+ 
+[[https://github.com/xuchunyang/DevDocs.el][devdocs]] пакет Emacs, позволяющий легко искать документацию на [[https://devdocs.io][DevDocs]].
+ 
+#+BEGIN_SRC emacs-lisp 
+  (use-package devdocs 
+    :straight t) 
+#+END_SRC 
 ** diff-hl
 
 [[https://github.com/dgutov/diff-hl][diff-hl]] подсвечивает незакоммиченные изменения с левой стороны окна,
@@ -1203,7 +1224,7 @@ Emacs версия Vim powerline.
 |---------+------------------------+---------------------------------------------------------------------|
 
 #+begin_src emacs-lisp
-  (use-package diff-hl
+(use-package diff-hl
     :straight t
     :defer t
     :init
@@ -1634,6 +1655,58 @@ Esup is a package for benchmark Emacs startup time without ever leaving your Ema
     (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize))))
 #+END_SRC
+** fill-column-indicator                                               
+                                                                       
+[[https://github.com/alpaker/Fill-Column-Indicator][fill-column-indicator]] переключает вертикальный столбец, указывающий на заполнение строки.
+                                                                       
+#+BEGIN_SRC emacs-lisp                                                 
+  (use-package fill-column-indicator                                   
+    :straight t                                                          
+    :commands fci-mode                                                 
+    :config                                                            
+    (setq fci-rule-column 79)                                          
+    (fci-mode))                                                        
+#+END_SRC  
+** TODO fixmee                                                            
+ 
+[[https://github.com/rolandwalker/fixmee][fixmee]] для быстрой навигации к FIXME и TODO меткам в Emacs.
+ 
+| Binding | Call                             | Do                                       |
+|---------+----------------------------------+------------------------------------------|
+| C-c f   | fixmee-goto-nextmost-urgent      | Go to the next TODO/FIXME                |
+| C-c F   | fixmee-goto-prevmost-urgent      | Go to the previous TODO/FIXME            |
+| C-c v   | fixmee-view-listing              | View the list of TODOs                   |
+| M-n     | fixmee-goto-next-by-position     | Go to the next TODO/FIXME (above a TODO) |
+| M-p     | fixmee-goto-previous-by-position | Go to the next TODO/FIXME (above a TODO) |
+ 
+#+BEGIN_SRC emacs-lisp :tangle no
+  (use-package fixmee 
+    :ensure pcache 
+    :straight t 
+    :diminish fixmee-mode 
+    :commands (fixmee-mode fixmee-view-listing) 
+    :init 
+    (setq pcache-directory (concat antares-emacs-temporal-directory "pcache"))   
+    (add-hook 'prog-mode-hook 'fixmee-mode)) 
+  (use-package button-lock 
+    :diminish button-lock-mode) 
+#+END_SRC 
+** TODO flycheck                                                       
+                                                                       
+[[https://github.com/yasuyk/helm-flycheck][helm-flycheck]] показ ошибок flycheck с помощью helm.
+                                                                       
+#+BEGIN_SRC emacs-lisp                                                 
+    (use-package flycheck                                              
+      :straight t                                                        
+      :defer t                                                         
+      :config                                                          
+      (add-hook 'prog-mode-hook 'flycheck-mode)                        
+      (add-hook 'sgml-mode 'flycheck-mode))                            
+      ;; (use-package helm-flycheck                                    
+      ;;   :straight t                                                   
+      ;;   :ensure helm                                                
+      ;;   :commands helm-flycheck))                                   
+#+END_SRC 
 ** git-modes
 
    [[https://github.com/magit/git-modes][Git modes]] GNU Emacs режимы для файлов связанных с Git.
@@ -1668,7 +1741,7 @@ Use [[https://github.com/pidu/git-timemachine][git-timemachine]] для прос
       (when (straight-use-package 'hydra)
           (bind-keys :map git-timemachine-mode
                   ("\\" . hydra-timemachine/body))
-          (defhydra hydra-timemachine (:hint nil :color blue)
+                  (defhydra hydra-timemachine (:hint nil :color blue)
                   "
                                                                           ╭──────────────────┐
                 Rev.   Do                                                 │ Git time-machine │

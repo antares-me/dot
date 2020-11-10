@@ -1202,7 +1202,7 @@ Emacs версия Vim powerline.
   (use-package define-word
     :straight t)
 #+END_SRC
-** devdocs                                                             
+** devdocs
  
 [[https://github.com/xuchunyang/DevDocs.el][devdocs]] пакет Emacs, позволяющий легко искать документацию на [[https://devdocs.io][DevDocs]].
  
@@ -1655,18 +1655,18 @@ Esup is a package for benchmark Emacs startup time without ever leaving your Ema
     (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize))))
 #+END_SRC
-** fill-column-indicator                                               
-                                                                       
+** fill-column-indicator
+
 [[https://github.com/alpaker/Fill-Column-Indicator][fill-column-indicator]] переключает вертикальный столбец, указывающий на заполнение строки.
-                                                                       
-#+BEGIN_SRC emacs-lisp                                                 
-  (use-package fill-column-indicator                                   
-    :straight t                                                          
-    :commands fci-mode                                                 
-    :config                                                            
-    (setq fci-rule-column 79)                                          
-    (fci-mode))                                                        
-#+END_SRC  
+
+#+BEGIN_SRC emacs-lisp
+  (use-package fill-column-indicator
+    :straight t
+    :commands fci-mode
+    :config
+    (setq fci-rule-column 79)
+    (fci-mode))
+#+END_SRC
 ** TODO fixmee                                                            
  
 [[https://github.com/rolandwalker/fixmee][fixmee]] для быстрой навигации к FIXME и TODO меткам в Emacs.

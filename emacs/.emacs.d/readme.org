@@ -890,7 +890,6 @@ Emacs версия Vim powerline.
           moe-theme-highlight-buffer-id t
           moe-theme-switch-by-sunrise-and-sunset t
           show-paren-style 'expression)
-          (moe-dark)
       (powerline-moe-theme)))
 #+END_SRC
 
@@ -1026,6 +1025,23 @@ Emacs версия Vim powerline.
     :straight t
     :init
         (add-hook 'go-mode-hook 'go-eldoc-setup)
+    :mode ("\\.go\\'" . go-mode))
+#+END_SRC
+**** Company-go
+#+BEGIN_SRC emacs-lisp :tangle no
+  (use-package company-go
+    :init
+    (add-hook 'go-mode-hook (lambda ()
+                              (set (make-local-variable 'company-backends) '(company-go))
+                              (company-mode))))
+#+END_SRC
+**** Go-direx
+#+BEGIN_SRC emacs-lisp
+  (use-package go-direx
+    :straight t
+    :config
+    ;;(bind-keys :map go-mode-map
+    ;;("s" . go-direx-pop-to-buffer))
     :mode ("\\.go\\'" . go-mode))
 #+END_SRC
 *** Emacs
@@ -1363,6 +1379,16 @@ Emacs версия Vim powerline.
           ("S-TAB" shr-previous-link :color red))))
 #+END_SRC
 
+** emogify
+#+BEGIN_SRC emacs-lisp
+(use-package emojify
+  :straight t
+  :init (global-emojify-mode 1)
+  :config
+  (if (display-graphic-p)
+      (setq emojify-display-style 'image)
+    (setq emojify-display-style 'unicode)))
+#+END_SRC
 ** Esup
 Esup is a package for benchmark Emacs startup time without ever leaving your Emacs.
 
@@ -1701,6 +1727,7 @@ Esup is a package for benchmark Emacs startup time without ever leaving your Ema
       :defer t                                                         
       :config                                                          
       (add-hook 'prog-mode-hook 'flycheck-mode)                        
+      (add-hook 'go-mode-hook 'flycheck-mode)
       (add-hook 'sgml-mode 'flycheck-mode))                            
       ;; (use-package helm-flycheck                                    
       ;;   :straight t                                                   
@@ -2409,6 +2436,16 @@ Unite работал в качестве интерфейса для неско�
         ("x" comment-box)))
 #+END_SRC
 
+** ledger-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package ledger-mode
+    :straight t
+    :init
+    (setq ledger-clear-whole-transactions 1)
+    :config
+    (add-to-list 'evil-emacs-state-modes 'ledger-report-mode)
+    :mode "\\.ledger\\'")
+#+END_SRC
 ** magit
 
 С помощью [[https://github.com/magit/magit][Magit]], вы можете просматривать и редактировать свои репозитории Git с помошью Emacs.
@@ -2422,6 +2459,14 @@ Unite работал в качестве интерфейса для неско�
     :commands magit-status)
 #+END_SRC
 
+** mingus                                                              
+
+#+BEGIN_SRC emacs-lisp
+  (use-package mingus
+    :straight t
+    :config
+    (use-package mingus-stays-home))
+#+END_SRC
 ** NeoTree
 [[./img/neotree.png]]
 [[https://github.com/jaypei/emacs-neotree][NeoTree]] это аналог NerdTree (менеджера файлов) в Vim.
@@ -2476,6 +2521,7 @@ Unite работал в качестве интерфейса для неско�
     :config
     (popwin-mode 1)
     (setq popwin:popup-window-height 35
+          display-buffer-function 'popwin:display-buffer
           popwin:special-display-config
           '(("*Miniedit Help*" :noselect t)
             (help-mode :noselect nil)
@@ -2496,6 +2542,7 @@ Unite работал в качестве интерфейса для неско�
             ("*slime-compilation*" :noselect t)
             ("*slime-xref*")
             ("*Flycheck errors*")
+            ("^\\*go-direx:" :regexp t :position left :width 0.4 :dedicated t :stick t)
             ("*Warnings*")
             ("*Error*")
             ("*Process List*")

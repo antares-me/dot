@@ -825,7 +825,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
         (setq org-confirm-babel-evaluate 'antares-org-confirm-babel-evaluate)))
 #+END_SRC
 
-* Пакеты [0/5]
+* Пакеты [0/6]
 
 Здесь я пытаюсь настроить кахдый пакет отдельно от других насколько это возможно
 чтобы быть уверенным в том, что при добавлении или удалении пакета не сломается
@@ -949,7 +949,8 @@ Emacs версия Vim powerline.
   (use-package fira-code-mode
     :straight t
     :custom (fira-code-mode-disabled-ligatures '("[]" "x"))  ; ligatures you don't want
-    :hook prog-mode)                                         ; mode to enable fira-code-mode in
+   ;; :hook prog-mode
+    )                                         ; mode to enable fira-code-mode in
 #+END_SRC
 ** Утилиты
 *** Работа с текстом
@@ -1118,6 +1119,19 @@ Emacs версия Vim powerline.
      :straight t)
 #+END_SRC
 
+*** Vagrant
+**** Vagrant
+#+BEGIN_SRC emacs-lisp
+(use-package vagrant
+  :straight t)
+#+END_SRC
+
+**** Vagrant-tramp
+#+BEGIN_SRC emacs-lisp
+(use-package vagrant-tramp
+  :straight t
+  :commands vagrant-tramp-term)
+#+END_SRC
 ** async
 
 [[https://github.com/jwiegley/emacs-async][async.el]] модуль для создания асинхронных процессов в Emacs.
@@ -1391,7 +1405,7 @@ Emacs версия Vim powerline.
     (setq emojify-display-style 'unicode)))
 #+END_SRC
 ** Esup
-Esup is a package for benchmark Emacs startup time without ever leaving your Emacs.
+   Esup is a package for benchmark Emacs startup time without ever leaving your Emacs.
 
 #+BEGIN_SRC emacs-lisp
 (use-package esup
@@ -1684,7 +1698,7 @@ Esup is a package for benchmark Emacs startup time without ever leaving your Ema
 #+END_SRC
 ** fill-column-indicator
 
-[[https://github.com/alpaker/Fill-Column-Indicator][fill-column-indicator]] переключает вертикальный столбец, указывающий на заполнение строки.
+   [[https://github.com/alpaker/Fill-Column-Indicator][fill-column-indicator]] переключает вертикальный столбец, указывающий на заполнение строки.
 
 #+BEGIN_SRC emacs-lisp
   (use-package fill-column-indicator
@@ -2562,10 +2576,9 @@ Unite работал в качестве интерфейса для неско�
             (sldb-mode :stick t)
             (slime-repl-mode)
             (slime-connection-list-mode)))
-
     (add-hook 'popwin:after-popup-hook 'turn-off-evil-mode)
     (bind-keys :map popwin:window-map
-               ((kbd "<escape>") . popwin:close-popup-window)))
+      ((kbd "<escape>") . popwin:close-popup-window)))
 #+END_SRC
 
 ** projectile
@@ -2645,8 +2658,8 @@ the best use of ivy.
     (setq counsel-ag-base-command "ag --nocolor --nogroup --smart-case --column %s"))
 #+END_SRC
 
-** Telega
-#+BEGIN_SRC emacs-lisp
+** TODO Telega
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package telega
     :straight t
     ;;:load-path  "~/telega.el"
@@ -2668,7 +2681,7 @@ the best use of ivy.
           undo-tree-visualizer-diff t)))
 #+END_SRC
 ** TODO Emacspeak
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package emacspeak
     :straight t
 ;;    :init

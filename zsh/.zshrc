@@ -52,7 +52,7 @@ export WORKON_HOME=$HOME/.venv
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(battery git gitfast vi-mode gitignore lein pip virtualenv virtualenvwrapper docker docker-compose kubectl golang pass emacs archlinux alias-finder ansible ant colored-man-pages)
+plugins=(battery git git-auto-fetch git-prompt gitfast vi-mode gitignore lein pip virtualenv virtualenvwrapper docker docker-compose kubectl golang pass emacs archlinux alias-finder ansible ant colored-man-pages)
 
 # User configuration
 
@@ -75,6 +75,8 @@ export ARCHFLAGS="-arch x86_64"
 
 # ssh
 export SSH_KEY_PATH="~/.ssh/dsa_id"
+
+export GIT_AUTO_FETCH_INTERVAL=1200
 
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh

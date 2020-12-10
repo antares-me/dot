@@ -949,7 +949,7 @@ Emacs версия Vim powerline.
   (use-package fira-code-mode
     :straight t
     :custom (fira-code-mode-disabled-ligatures '("[]" "x"))  ; ligatures you don't want
-   ;; :hook prog-mode
+    :hook prog-mode
     )                                         ; mode to enable fira-code-mode in
 #+END_SRC
 ** Утилиты
@@ -1030,13 +1030,21 @@ Emacs версия Vim powerline.
     :mode ("\\.go\\'" . go-mode))
 #+END_SRC
 **** Company-go
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
   (use-package company-go
+    :straight t
     :init
     (add-hook 'go-mode-hook (lambda ()
                               (set (make-local-variable 'company-backends) '(company-go))
                               (company-mode))))
 #+END_SRC
+**** Go-rename
+#+BEGIN_SRC emacs-lisp
+  (use-package go-rename
+    :straight t
+    :mode ("\\.go\\'" . go-mode))
+#+END_SRC
+
 **** Go-direx
 #+BEGIN_SRC emacs-lisp
   (use-package go-direx
@@ -1071,7 +1079,7 @@ Emacs версия Vim powerline.
 себя пару удобных функций IDE-типа, такие как поиск документации и просмотрщик
 исходников и классов.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
   (use-package php-mode
     :straight t
     :mode ("\\.php\\'" . php-mode)
@@ -1080,7 +1088,7 @@ Emacs версия Vim powerline.
 
 **** TODO php-cs-fixer
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
   (use-package php-cs-fixer
     :straight t
     :mode ("\\.php\\'" . php-mode)
@@ -1089,7 +1097,7 @@ Emacs версия Vim powerline.
 
 **** TODO ac-php
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
   (use-package ac-php
     :straight t)
 #+END_SRC
@@ -2715,6 +2723,13 @@ Unite работал в качестве интерфейса для неско�
           ranger-show-literal nil))
 #+END_SRC
 
+** Skype
+#+BEGIN_SRC emacs-lisp
+  (use-package skype
+    :straight (skype :type git :host github :repo "kiwanami/emacs-skype")
+    :config
+    (setq skype--my-user-handle "antares.me"))
+#+END_SRC
 ** swiper & ivy & counsel
 
 [[https://github.com/abo-abo/swiper][Ivy]] is a generic completion mechanism for Emacs that aims to be more efficient,

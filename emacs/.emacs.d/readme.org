@@ -1054,6 +1054,18 @@ Emacs версия Vim powerline.
     ;;("s" . go-direx-pop-to-buffer))
     :mode ("\\.go\\'" . go-mode))
 #+END_SRC
+**** Golangci-lint
+#+BEGIN_SRC emacs-lisp
+  (use-package flycheck-golangci-lint
+    :straight t
+    :hook (go-mode . flycheck-golangci-lint-setup)
+  ;;  :config
+  ;;   (setq flycheck-golangci-lint-config "")
+  ;;   (setq flycheck-golangci-lint-deadline "1m")
+  ;;   (setq flycheck-golangci-lint-tests t)
+  ;;   (setq flycheck-golangci-lint-fast t)
+  )
+#+END_SRC
 *** Emacs
 **** TODO bug-hunter
 

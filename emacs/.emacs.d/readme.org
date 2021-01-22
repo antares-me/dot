@@ -945,7 +945,7 @@ Emacs версия Vim powerline.
 #+END_SRC
 *** Шрифт
 **** FiraCode
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package fira-code-mode
     :straight t
     :custom (fira-code-mode-disabled-ligatures '("[]" "x"))  ; ligatures you don't want
@@ -2476,20 +2476,11 @@ Unite работал в качестве интерфейса для неско�
         ("x" comment-box)))
 #+END_SRC
 
-** ledger-mode
-#+BEGIN_SRC emacs-lisp
-  (use-package ledger-mode
-    :straight t
-    :init
-    (setq ledger-clear-whole-transactions 1)
-    :config
-    (add-to-list 'evil-emacs-state-modes 'ledger-report-mode)
-    :mode "\\.ledger\\'")
-#+END_SRC
 ** TODO hledger-mode
 #+BEGIN_SRC emacs-lisp
   (use-package hledger-mode
     :pin manual
+    :straight t
     :after htmlize
     :straight t
     ;:load-path "packages/rest/hledger-mode/"
@@ -2524,7 +2515,7 @@ Unite работал в качестве интерфейса для неско�
            ("M-n" . hledger/next-entry))
     :init
     (setq hledger-jfile
-          (expand-file-name "~/miscellany/personal/finance/accounting.journal")
+          (expand-file-name "~/MEGA/hledger/2021.journal")
           hledger-email-secrets-file (expand-file-name "secrets.el"
                                                        antares-emacs-temporal-directory))
     ;; Expanded account balances in the overall monthly report are

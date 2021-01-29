@@ -825,7 +825,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
         (setq org-confirm-babel-evaluate 'antares-org-confirm-babel-evaluate)))
 #+END_SRC
 
-* Пакеты [0/8]
+* Пакеты [0/9]
 
 Здесь я пытаюсь настроить кахдый пакет отдельно от других насколько это возможно
 чтобы быть уверенным в том, что при добавлении или удалении пакета не сломается
@@ -2823,6 +2823,12 @@ the best use of ivy.
   (use-package evilspeak
     :straight t)
 #+END_SRC
+** TODO ggtags
+#+BEGIN_SRC emacs-lisp
+  (use-package ggtags
+    :straight t)
+#+END_SRC
+   
 * Footnotes
 
 [fn:1] Логотип Emacs взят с [[http://th.nao.ac.jp/MEMBER/zenitani/emacs-e.html][Carbon Emacs Package]] и предоставлен под лицензией

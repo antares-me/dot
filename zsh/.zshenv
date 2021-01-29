@@ -6,5 +6,5 @@ export LANG=ru_RU.UTF-8
 export GOPATH=$HOME"/go_projects"
 export GOBIN="$GOPATH/bin"
 
-export PATH=$HOME"bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:$GOBIN"
+export PATH=$HOME"/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:$GOBIN"
 

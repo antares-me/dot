@@ -2193,13 +2193,14 @@ let g:vdebug_options= {
             \    "timeout" : 30,
             \    "on_close" : 'detach',
             \    "break_on_open" : 1,
-            \    "ide_key" : 'xdebug',
+            \    "ide_key" : 'b24go',
             \    "path_maps" : {
             \       "/var/www/demo07" : "/home/antares/develop/demo07",
             \       "/var/www/demo11" : "/home/antares/develop/demo11",
             \       "/var/www/demo30" : "/home/antares/develop/demo30",
             \       "/var/www/demo31" : "/home/antares/develop/demo31",
             \       "/home/antares/demo.antares.me" : "/home/antares/develop/antares_demo",
+            \       "/home/b24go/b24go.com/docs/local/components/lostcalls_v9/lib/b24" : "/home/antares/develop/repos/b24"
             \     },
             \    "debug_window_level" : 0,
             \    "debug_file_level" : 2,

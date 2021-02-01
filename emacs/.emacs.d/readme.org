@@ -825,7 +825,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
         (setq org-confirm-babel-evaluate 'antares-org-confirm-babel-evaluate)))
 #+END_SRC
 
-* Пакеты [0/9]
+* Пакеты [0/10]
 
 Здесь я пытаюсь настроить кахдый пакет отдельно от других насколько это возможно
 чтобы быть уверенным в том, что при добавлении или удалении пакета не сломается
@@ -2726,6 +2726,23 @@ Unite работал в качестве интерфейса для неско�
           ranger-show-literal nil))
 #+END_SRC
 
+** TODO realgud
+#+BEGIN_SRC emacs-lisp
+  (use-package realgud
+    :straight t)
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (use-package realgud-xdebug
+            :straight (
+            realgud-xdebug :fetcher "github"
+            :host github
+            :type git
+                                      :repo "realgud/realgud-xdebug"
+                                      :files ("realgud-xdebug.el"
+                                              ("xdebug" "xdebug/*.el")))
+            :config (setq realgud:xdebug-command-name
+                          "/home/antares/bin/dbgpClient"))
+#+END_SRC
 ** Skype
 #+BEGIN_SRC emacs-lisp
   (use-package skype

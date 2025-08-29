@@ -1,0 +1,4616 @@
+#+title: Readme
+#+author: Anton Salnikov
+#+email: antres@antares.me
+#+date: <2024-04-26 Пт>
+#+language: ru
+#+property: header-args :tangle init.el :comments org
+#+options: author:nil toc:nil title:nil e:nil
+
+* Конфигурируем Emacs, используя Org-Babel
+
+*Конфиг совершенствуется и изменяется мной под себя, так что в нём могут появляться изменения*
+
+В данном репозитории содержатся настройки, которые используются мной для кастомизации Emacs.
+Конфигурация использует [[http://orgmode.org/][Org-Mode]], [[http://orgmode.org/worg/org-contrib/babel/][Org-Babel]] и [[http://orgmode.org/worg/org-contrib/babel/intro.html#literate-programming][Literate Programming]] для
+управления настройками в едином файле Org Mode.
+
+*Важно:* Для того, чтобы использовать эту конфигурацию вы должны сгенерировать
+~init.el~ файл из этого файла. В следующем разделе я расскажу как это сделать.
+
+** Как это работает
+
+Используется один из стандартных init файлов Emacs, =init.el= для загрузки всей
+конфигурации. Предпологается, что настройки хранятся в стандартном =~/.emacs.d=
+каталоге и для установки конфигурации вам нужна символическая ссылка с него на этот
+каталог =emacs= (автоматически создастся если вы используете stow).
+Файл =~/.emacs.d/init.el= собирается из всех блоков кода этого файла
+=~/emacs.d/readme.org=, экспортируемых в процессе, которыйназывается "tangling".
+Если блок помечен как =:tangle no=, он будет пропущен.
+Tangling происходит автоматически каждый раз при изменении =readme.org=, с
+помощью хука, чтобы быть уверенным в синхронизации файлов.
+
+Этот хук создаёт новый =~/.emacs.d/init.el= каждый раз при изменении этого файла.
+
+#+begin_src emacs-lisp
+  ;; Оригинал взят отсюда
+  ;; https://github.com/larstvei/dot-emacs/blob/master/init.org
+  (defun antares-tangle-init ()
+    "Если текущий буфер 'readme.org' блоки кода собираются и собранный файл компилируется."
+    (when (or
+           (equal (buffer-file-name)
+                  (expand-file-name (concat user-emacs-directory "readme.org")))
+           (equal (buffer-file-name)
+                  (expand-file-name "~/dot/emacs/.emacs.d/readme.org")))
+      (call-process-shell-command
+       "/usr/bin/emacs ~/.emacs.d/readme.org --batch --eval='(org-babel-tangle)' && notify-send -a 'Emacs' 'Emacs' 'init-файл собран'" nil 0)))
+      ;; (byte-compile-file (concat user-emacs-directory "init.el")))
+
+  (add-hook 'after-save-hook 'antares-tangle-init)
+#+end_src
+
+Крутая фишка такой настройки в том, что этот файл можно достаточно легко
+экспортировать как документацию в HTML, PDF или LaTeX. Например сделать
+это из Org mode можно нажав =C-c C-e=, выберите =h= и после одну из опций
+для создания HTML. В то же время это позволяет с удовольствием настраивать
+конфигурацию и легко находить настройки и управлять ими.
+
+*** Как сгенерировать init.el-файл
+
+Таким образом, из кода выше вы, вероятно, уже поняли команду, необходимую для
+генерации ~/.emacs.d/init.el~ файла. В любом случае вам надо выполнить эту
+команду в терминале, чтобы получить elisp файл из текущего файла org-mode.
+
+#+begin_example bash
+  $ /usr/bin/emacs ~/.emacs.d/readme.org --batch --eval='(org-babel-tangle)'
+#+end_example
+
+* Менеджер пакетов
+** Elpaca
+
+Для начала в =early-init= отключим стандартный менеджер пакетов =package.el=
+#+begin_src emacs-lisp :tangle early-init.el
+(setq package-enable-at-startup nil)
+#+end_src
+
+Менеджер пакетов =Elpaca=
+#+begin_src emacs-lisp
+  (defvar elpaca-installer-version 0.11)
+  (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+  (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+  (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+  (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                                :ref nil :depth 1 :inherit ignore
+                                :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+                                :build (:not elpaca--activate-package)))
+  (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+         (build (expand-file-name "elpaca/" elpaca-builds-directory))
+         (order (cdr elpaca-order))
+         (default-directory repo))
+    (add-to-list 'load-path (if (file-exists-p build) build repo))
+    (unless (file-exists-p repo)
+      (make-directory repo t)
+      (when (<= emacs-major-version 28) (require 'subr-x))
+      (condition-case-unless-debug err
+          (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                    ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+                                                    ,@(when-let* ((depth (plist-get order :depth)))
+                                                        (list (format "--depth=%d" depth) "--no-single-branch"))
+                                                    ,(plist-get order :repo) ,repo))))
+                    ((zerop (call-process "git" nil buffer t "checkout"
+                                          (or (plist-get order :ref) "--"))))
+                    (emacs (concat invocation-directory invocation-name))
+                    ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                          "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                    ((require 'elpaca))
+                    ((elpaca-generate-autoloads "elpaca" repo)))
+              (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+            (error "%s" (with-current-buffer buffer (buffer-string))))
+        ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+    (unless (require 'elpaca-autoloads nil t)
+      (require 'elpaca)
+      (elpaca-generate-autoloads "elpaca" repo)
+      (let ((load-source-file-function nil)) (load "./elpaca-autoloads"))))
+  (add-hook 'after-init-hook #'elpaca-process-queues)
+  (elpaca `(,@elpaca-order))
+
+      ;; Установим поддержку use-package
+      (elpaca elpaca-use-package
+        ;; Включим ключевое слово :elpaca для use-package
+        (elpaca-use-package-mode)
+        ;; Предпологаем, что :elpaca t если не указано иное.
+        (setq elpaca-use-package-by-default t
+              use-package-always-defer t
+              use-package-always-ensure t
+              ))
+
+      ;; Блокируем выполнение очереди до тех пор, пока текущие задачи не выполнятся.
+      (elpaca-wait)
+#+end_src
+* Встроенные возможности
+** Сообщения отладки с метками времени
+
+#+BEGIN_SRC emacs-lisp
+;; Временные метки (timestamp) в *Messages*
+;; via https://www.reddit.com/r/emacs/comments/3hagxf/how_to_automatically_timestamp_messages_in/
+(defun current-time-microseconds ()
+  (let* ((nowtime (current-time))
+         (now-ms (nth 2 nowtime)))
+    (concat (format-time-string "[%Y-%m-%dT%T" nowtime) (format ".%d] " now-ms))))
+
+(defadvice message (before test-symbol activate)
+  (if (not (string-equal (ad-get-arg 0) "%s%s"))
+      (let ((inhibit-read-only t)
+            (deactivate-mark nil))
+        (with-current-buffer (messages-buffer)
+          (goto-char (point-max))
+          (if (not (bolp))
+              (newline))
+          (insert (current-time-microseconds))))))
+#+END_SRC
+
+** Изменеиее прозрачности
+#+begin_src emacs-lisp
+(defun toggle-transparency ()
+   (interactive)
+   (let ((alpha (frame-parameter nil 'alpha)))
+     (set-frame-parameter
+      nil 'alpha
+      (if (eql (cond ((numberp alpha) alpha)
+                     ((numberp (cdr alpha)) (cdr alpha))
+                     ;; Also handle undocumented (<active> <inactive>) form.
+                     ((numberp (cadr alpha)) (cadr alpha)))
+               100)
+          '(85 . 50) '(100 . 100)))))
+ (global-set-key (kbd "C-c t r") 'toggle-transparency)
+ (defun transparency (value)
+   "Sets the transparency of the frame window. 0=transparent/100=opaque"
+   (interactive "nTransparency Value 0 - 100 opaque: ")
+   (set-frame-parameter (selected-frame) 'alpha value))
+ ;; (custom-set-faces
+ ;;     '(default ((t (:stipple nil :background ((image :type jpeg :file "/home/antares/higurashi.jpg") :origin display) :foreground "white" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 101 :width normal :family "misc-fixed")))))
+#+end_src
+
+** Некоторые настройки по-умолчанию
+
+Значения по-умолчанию, которые я считаю хорошим началом.
+
+#+BEGIN_SRC emacs-lisp
+    (set-frame-parameter nil 'alpha-background 100)  ;; Прозрачный бэкграунд
+    (add-to-list 'default-frame-alist '(alpha-background . 100))
+    (add-to-list 'default-frame-alist '(fullscreen . maximized)) ;; Запуск в полноэкранном режиме
+    (setq inhibit-startup-screen t                ;; Убираем экран приверствия
+          initial-scratch-message nil             ;; Убираем сообщения из scratch буфера
+          visible-bell t                          ;; Убираем пищалки
+          apropos-do-all t                        ;; Вспомогательные команды выполняют более обширные поиски, чем по умолчанию
+          large-file-warning-threshold 100000000) ;; Предупреждать только если открываемый файл больше 100MB
+    ;; Названия фаз луны
+    (setq lunar-phase-names '("Новолуние" "Первая четверть" "Полнолуние" "Третья четверть"))
+    ;; Файл ежедневника
+    (setq diary-file "~/Dropbox/org/Diary")
+    ;; Убираем меню
+    (menu-bar-mode -1)
+    ;; Убираем панель инструментов
+    (tool-bar-mode -1)
+    ;; Убираем полосы прокрутки
+    (scroll-bar-mode -1)
+    ;; Заменяем вопросы yes/no на y/n
+    (fset 'yes-or-no-p 'y-or-n-p)
+    ;; Показывать пустые строки в конце (внизу) буфера
+    (toggle-indicate-empty-lines)
+    ;; Удалить предыдущий выбор если он перезаписывается новой вставкой
+    (delete-selection-mode)
+    ;; Мигающий курсор раздражает. Отключим мигание.
+    (blink-cursor-mode -1)
+    ;; Более тонкие границы окон
+    (fringe-mode '(1 . 1))
+
+    ;; Использование ibuffer по-умолчанию для списка буферов
+    (defalias 'list-buffers 'ibuffer)
+
+    ;; Убедимся что UTF-8 используется везде.
+    (set-terminal-coding-system  'utf-8)
+    (set-keyboard-coding-system  'utf-8)
+    ;;(set-language-environment    'utf-8)
+    (set-language-environment    "UTF-8")
+    (set-selection-coding-system 'utf-8)
+    (setq locale-coding-system   'utf-8)
+    (prefer-coding-system        'utf-8)
+    (set-default-coding-systems  'utf-8)
+    (set-input-method nil)
+
+    ;; Отключим автосохранение и бэкапы
+    ;; Я предпочитаю использовать дерево отмен (undo-tree) с ветвлением вместо
+    ;; автосохранения файлов. Так как я использую gpg для авторизации и подписи
+    ;; файлов, более безопасно не использовать резервные копии этих файлов.
+    ;; Используйте DCVS и регулярно бэкапьте файлы!
+    (setq auto-save-default nil
+          auto-save-list-file-prefix nil
+          make-backup-files nil)
+
+    ;; Всегда делать отступы пробелами
+    (setq-default indent-tabs-mode  nil
+                  default-tab-width 4
+                  c-basic-offset 4)
+
+    ;; Подсвечивать парные скобки, когда курсор на одной из них.
+    (setq show-paren-delay 0)
+    (show-paren-mode t)
+
+    ;; Подсвечивать текущую строку
+    (global-hl-line-mode 1)
+
+    ;; Настройки строки режима
+    (column-number-mode t)
+    (setq size-indication-mode t)
+    (which-function-mode 1)
+
+    ;; Использовать основное выделение X сервера по умолчанию
+    (setq select-enable-primary t)
+
+    ;; backward-kill-word альтернатива Backspace:
+    ;; Удалить слово целиком вместо нескольких нажатий Backspace
+    ;; Для этого привяжем =backward-kill-region= к комбинации =C-w=
+    ;; (global-set-key "\C-w" 'backward-kill-word)
+    ;; Теперь перепривяжем оригинальные биндинги этой комбинации к новым
+    ;; (global-set-key "\C-x\C-k" 'kill-region)
+    ;; (global-set-key "\C-c\C-k" 'kill-region)
+
+    ;; Перенос текста на 80 символе по умолчанию (только текст)
+    (add-hook 'text-mode-hook 'turn-on-auto-fill)
+    (add-hook 'text-mode-hook
+              '(lambda() (set-fill-column 80)))
+
+    ;; Использовать нумерацию строк в prog-mode  
+    (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+
+  ;; Настройки браузера
+    (setq browse-url-browser-function 'browse-url-generic
+          browse-url-generic-program "nyxt")
+
+    ;; Отключим предупреждения о тесноте
+    (put 'narrow-to-region 'disabled nil)
+    (put 'narrow-to-page 'disabled nil)
+
+    ;; Установим календарь на стандарты моей страны и города
+    (setq-default calendar-week-start-day  1
+                  calendar-latitude        51.5
+                  calendar-longitude       46.0
+                  calendar-location-name   "Саратов, Россия")
+
+    ;; Установим информацию о пользователе по умолчанию.
+    (setq user-full-name    "Salnikov Anton"
+          user-mail-address "antares@antares.me"
+          epg-user-id "DFF74643BBB53D84")
+#+END_SRC
+
+** Временные файлы
+
+Я люблю хранить все временные файлы и папки (cache, backups, ...) в уникальных
+директориях. Так чище, меньше ошибок и проще управлять.
+
+Сначала создадим переменную, в которую поместим путь к этой директории и если
+она не существует создадим её.
+
+#+BEGIN_SRC emacs-lisp
+  (defvar antares-emacs-temporal-directory (concat user-emacs-directory "tmp/"))
+  (unless (file-exists-p antares-emacs-temporal-directory)
+    (make-directory antares-emacs-temporal-directory))
+#+END_SRC
+
+Сохраним все временные файлы во временных каталогах вместо того, чтобы плодить их
+в $HOME директории.
+
+#+BEGIN_SRC emacs-lisp
+  (setq-default
+   ;; История tramp
+   tramp-persistency-file-name (concat antares-emacs-temporal-directory "tramp")
+   ;; Файл закладок
+   bookmark-default-file (concat antares-emacs-temporal-directory "bookmarks")
+   ;; Файлы SemanticDB
+   semanticdb-default-save-directory (concat antares-emacs-temporal-directory "semanticdb")
+   ;; Файлы ссылок
+   url-configuration-directory (concat antares-emacs-temporal-directory "url")
+   ;; eshell файлы
+   eshell-directory-name (concat antares-emacs-temporal-directory "eshell" ))
+#+END_SRC
+
+** История
+
+Поддерживать историю прошлых действий в списке с разумными пределами.
+
+#+BEGIN_SRC emacs-lisp
+  (setq-default history-length 1000)
+  (setq savehist-file (concat antares-emacs-temporal-directory "history")
+        history-delete-duplicates t
+        savehist-save-minibuffer-history 1
+        savehist-additional-variables
+        '(kill-ring
+          search-ring
+          regexp-search-ring))
+  (savehist-mode t)
+#+END_SRC
+
+** Недавние файлы
+
+Recentf - это второстепенный режим, который строит список недавно открытых
+файлов. Этот список автоматически сохраняется во время сеанса Emacs. Вы можете
+получить доступ к этому списку через меню.
+
+#+BEGIN_SRC emacs-lisp
+(use-package recentf
+  :ensure nil
+  :diminish nil
+  :config
+  (progn
+    (setq recentf-save-file (concat antares-emacs-temporal-directory "recentf")
+          recentf-auto-cleanup 'never
+          recentf-max-saved-items 100
+          recentf-exclude '("COMMIT_MSG" "COMMIT_EDITMSG"))
+    (recentf-mode t)))
+#+END_SRC
+
+** Сохранить сессию между запусками Emacs (Desktop)
+
+Desktop Save Mode - функция сохранения состояния Emacs от одного сеанса к другому.
+
+#+BEGIN_SRC emacs-lisp
+;; У меня отключен пока эта конфигурация не стабильна
+(use-package desktop
+  :ensure t
+  :disabled t
+  :config
+  (progn
+    (setq desktop-path '("~/.emacs.d/tmp/"))
+    (setq desktop-dirname "~/.emacs.d/tmp/")
+    (setq desktop-base-file-name "emacs-desktop")
+    (setq desktop-globals-to-save
+          (append '((extended-command-history . 50)
+                    (file-name-history . 200)
+                    (grep-history . 50)
+                    (compile-history . 50)
+                    (minibuffer-history . 100)
+                    (query-replace-history . 100)
+                    (read-expression-history . 100)
+                    (regexp-history . 100)
+                    (regexp-search-ring . 100)
+                    (search-ring . 50)
+                    (shell-command-history . 50)
+                    tags-file-name
+                    register-alist)))
+    (desktop-save-mode 1)))
+
+#+END_SRC
+
+** Сохранение позиции курсора между сеансами
+
+Сохранить позицию курсора для каждого открытого файла. Так при повторном
+открытии файла, курсор будет в той позиции, в которой вы последний раз его
+открыли.
+
+#+BEGIN_SRC emacs-lisp
+(use-package saveplace
+  :ensure nil
+  :config
+  (progn
+    (setq save-place-file (concat antares-emacs-temporal-directory "saveplace.el") )
+    (setq-default save-place t)))
+#+END_SRC
+
+** Шрифт
+
+Используемый шрифт. Мой выбор моноширинный /Fira Code/ потому что он
+свободный и имеет отличную поддержку Юникода, да и выглядит неплохо!
+
+#+BEGIN_SRC emacs-lisp
+  (set-face-attribute 'default nil :family "FiraCode Nerd Font Mono" :height 110)
+
+  ;; Установим шрифт с отличной поддержкой символов Unicode, чтобы в случае
+  ;; отсутствия определённых символов в текущем шрифте показать их из
+  ;; резервного
+  (set-fontset-font "fontset-default" nil
+                    (font-spec :size 20 :name "Symbola"))
+#+END_SRC
+
+** Лигатуры
+
+#+begin_src emacs-lisp
+  (use-package ligature
+    :ensure t
+    :demand t
+    :config
+    ;; Enable the "www" ligature in every possible major mode
+    (ligature-set-ligatures 't '("www"))
+    ;; Enable traditional ligature support in eww-mode, if the
+    ;; `variable-pitch' face supports it
+    (ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
+    ;; Enable all Cascadia Code ligatures in programming modes
+     (ligature-set-ligatures 'prog-mode
+                        '(;; == === ==== => =| =>>=>=|=>==>> ==< =/=//=// =~
+                          ;; =:= =!=
+                          ("=" (rx (+ (or ">" "<" "|" "/" "~" ":" "!" "="))))
+                          ;; ;; ;;;
+                          (";" (rx (+ ";")))
+                          ;; && &&&
+                          ("&" (rx (+ "&")))
+                          ;; !! !!! !. !: !!. != !== !~
+                          ("!" (rx (+ (or "=" "!" "\." ":" "~"))))
+                          ;; ?? ??? ?:  ?=  ?.
+                          ("?" (rx (or ":" "=" "\." (+ "?"))))
+                          ;; %% %%%
+                          ("%" (rx (+ "%")))
+                          ;; |> ||> |||> ||||> |] |} || ||| |-> ||-||
+                          ;; |->>-||-<<-| |- |== ||=||
+                          ;; |==>>==<<==<=>==//==/=!==:===>
+                          ("|" (rx (+ (or ">" "<" "|" "/" ":" "!" "}" "\]"
+                                          "-" "=" ))))
+                          ;; \\ \\\ \/
+                          ("\\" (rx (or "/" (+ "\\"))))
+                          ;; ++ +++ ++++ +>
+                          ("+" (rx (or ">" (+ "+"))))
+                          ;; :: ::: :::: :> :< := :// ::=
+                          (":" (rx (or ">" "<" "=" "//" ":=" (+ ":"))))
+                          ;; // /// //// /\ /* /> /===:===!=//===>>==>==/
+                          ("/" (rx (+ (or ">"  "<" "|" "/" "\\" "\*" ":" "!"
+                                          "="))))
+                          ;; .. ... .... .= .- .? ..= ..<
+                          ("\." (rx (or "=" "-" "\?" "\.=" "\.<" (+ "\."))))
+                          ;; -- --- ---- -~ -> ->> -| -|->-->>->--<<-|
+                          ("-" (rx (+ (or ">" "<" "|" "~" "-"))))
+                          ;; *> */ *)  ** *** ****
+                          ("*" (rx (or ">" "/" ")" (+ "*"))))
+                          ;; www wwww
+                          ("w" (rx (+ "w")))
+                          ;; <> <!-- <|> <: <~ <~> <~~ <+ <* <$ </  <+> <*>
+                          ;; <$> </> <|  <||  <||| <|||| <- <-| <-<<-|-> <->>
+                          ;; <<-> <= <=> <<==<<==>=|=>==/==//=!==:=>
+                          ;; << <<< <<<<
+                          ("<" (rx (+ (or "\+" "\*" "\$" "<" ">" ":" "~"  "!"
+                                          "-"  "/" "|" "="))))
+                          ;; >: >- >>- >--|-> >>-|-> >= >== >>== >=|=:=>>
+                          ;; >> >>> >>>>
+                          (">" (rx (+ (or ">" "<" "|" "/" ":" "=" "-"))))
+                          ;; #: #= #! #( #? #[ #{ #_ #_( ## ### #####
+                          ("#" (rx (or ":" "=" "!" "(" "\?" "\[" "{" "_(" "_"
+                                       (+ "#"))))
+                          ;; ~~ ~~~ ~=  ~-  ~@ ~> ~~>
+                          ("~" (rx (or ">" "=" "-" "@" "~>" (+ "~"))))
+                          ;; __ ___ ____ _|_ __|____|_
+                          ("_" (rx (+ (or "_" "|"))))
+                          ;; Fira code: 0xFF 0x12
+                          ("0" (rx (and "x" (+ (in "A-F" "a-f" "0-9")))))
+                          ;; Fira code:
+                          "Fl"  "Tl"  "fi"  "fj"  "fl"  "ft"
+                          ;; The few not covered by the regexps.
+                          "{|"  "[|"  "]#"  "(*"  "}#"  "$>"  "^="))
+    ;; Enables ligature checks globally in all buffers. You can also do it
+    ;; per mode with `ligature-mode'.
+    (global-ligature-mode t))
+#+end_src
+
+** Улучшенная нумерация строк
+
+Показывает более удобные номера строк. Я не часто использую их потому, что это
+очень медленная функция, но иногда она удобна.
+
+#+BEGIN_SRC emacs-lisp
+  (unless window-system
+    (add-hook 'linum-before-numbering-hook
+              (lambda ()
+                (setq-local linum-format-fmt
+                            (let ((w (length (number-to-string
+                                              (count-lines (point-min) (point-max))))))
+                              (concat "%" (number-to-string w) "d"))))))
+
+  (defun antares-linum-format-func (line)
+     (concat
+      (propertize (format linum-format-fmt line) 'face 'linum)
+      (propertize " " 'face 'linum)))
+
+  (unless window-system
+    (setq linum-format 'antares-linum-format-func))
+#+END_SRC
+
+** Показ завершающих пробелов
+
+Показать/скрыть завершающие пробелы в буфере
+
+#+BEGIN_SRC emacs-lisp
+  ;; from http://stackoverflow.com/a/11701899/634816
+  (defun antares-toggle-show-trailing-whitespace ()
+    "Переключение show-trailing-whitespace между t и nil"
+    (interactive)
+    (setq show-trailing-whitespace (not show-trailing-whitespace)))
+#+END_SRC
+
+** Убить внутренний процесс с помощью =list process= буфера
+
+Добавляет функционал возможности завершения процесса прямо в =list process=
+буфере
+
+#+BEGIN_src emacs-lisp :tangle no
+  ;; seen at http://stackoverflow.com/a/18034042
+  (defun antares-delete-process-at-point ()
+    (interactive)
+    (let ((process (get-text-property (point) 'tabulated-list-id)))
+      (cond ((and process
+                  (processp process))
+             (delete-process process)
+             (revert-buffer))
+            (t
+             (error "no process at point!")))))
+
+  (define-key process-menu-mode-map (kbd "C-c k") 'antares-delete-process-at-point)
+#+END_src
+
+** Вспомогательные функции для управления буферами
+
+Несколько кастомных функций для управления буферами.
+
+#+BEGIN_SRC emacs-lisp
+  (defun antares-alternate-buffers ()
+    "Переключение между последними двумя буферами"
+    (interactive)
+    (switch-to-buffer (other-buffer (current-buffer) t)))
+
+  (defun antares-revert-buffer ()
+    "Откат буфера до состояния сохранённого на диске файла"
+    (interactive)
+    (revert-buffer nil t))
+
+  ;;(defun antares-kill-this-buffer ()
+  ;;  "Удалить текущий буфер"
+  ;;  (interactive)
+  ;;  (kill-buffer (current-buffer)))
+
+  (defun antares-diff-buffer-with-file ()
+    "Сравнить текущий изменённый буфер с сохранённой версией"
+    (interactive)
+    (let ((diff-switches "-u"))
+      (diff-buffer-with-file (current-buffer))))
+#+END_SRC
+
+** Сетевая безопасность
+
+Установить уровень безопасности Emacs Network Security Manager
+
+#+BEGIN_SRC emacs-lisp
+   (setq network-security-level 'high)
+#+END_SRC
+
+* Пакеты
+** Внешний вид
+*** Иконки
+**** All the icons
+#+begin_src emacs-lisp
+(use-package all-the-icons
+  :ensure t)
+#+end_src
+**** NerdIcons
+#+begin_src emacs-lisp
+(use-package nerd-icons
+  :ensure t)
+#+end_src
+*** Строка состояния
+**** Doom mode line
+#+begin_src emacs-lisp
+  (use-package doom-modeline
+  :ensure t
+  :demand t
+  :init (doom-modeline-mode 1)
+  :config (add-to-list 'doom-modeline-mode-alist '(dashboard-mode)))
+#+end_src
+**** Powerline
+Emacs версия Vim powerline.
+В эту версию включена поддержка UTF-8. UTF-8 разделители будут отображаться
+юникодными символами правильно, например под mintty, так долго, сколько у вас
+будут установлены пропатченные шрифты.
+По умолчанию все терминальные режимы Emacs используют разделители UTF-8.
+
+#+BEGIN_SRC emacs-lisp
+    (use-package powerline
+      :ensure t
+      :disabled t
+      ;;:straight moe-theme
+      ;; :defer t
+      :config
+      (progn
+      (setq powerline-arrow-shape 'arrow)
+      ;; (powerline-moe-theme)
+      )
+      )
+  ;; (use-package powerline-evil
+  ;;     :straight t
+  ;;     :straight powerline)
+  ;; Выбор цвета строки состояния.(Default: blue)
+  ;;(moe-theme-set-color 'cyan)
+#+END_SRC
+
+*** Темы
+**** Tron legacy
+#+begin_src emacs-lisp :tangle no
+(use-package tron-legacy-theme
+  :demand t
+  :config
+  (setq tron-legacy-theme-vivid-cursor t
+        tron-legacy-theme-dark-fg-bright-comments t
+        tron-legacy-theme-softer-bg t)
+  (load-theme 'tron-legacy t))
+#+end_src
+**** moe-theme
+
+[[https://github.com/kuanyui/moe-theme.el][Moe-theme]] понравившаяся мне цветовая тема.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package moe-theme
+    :ensure t
+    :disabled t
+    :after (:all powerline) ;;powerline-evil
+    :config
+    (progn
+      (use-package moe-theme-switcher :ensure t) ;; Автоматически переключать тему в зависимости от времени суток
+      ;;(load-theme 'moe-dark) ;; Установить тему принудительно 'moe-dark или 'moe-light
+      ;;(moe-theme-set-color 'blue) ;; (Доступные цвета: blue, orange, green ,magenta, yellow, purple, red, cyan, w/b.)
+      (setq
+          ;;moe-theme-resize-markdown-title '(1.5 1.4 1.3 1.2 1.0 1.0)
+          moe-theme-resize-org-title '(1.5 1.4 1.3 1.2 1.1 1.0 1.0 1.0 1.0)
+          moe-theme-resize-rst-title '(1.5 1.4 1.3 1.2 1.1 1.0)
+          moe-theme-highlight-buffer-id t
+          moe-theme-switch-by-sunrise-and-sunset t
+          show-paren-style 'expression)
+      (powerline-moe-theme)
+      (moe-dark)))
+#+END_SRC
+**** Dracula theme
+#+begin_src emacs-lisp 
+  (use-package dracula-theme
+  :demand t
+  :config (setq
+           ;; Don't change the font size for some headings and titles (default t)
+           dracula-enlarge-headings nil
+           ;; Adjust font size of titles level 1 (default 1.3)
+           dracula-height-title-1 1.25
+           ;; Adjust font size of titles level 2 (default 1.1)
+           dracula-height-title-2 1.15
+           ;; Adjust font size of titles level 3 (default 1.0)
+           dracula-height-title-3 1.05
+           ;; Adjust font size of document titles (default 1.44)
+           dracula-height-doc-title 1.4
+           ;; Use less pink and bold on the mode-line and minibuffer (default nil)
+           dracula-alternate-mode-line-and-minibuffer t)
+  (load-theme 'dracula t))  
+#+end_src
+**** page-break-lines
+
+[[https://github.com/purcell/page-break-lines][page-break-lines]] предоставляет глобальный режим, в котором уродливые символы перевода
+строки =^L= отображаются как аккуратные горизонтальные черты.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package page-break-lines
+    :ensure t
+    :diminish page-break-lines-mode
+    :config
+    (global-page-break-lines-mode t))
+#+END_SRC
+
+**** Dashboard
+#+BEGIN_SRC emacs-lisp
+  (use-package dashboard
+    :ensure t
+    :demand t
+    :after (nerd-icons)
+    :config
+    (progn
+      (add-hook 'elpaca-after-init-hook #'dashboard-insert-startupify-lists)
+      (add-hook 'elpaca-after-init-hook #'dashboard-initialize)
+      (add-hook 'dashboard-mode-hook #'hide-mode-line-mode)
+      ;;(setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+      ;; Set the title
+      (setq dashboard-banner-logo-title "Welcome to Emacs Dashboard")
+      ;; Set the banner
+      (setq dashboard-startup-banner 'logo)
+      ;; Value can be
+      ;; 'official which displays the official emacs logo
+      ;; 'logo which displays an alternative emacs logo
+      ;; 1, 2 or 3 which displays one of the text banners
+      ;; "path/to/your/image.png" or "path/to/your/text.txt" which displays whatever image/text you would prefer
+
+      ;; Content is not centered by default. To center, set
+      (setq dashboard-center-content t)
+      (setq dashboard-vertical-center-content t)
+
+      ;; To disable shortcut "jump" indicators for each section, set to nil
+      (setq dashboard-show-shortcuts t)
+      (setq dashboard-items '((recents  . 5)
+                              (bookmarks . 5)
+                              (projects . 5)
+                              (agenda . 5)
+                              (registers . 5)
+                              ))
+      (defun dashboard-insert-custom (list-size)
+        (insert "Custom text"))
+      (add-to-list 'dashboard-item-generators  '(custom . dashboard-insert-custom))
+      (add-to-list 'dashboard-items '(custom) t)
+      ;;(add-to-list 'dashboard-items '(telega-chats . 5))
+      (setq dashboard-icon-type 'nerd-icons)
+      (setq dashboard-display-icons-p t)     ;; display icons on both GUI and terminal
+      ;; (dashboard-modify-heading-icons '((recents   . "file-text")
+      ;;                             (bookmarks . "book")))
+      ;;(dashboard-modify-heading-icons '((recents   . "nf-oct-file_text")
+      ;;                                  (bookmarks . "nf-oct-book")
+      ;;                                  (projects  . "nf-oct-project")))
+      (setq dashboard-set-heading-icons t)
+      (setq dashboard-set-file-icons t)
+      (setq dashboard-set-navigator t)
+      (setq dashboard-set-init-info t)
+      (setq dashboard-init-info "This is an init message!")
+      (setq dashboard-set-footer nil)
+      (setq dashboard-buffer-name "*my dashboard*")
+      (setq show-week-agenda-p t)
+      (setq dashboard-projects-backend 'projectile)
+      (setq dashboard-footer-messages '("Dashboard is pretty cool!"))
+      (setq dashboard-footer-icon (nerd-icons-octicon "nf-oct-home"
+                                                     :height 1.1
+                                                     :v-adjust -0.05
+                                                     :face 'font-lock-keyword-face))
+
+      ;; (setq dashboard-startupify-list '(dashboard-insert-banner
+      ;;                             dashboard-insert-newline
+      ;;                             dashboard-insert-banner-title
+      ;;                             dashboard-insert-newline
+      ;;                             dashboard-insert-navigator
+      ;;                             dashboard-insert-newline
+      ;;                             dashboard-insert-init-info
+      ;;                             dashboard-insert-items
+      ;;                             dashboard-insert-newline
+      ;;                             dashboard-insert-footer))
+      ;;(setq dashboard-startupify-list '(dashboard-insert-banner-title
+      ;;                            dashboard-insert-navigator
+      ;;                            ,(dashboard-insert-newline 2)
+      ;;                            dashboard-insert-footer))
+
+
+      (dashboard-setup-startup-hook)
+      ))
+#+END_SRC
+**** Hide mode-line
+#+begin_src emacs-lisp
+  (use-package hide-mode-line
+    :after dashboard
+    :ensure t
+    :hook (dashboard-mode . hide-mode-line-mode))
+#+end_src
+**** Random-splash-image
+#+BEGIN_SRC emacs-lisp :tangle no
+  (use-package random-splash-image
+    :ensure t
+    :demand t
+    :disabled t
+    :config
+    (progn
+      (setq random-splash-image-dir (concat (getenv "HOME") "/Pictures"))
+      (random-splash-image-set))
+    )
+#+END_SRC
+**** Solaire mode
+#+begin_src emacs-lisp
+(use-package solaire-mode
+  :ensure t
+  :hook (dashboard-before-initialize . solaire-mode)
+  )
+#+end_src
+*** Шрифт
+**** FiraCode
+#+BEGIN_SRC emacs-lisp :tangle no
+  (use-package fira-code-mode
+    :ensure t
+    :custom (fira-code-mode-disabled-ligatures '("[]" "x"))  ; ligatures you don't want
+    :hook prog-mode
+    )                                         ; mode to enable fira-code-mode in
+#+END_SRC
+** transient
+Библиотека для создания клавиатурно-ориентированного меню для *magit*
+#+begin_src emacs-lisp
+  (use-package transient
+    :ensure t
+    :defer t)
+#+end_src
+
+** Magit
+
+С помощью [[https://github.com/magit/magit][Magit]], вы можете просматривать и редактировать свои репозитории Git с помошью Emacs.
+Вы, например, можете просмотреть и закоммитить изменения, внесённые в
+отслеживаемые файлы, а также просмотреть историю последних изменений. Есть
+поддержка cherry picking, откатов, мерджей, ребэйзов и прочих общих операций Git.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+    :ensure t
+    :after (transient nerd-icons)
+    :custom (magit-format-file-function #'magit-format-file-nerd-icons)
+    :commands magit-status)
+#+END_SRC
+
+** Mastodon
+Клиент соцсети mastodon
+#+begin_src emacs-lisp
+(use-package mastodon
+  :ensure t
+  :defer t
+  :config
+  (setq mastodon-active-user "antares@antares.me"
+        mastodon-instance-url "https://emacs.ch"))
+#+end_src
+** tp
+Некоторые функции, классы и методы, упрощающие создание временных меню, которые отправляют сложные запросы POST, PUT или PATCH в JSON API.
+#+begin_src emacs-lisp
+(use-package tp
+  :ensure (
+  :inherit t
+  :depth 1
+  :fetcher github
+  :repo "emacsmirror/tp"))
+#+end_src
+** mathjax
+Этот пакет предоставляет метод отображения математических формул в Emacs. В основном он предназначен как вспомогательная библиотека для использования другими пакетами, но также обеспечивает интеграцию с некоторыми встроенными функциями Emacs.
+#+begin_src emacs-lisp
+(use-package mathjax
+  :ensure (
+  :inherit t
+  :depth 1
+  :fetcher github
+  :repo "emacsmirror/mathjax"))
+#+end_src
+** Undo-tree
+
+#+BEGIN_SRC emacs-lisp
+  (use-package undo-tree
+    :ensure (:host github :repo "apchamberlain/undo-tree.el")
+    :diminish undo-tree-mode
+    :init
+    (progn
+      (global-undo-tree-mode)
+      (setq undo-tree-history-directory-alist
+            (cons
+             (cons "." (concat antares-emacs-temporal-directory "undo"))
+             undo-tree-history-directory-alist)
+            undo-tree-auto-save-history t
+            undo-tree-visualizer-timestamps t
+            undo-tree-visualizer-diff t)))
+#+END_SRC
+
+** ranger
+ [[https://github.com/ralesi/ranger.el][Ranger]] is a minor mode that runs within dired emulating many of the features of
+ [[https://github.com/ralesi/ranger.el][ranger]]. This minor mode shows a stack of the parent directories and updates the
+ parent buffers while navigating the file system.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ranger
+    :ensure t
+    :defer t
+    :config
+    (setq ranger-cleanup-on-disable t
+          ranger-show-hidden t
+          ranger-dont-show-binary t
+          ranger-show-literal nil))
+#+END_SRC
+
+** graphviz-dot-mode
+
+[[https://github.com/ppareit/graphviz-dot-mode][graphviz-dot-mode]] режим для языка DOT, с использованием graphviz.
+
+#+begin_src emacs-lisp
+  (use-package graphviz-dot-mode
+    :ensure t
+    :defer t
+    :config
+    (setq graphviz-dot-indent-width 4))
+#+end_src
+
+** Утилиты
+*** Работа с текстом
+**** Rainbow-delimiters
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-delimiters
+    :ensure t
+    :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+          (setq rainbow-delimiters-max-face-count 9))
+#+END_SRC
+*** Поиск текста
+**** ag
+
+[[https://github.com/Wilfred/ag.el][ag.el]] простой фронтенд Emacs для ag, ("the silver searcher" замена ack).
+
+#+begin_src emacs-lisp :tangle no
+  (use-package ag
+    :ensure t
+    :ensure-system-package (ag . silver-searcher-git)
+    :defer 1
+    :config
+    (progn
+      (setq ag-reuse-buffers 't
+            ag-highlight-search t
+            ag-arguments (list "--color" "--smart-case" "--nogroup" "--column" "--all-types" "--"))))
+#+end_src
+
+**** pt
+
+#+begin_src emacs-lisp
+(use-package pt
+  :ensure t
+  :defer t
+  :ensure-system-package (pt . the_platinum_searcher-bin)
+  :config
+  (progn
+    (setq pt-arguments (list "--smart-case" "--column" "--hidden" "--context=0"))))
+#+end_src
+
+*** Разметка
+**** Markdown-mode
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+  :ensure t
+  :defer t
+  :mode (("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode)))
+#+END_SRC
+*** Погода
+#+begin_src emacs-lisp
+;; Display format
+;; c    Weather condition,
+;; C    Weather condition textual name,
+;; x    Weather condition, plain-text symbol,
+;; h    Humidity,
+;; t    Temperature (Actual),
+;; f    Temperature (Feels Like),
+;; w    Wind,
+;; l    Location,
+;; m    Moon phase 🌑🌒🌓🌔🌕🌖🌗🌘,
+;; M    Moon day,
+;; p    Precipitation (mm/3 hours),
+;; P    Pressure (hPa),
+;; u    UV index (1-12),
+;;
+;; D    Dawn*,
+;; S    Sunrise*,
+;; z    Zenith*,
+;; s    Sunset*,
+;; d    Dusk*,
+;; T    Current time*,
+;; Z    Local timezone.
+(use-package display-wttr
+  :ensure t
+  :config
+  (progn
+    (setq display-wttr-locations '("Саратов")
+          display-wttr-interval (* 60 60)
+          display-wttr-format "%c+%f+%h+%p+%P+%m+%w+%S+%s")
+    (display-wttr-mode)))
+#+end_src
+
+** Мессенджеры
+*** Telegram
+#+begin_src emacs-lisp
+  (use-package telega
+    :ensure t
+    :demand t
+    :config
+    (progn
+      (define-key global-map (kbd "C-c t") telega-prefix-map)
+      (setq telega-use-docker t
+            telega-notifications-mode t
+            telega-language "ru")))
+#+end_src
+
+*** Matrix
+#+begin_src emacs-lisp
+(use-package ement
+  :ensure t
+  :defer t)
+#+end_src
+** AI
+*** Codeium
+#+begin_src emacs-lisp :tangle no
+(use-package codeium
+  :ensure t
+  :recipe (:host github :repo "Exafunction/codeium.el"))
+#+end_src
+*** Gptel
+#+begin_src emacs-lisp
+  (use-package gptel
+    :ensure t
+    :config
+    (setq gptel-model   'deepseek-chat
+      gptel-backend
+      (gptel-make-openai "DeepSeek"
+        :host "api.deepseek.com"
+        :endpoint "/chat/completions"
+        :stream t
+        :key "your-api-key"
+        :models '(deepseek-chat deepseek-coder))))
+#+end_src
+*** CodeGPT
+#+begin_src emacs-lisp :tangle no
+  (use-package codegpt
+    :ensure t
+    :recipe (:host github :repo "emacs-openai/codegpt"))
+#+end_src
+*** Starhugger
+#+begin_src emacs-lisp
+  (elpaca (starhugger :repo "https://gitlab.com/daanturo/starhugger.el" :files (:defaults "*.py")))
+#+end_src
+*** Aider
+#+begin_src emacs-lisp
+(use-package aider
+  :config
+  ;; For latest claude sonnet model
+  (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
+  (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
+  ;; Or chatgpt model
+  ;; (setq aider-args '("--model" "o4-mini"))
+  ;; (setenv "OPENAI_API_KEY" <your-openai-api-key>)
+  ;; Or use your personal config file
+  ;; (setq aider-args `("--config" ,(expand-file-name "~/.aider.conf.yml")))
+  ;; ;;
+  ;; Optional: Set a key binding for the transient menu
+  (global-set-key (kbd "C-c a") 'aider-transient-menu) ;; for wider screen
+  ;; or use aider-transient-menu-2cols / aider-transient-menu-1col, for narrow screen
+  (aider-magit-setup-transients)) ;; add aider magit function to magit menu
+#+end_src
+** company-mode
+
+#+BEGIN_SRC emacs-lisp
+    (use-package company
+      :ensure t
+      :init
+      (progn
+      (add-hook 'after-init-hook 'global-company-mode))
+    )
+;; (use-package company-restclient
+;;   :ensure t
+;;   :after know-your-http-well)
+(use-package company-web
+  :ensure t)
+#+END_SRC
+
+** Программирование
+*** devdocs
+
+[[https://github.com/xuchunyang/DevDocs.el][devdocs]] пакет Emacs, позволяющий легко искать документацию на [[https://devdocs.io][DevDocs]].
+
+#+BEGIN_SRC emacs-lisp
+  (use-package devdocs
+    :ensure t
+    :after mathjax
+    :config
+    (setq devdocs-data-dir (concat antares-emacs-temporal-directory "devdocs")))
+#+END_SRC
+*** Devdocs-browser
+#+begin_src emacs-lisp
+(use-package devdocs-browser
+  :ensure t)
+#+end_src
+*** Protobuf
+#+begin_src emacs-lisp
+(use-package protobuf-mode
+  :ensure t)
+#+end_src
+*** LSP
+**** LSP-mode
+#+begin_src emacs-lisp
+(use-package lsp-mode
+  :ensure t)
+#+end_src
+**** LSP-ui
+#+begin_src emacs-lisp
+(use-package lsp-ui
+    :ensure t
+    :config
+    (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+    (setq
+     lsp-ui-doc-header t
+     lsp-ui-doc-include-signature t
+     lsp-ui-doc-use-childframe t
+     lsp-ui-doc-position 'bottom
+     lsp-ui-sideline-enable nil
+     lsp-enable-eldoc nil))
+#+end_src
+*** Go
+**** Go-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package go-mode
+    :ensure t
+    :defer t
+    :config
+    (progn
+        (setq gofmt-command "goimports")
+        (add-hook 'before-save-hook 'gofmt-before-save)
+        (add-hook 'go-mode-hook 'go-eldoc-setup)
+;;        (add-hook 'go-mode-hook 'yas-minor-mode)
+        (add-hook 'go-mode-hook (lambda ()
+            (set (make-local-variable 'company-backends) '(company-go))
+            (company-mode)))
+        (add-hook 'go-mode-hook 'flycheck-mode)
+        (setq multi-compile-alist '(
+            (go-mode . (
+            ("go-build" "go build -v"
+            (locate-dominating-file buffer-file-name ".git"))
+            ("go-build-and-run" "go build -v && echo 'build finish' && eval ./${PWD##*/}"
+            (multi-compile-locate-file-dir ".git"))))))
+    )
+    :mode ("\\.go\\'" . go-mode))
+#+END_SRC
+
+**** Golint
+#+BEGIN_SRC emacs-lisp
+  (use-package golint
+    :ensure t
+    :mode ("\\.go\\'" . go-mode))
+#+END_SRC
+
+**** Go-eldoc
+#+BEGIN_SRC emacs-lisp
+  (use-package go-eldoc
+    :ensure t
+    :init
+        (add-hook 'go-mode-hook 'go-eldoc-setup)
+    :mode ("\\.go\\'" . go-mode))
+#+END_SRC
+**** Company-go
+#+BEGIN_SRC emacs-lisp
+  (use-package company-go
+    :ensure t
+    :init
+    (add-hook 'go-mode-hook (lambda ()
+                              (set (make-local-variable 'company-backends) '(company-go))
+                              (company-mode))))
+#+END_SRC
+**** Go-rename
+#+BEGIN_SRC emacs-lisp
+  (use-package go-rename
+    :ensure t
+    :mode ("\\.go\\'" . go-mode))
+#+END_SRC
+
+**** Go-direx
+#+BEGIN_SRC emacs-lisp
+  (use-package go-direx
+    :ensure t
+    ;; :config
+    ;;(bind-keys :map go-mode-map
+    ;;("s" . go-direx-pop-to-buffer))
+    :mode ("\\.go\\'" . go-mode))
+#+END_SRC
+**** Golangci-lint
+#+BEGIN_SRC emacs-lisp
+  (use-package flycheck-golangci-lint
+    :ensure t
+    :hook (go-mode . flycheck-golangci-lint-setup)
+  ;;  :config
+  ;;   (setq flycheck-golangci-lint-config "")
+  ;;   (setq flycheck-golangci-lint-deadline "1m")
+  ;;   (setq flycheck-golangci-lint-tests t)
+  ;;   (setq flycheck-golangci-lint-fast t)
+  )
+#+END_SRC
+
+**** dlv
+#+begin_src emacs-lisp
+(use-package go-dlv
+  :ensure t)
+#+end_src
+
+**** dap
+#+begin_src emacs-lisp
+(use-package dap-mode
+  :ensure t)
+#+end_src
+
+**** go-imports
+#+begin_src emacs-lisp
+  (use-package go-imports
+    :ensure t
+    :mode ("\\.go\\'" . go-mode))
+#+end_src
+**** go-guru
+#+begin_src emacs-lisp
+(use-package go-guru
+  :ensure t)
+#+end_src
+**** gorepl-mode
+#+begin_src emacs-lisp
+(use-package gorepl-mode
+  :ensure t)
+#+end_src
+**** gore-mode
+#+begin_src emacs-lisp
+(use-package gore-mode
+  :ensure t)
+#+end_src
+**** go-tag
+#+begin_src emacs-lisp
+(use-package go-tag
+  :ensure t)
+#+end_src
+**** go-add-tags
+#+begin_src emacs-lisp
+(use-package go-add-tags
+  :ensure t)
+#+end_src
+**** go-palyground
+#+begin_src emacs-lisp
+(use-package go-playground
+  :ensure t)
+#+end_src
+**** go-stacktracer
+#+begin_src emacs-lisp
+(use-package go-stacktracer
+  :ensure t)
+#+end_src
+**** go-gen-test
+#+begin_src emacs-lisp
+(use-package go-gen-test
+  :ensure t)
+#+end_src
+
+**** ob-go
+#+begin_src emacs-lisp
+(use-package ob-go
+  :ensure t)
+#+end_src
+*** PHP
+**** php-mode
+#+begin_src emacs-lisp
+(use-package php-mode
+  :ensure t
+  :hook ((php-mode . (lambda () (set (make-local-variable 'company-backends)
+                                     '(;; list of backends
+                                       company-phpactor
+                                       company-files
+                                       ))))))
+(add-hook 'php-mode-hook
+          (lambda ()
+            (make-local-variable 'eldoc-documentation-function)
+            (setq eldoc-documentation-function
+                  'phpactor-hover)))
+#+end_src
+**** phpactor
+#+begin_src emacs-lisp
+  (use-package phpactor :ensure t :after php-mode :mode ("\\.php\\'" . php-mode))
+  (use-package company-phpactor :ensure t :mode ("\\.php\\'" . php-mode))
+;;  (with-eval-after-load 'php-mode
+;;    (phpactor-smart-jump-register))
+  (with-eval-after-load 'php-mode
+    (define-key php-mode-map (kbd "M-.") #'phpactor-goto-definition)
+    (define-key php-mode-map (kbd "M-?") #'phpactor-find-references))
+#+end_src
+*** Net
+**** Know-your-http-well
+#+begin_src emacs-lisp
+(use-package know-your-http-well
+  :ensure (
+  :inherit t
+  :depth 1
+  :tag "v0.6.0"
+  :version "0.6"
+  :fetcher github
+  :repo "for-GET/know-your-http-well"
+  :files ("emacs/*.el")))
+#+end_src
+*** Git
+**** git-modes
+
+[[https://github.com/magit/git-modes][Git modes]] GNU Emacs режимы для файлов связанных с Git.
+Доступен в репозитории на GitHub, но также доступен как независимый пакет в Melpa.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package git-modes
+    :ensure t
+    :defer t)
+#+END_SRC
+
+**** git-timemachine
+
+Use [[https://github.com/pidu/git-timemachine][git-timemachine]] для просмотра истории версий файла.
+=p= (предыдущая) и =n= (следующая).
+
+#+BEGIN_SRC emacs-lisp
+  (use-package git-timemachine
+    :ensure t
+    :commands git-timemachine
+    :config
+    (progn
+      (bind-keys :map git-timemachine-mode
+                 ("c" . git-timemachine-show-current-revision)
+                 ("b" . git-timemachine-switch-branch))
+      (when (package-installed-p 'hydra)
+          (bind-keys :map git-timemachine-mode
+                  ("\\" . hydra-timemachine/body))
+          (defhydra hydra-timemachine (:hint nil :color blue)
+                  "
+                                                                          ╭──────────────────┐
+                Rev.   Do                                                 │ Git time-machine │
+              ╭───────────────────────────────────────────────────────────┴──────────────────╯
+                _n_      [_w_] abbrv hash
+                ^↑^      [_W_] full hash
+                ^|^      [_g_] go to revision
+                ^↓^      [_c_] show current
+                _p_      [_b_] switch branch
+                ^ ^      [_q_] quit
+              --------------------------------------------------------------------------------
+                  "
+                  ("\\" hydra-master/body "back")
+                  ("<ESC>" nil "quit")
+                  ("q"       git-timemachine-quit)
+                  ("n"       git-timemachine-show-next-revision)
+                  ("p"       git-timemachine-show-previous-revision)
+                  ("g"       git-timemachine-show-nth-revision)
+                  ("c"       git-timemachine-show-current-revision)
+                  ("w"       git-timemachine-kill-abbreviated-revision)
+                  ("W"       git-timemachine-kill-revision)
+                  ("b"       git-timemachine-switch-branch)))
+		;;(defadvice git-timemachine-mode (after toggle-evil activate)
+		;;  "Отключаем `evil-local-mode' если включен `git-timemachine-mode',
+		;;  и включаем его обратно при выключении `git-timemachine-mode'."
+		;;  (evil-local-mode (if git-timemachine-mode -1 1)))
+                ))
+#+END_SRC
+
+** HOLD NeoTree
+[[https://github.com/jaypei/emacs-neotree][NeoTree]] это аналог NerdTree (менеджера файлов) в Vim.
+#+BEGIN_SRC emacs-lisp :tangle no
+  (use-package neotree
+    :ensure t
+    :after (all-the-icons)
+    :config
+    (progn
+      (setq
+        neo-theme (if (display-graphic-p) 'icons 'arrow))
+      (setq
+        neo-smart-open t)))
+  (global-set-key [f8] 'neotree-toggle)
+#+END_SRC
+
+** treemacs
+[[https://github.com/Alexander-Miller/treemacs][treemacs]]
+#+begin_src emacs-lisp
+(use-package treemacs
+  :ensure t
+  :defer t
+  :init
+  (with-eval-after-load 'winum
+    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+  :config
+  (progn
+    (setq treemacs-collapse-dirs                   (if treemacs-python-executable 3 0)
+          treemacs-deferred-git-apply-delay        0.5
+          treemacs-directory-name-transformer      #'identity
+          treemacs-display-in-side-window          t
+          treemacs-eldoc-display                   'simple
+          treemacs-file-event-delay                2000
+          treemacs-file-extension-regex            treemacs-last-period-regex-value
+          treemacs-file-follow-delay               0.2
+          treemacs-file-name-transformer           #'identity
+          treemacs-follow-after-init               t
+          treemacs-expand-after-init               t
+          treemacs-find-workspace-method           'find-for-file-or-pick-first
+          treemacs-git-command-pipe                ""
+          treemacs-goto-tag-strategy               'refetch-index
+          treemacs-header-scroll-indicators        '(nil . "^^^^^^")
+          treemacs-hide-dot-git-directory          t
+          treemacs-indentation                     2
+          treemacs-indentation-string              " "
+          treemacs-is-never-other-window           nil
+          treemacs-max-git-entries                 5000
+          treemacs-missing-project-action          'ask
+          treemacs-move-files-by-mouse-dragging    t
+          treemacs-move-forward-on-expand          nil
+          treemacs-no-png-images                   nil
+          treemacs-no-delete-other-windows         t
+          treemacs-project-follow-cleanup          nil
+          treemacs-persist-file                    (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+          treemacs-position                        'left
+          treemacs-read-string-input               'from-child-frame
+          treemacs-recenter-distance               0.1
+          treemacs-recenter-after-file-follow      nil
+          treemacs-recenter-after-tag-follow       nil
+          treemacs-recenter-after-project-jump     'always
+          treemacs-recenter-after-project-expand   'on-distance
+          treemacs-litter-directories              '("/node_modules" "/.venv" "/.cask")
+          treemacs-project-follow-into-home        nil
+          treemacs-show-cursor                     nil
+          treemacs-show-hidden-files               t
+          treemacs-silent-filewatch                nil
+          treemacs-silent-refresh                  nil
+          treemacs-sorting                         'alphabetic-asc
+          treemacs-select-when-already-in-treemacs 'move-back
+          treemacs-space-between-root-nodes        t
+          treemacs-tag-follow-cleanup              t
+          treemacs-tag-follow-delay                1.5
+          treemacs-text-scale                      nil
+          treemacs-user-mode-line-format           nil
+          treemacs-user-header-line-format         nil
+          treemacs-wide-toggle-width               70
+          treemacs-width                           35
+          treemacs-width-increment                 1
+          treemacs-width-is-initially-locked       t
+          treemacs-workspace-switch-cleanup        nil)
+
+    ;; The default width and height of the icons is 22 pixels. If you are
+    ;; using a Hi-DPI display, uncomment this to double the icon size.
+    ;;(treemacs-resize-icons 44)
+
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t)
+    (treemacs-fringe-indicator-mode 'always)
+    (when treemacs-python-executable
+      (treemacs-git-commit-diff-mode t))
+
+    (pcase (cons (not (null (executable-find "git")))
+                 (not (null treemacs-python-executable)))
+      (`(t . t)
+       (treemacs-git-mode 'deferred))
+      (`(t . _)
+       (treemacs-git-mode 'simple)))
+
+    (treemacs-hide-gitignored-files-mode nil))
+  :bind
+  (:map global-map
+        ("M-0"       . treemacs-select-window)
+        ("C-x t 1"   . treemacs-delete-other-windows)
+        ("C-x t t"   . treemacs)
+        ("C-x t d"   . treemacs-select-directory)
+        ("C-x t B"   . treemacs-bookmark)
+        ("C-x t C-t" . treemacs-find-file)
+        ("C-x t M-t" . treemacs-find-tag)))
+
+(use-package treemacs-evil
+  :after (treemacs evil)
+  :disabled t
+  :ensure t)
+
+(use-package treemacs-projectile
+  :after (treemacs projectile)
+  :ensure t)
+
+(use-package treemacs-icons-dired
+  :hook (dired-mode . treemacs-icons-dired-enable-once)
+  :ensure t)
+
+(use-package treemacs-magit
+  :after (treemacs magit)
+  :ensure t)
+
+(use-package treemacs-persp ;;treemacs-perspective if you use perspective.el vs. persp-mode
+  :after (treemacs persp-mode) ;;or perspective vs. persp-mode
+  :ensure t
+  :config (treemacs-set-scope-type 'Perspectives))
+
+(use-package treemacs-tab-bar ;;treemacs-tab-bar if you use tab-bar-mode
+  :after (treemacs)
+  :ensure t
+  :config (treemacs-set-scope-type 'Tabs))
+#+end_src
+
+** smex
+#+begin_src emacs-lisp
+(use-package smex
+  :ensure t)
+#+end_src
+** swiper & ivy & counsel
+
+[[https://github.com/abo-abo/swiper][Ivy]] is a generic completion mechanism for Emacs that aims to be more efficient,
+smaller, simpler, and smoother to use yet highly customizable.
+
+[[https://github.com/abo-abo/swiper][Swiper]] is a package for GNU Emacs that gives you an overview as you search for a
+regex. Based in ivy.
+
+[[https://github.com/abo-abo/swiper][Counsel]] provides versions of common Emacs commands that are customised to make
+the best use of ivy.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy
+    :ensure (ivy-hydra)
+    :diminish ivy-mode
+    :config
+    (setq smex-save-file (concat antares-emacs-temporal-directory "smex-items"))
+    (smex-initialize)
+    (setq ivy-use-virtual-buffers t
+          ivy-height 15)
+    (bind-keys :map ivy-minibuffer-map
+               ("<escape>" . minibuffer-keyboard-quit))
+    (ivy-mode t))
+
+  (use-package swiper
+      :ensure t
+      :config
+      (defun antares-swiper ()
+          (interactive)
+          (swiper)
+          (add-to-list 'regexp-search-ring (ivy--regex ivy-text))))
+
+  (use-package counsel
+    :bind (("<menu>"  . counsel-M-x)
+           ("C-h b" . counsel-descbinds))
+    :ensure t
+    :config
+    (setq counsel-ag-base-command "ag --nocolor --nogroup --smart-case --column %s"))
+#+END_SRC
+
+** hydra
+
+[[https://github.com/abo-abo/hydra][Hydra]] пакет GNU Emacs, который может использоваться для привязки команд в семейство горячих клавиш
+с общим префиксом - Hydra.
+
+Я использую его в качестве общего интерфейса для наиболее часто используемых
+команд в моём рабочем процессе. Он основан на предыдущей идее, которую я
+реализовывал в Vim с Unite, чтобы генерировать меню, в котором наиболее полезные
+команды отображались с помощью привязки клавиш для их активации. В то же время
+Unite работал в качестве интерфейса для нескольких из этих команд.
+
+В Emacs способ добиться такого же поведения иной потому, что благодаря многим
+разработчикам мы имеем две роли, которые Unite предпочитал разделять в моей
+конфигурации Vim на два отдельных способа:
+
++ Командный интерфейс:
+  Я использую наиболее подходящий для этого пакет - Ivy. Это эквивалент Unite в
+  Vim. Он работает в качестве основы для автодополнения и выбора для многих
+  команд и задач Emacs. Пока я не использую его на полную мощь, но думаю, что
+  буду применять в большом количестве задач.
+
++ Меню:
+  Вначале, имитируя проект [[https://github.com/syl20bnr/spacemacs][Spacemacs]], я использовал комбинации =evil-leader= и =guide-key=
+  для создания меню. Но при этом всплывали некоторые глюки и я не хочу
+  использовать активный Evil во всех буферах. После появилась Hydra и с первого
+  момента я понял, что она решает практически любую проблему, которая была в
+  предыдущей настройке. Она может использоваться по всему Emacs и она более
+  настраиваемая и более ориентированная к моей первоначальной цели.
+
+Я использую Hydra двумя способами:
+
++ Активация через "\", для вызова всех основных и пакетных меню. Используя его,
+  а иногда команду =counsel-descbinds= (C-h b), я могу видеть и запоминать все
+  наиболее полезные команды и привязки клавиш, которые есть в моём распоряжении
+  и это очень удобно. Больше не тратится времени на попытки вспомнить комбинации.
+
++ Активация через "," для работы в качестве Evil leader key (только когда активен
+  Evil) для доступа к меню общих задач, которые мне нужны когда я редактирую
+  текст (например комментирую область).
+
+Я всё ещё предпочитаю "язык" Evil, поэтому многие команды и пакеты
+сконфигурированы таким образом.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package hydra
+    :ensure t
+    :defer 0.1
+    :init
+    (bind-key "\\" 'hydra-master/body)
+    :config
+    (setq lv-use-separator t)
+    (set-face-attribute 'hydra-face-blue nil :foreground "deep sky blue" :weight 'bold)
+
+    (eval-and-compile
+      (defhydra hydra-common (:color blue)
+        ("<ESC>" nil "quit")))
+
+    (defhydra hydra-master (:color blue :idle 0.4)
+      "
+                                                                         ╭───────┐
+                                                                         │ Index │
+  ╭──────────────────────────────────────────────────────────────────────┴───────╯
+    [_a_] bookmarks    [^h^]               [_o_] organization  [^v^]
+    [_b_] buffers      [_i_] интернет      [_p_] project       [_w_] window
+    [_c_] flycheck     [_j_] jump          [_q_] exit          [_x_] shell
+    [_d_] development  [_k_] spell         [_r_] register      [^y^]
+    [_e_] emacs        [_l_] lisp          [_s_] поиск         [^z^]
+    [_f_] file         [_m_] media         [_t_] text
+    [_g_] git          [_n_] narrow        [^u^]
+  --------------------------------------------------------------------------------
+      "
+      ("<SPC>" antares-alternate-buffers "альтернативный буфер")
+      ("<ESC>" nil "выход")
+      ("\\" (insert "\\") "\\")
+      ("a"     hydra-bookmarks/body nil)
+      ("b"     hydra-buffers/body nil)
+      ("c"     hydra-flycheck/body nil)
+      ("d"     hydra-development/body nil)
+      ("e"     hydra-emacs/body nil)
+      ("f"     hydra-file/body nil)
+      ("g"     hydra-git/body nil)
+      ("i"     hydra-internet/body nil)
+      ("j"     hydra-jump/body nil)
+      ("k"     hydra-spell/body nil)
+      ("l"     hydra-lisp/body nil)
+      ("m"     hydra-media/body nil)
+      ("n"     hydra-narrow/body nil)
+      ("o"     hydra-organization/body nil)
+      ("p"     hydra-project/body nil)
+      ("q"     hydra-exit/body nil)
+      ("r"     hydra-register/body nil)
+      ("s"     hydra-search/body nil)
+      ("t"     hydra-text/body nil)
+      ;; ("v"     hydra-games/body nil)
+      ("w"     ace-window nil)
+      ("x"     hydra-system/body nil))
+
+    (defhydra hydra-bookmarks (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+      "
+                                                                     ╭───────────┐
+         List                          Do                            │ Bookmarks │
+  ╭──────────────────────────────────────────────────────────────────┴───────────╯
+    [_l_] list bookmarks            [_j_] jump to a bookmark
+     ^ ^                            [_m_] set bookmark at point
+     ^ ^                            [_s_] save bookmarks
+  --------------------------------------------------------------------------------
+      "
+      ("j" bookmark-jump)
+      ("l" list-bookmarks)
+      ("m" bookmark-set)
+      ("s" bookmark-save))
+
+    (defhydra hydra-buffers (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+      "
+                                                                       ╭─────────┐
+    Switch                 Do                                          │ Buffers │
+  ╭────────────────────────────────────────────────────────────────────┴─────────╯
+    [_b_] switch             [_d_] kill the buffer
+    [_i_] ibuffer            [_r_] toggle read-only mode
+    [_a_] alternate          [_u_] revert buffer changes
+     ^ ^                     [_w_] save buffer
+  --------------------------------------------------------------------------------
+      "
+      ("a" antares-alternate-buffers)
+      ("b" ivy-switch-buffer)
+      ("d" kill-this-buffer)
+      ("i" ibuffer)
+      ("r" read-only-mode)
+      ("u" antares-revert-buffer)
+      ("w" save-buffer))
+
+      (defhydra hydra-flycheck (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+        "
+                                                                      ╭──────────┐
+     Navigate          Show Errors                  Do                │ Flycheck │
+  ╭───────────────────────────────────────────────────────────────────┴──────────╯
+     ^_p_^revious     [_l_] list errors           [_t_] toggle Flycheck
+        ^^↑^^         [_d_] clear all errors      [_c_] select checker
+      ^_f_^irst        ^ ^                        [_r_] run via compile
+        ^^↓^^          ^ ^                        [_h_] describe checker
+      ^_n_^ext
+  --------------------------------------------------------------------------------
+        "
+        ("c" flycheck-select-checker)
+        ("h" flycheck-describe-checker)
+        ("d" flycheck-clear)
+        ("f" flycheck-first-error)
+        ("l" flycheck-list-errors)
+        ("n" flycheck-next-error :color red)
+        ("p" flycheck-previous-error :color red)
+        ("r" flycheck-compile)
+        ("t" flycheck-mode))
+
+      (defhydra hydra-development (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+        "
+                                                                   ╭─────────────┐
+       Code                   Web                 Quickrun         │ Development │
+  ╭────────────────────────────────────────────────────────────────┴─────────────╯
+    [_d_] search docs (at point) [_c_] Web Colors          [_q_] buffer
+     ^ ^                         [_h_] HTTP header         [_v_] region
+     ^ ^                         [_m_] HTTP method         [_x_] shell
+     ^ ^                         [_r_] HTTP relation       [_p_] with arg
+     ^ ^                         [_s_] HTTP status code    [_o_] only compile
+     ^ ^                         [_t_] Media types         [_R_] replace
+     ^ ^                         [_g_] RESTclient          [_e_] eval/print
+     ^ ^                         [_f_] RFC doc
+    [_l_] lines of code          [_F_] RFC index
+  --------------------------------------------------------------------------------
+        "
+        ("d" devdocs-search)
+        ("c" counsel-colors-web)
+        ("g" restclient-mode)
+        ("f" irfc-visit)
+        ("F" irfc-index)
+        ("q" quickrun)
+        ("v" quickrun-region)
+        ("x" quickrun-shell)
+        ("p" quickrun-with-arg)
+        ("o" quickrun-compile-only)
+        ("R" quickrun-replace-region)
+        ("e" quickrun-eval-print)
+        ("h" http-header)
+        ("m" http-method)
+        ("r" http-relation)
+        ("s" http-status-code)
+        ("t" media-type)
+        ("l" cloc))
+
+    (defhydra hydra-emacs (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+        "
+                                                                         ╭───────┐
+     Execute       Packages         Help                     Misc        │ Emacs │
+  ╭──────────────────────────────────────────────────────────────────────┴───────╯
+    [_x_] counsel M-x [_p_] list      [_f_] describe function [_t_] change theme
+     ^ ^              [_i_] install   [_v_] describe variable [_l_] list emacs process
+     ^ ^              [_u_] upgrade   [_m_] info manual       [_c_] init time
+     ^ ^               ^ ^            [_k_] bindings          [_e_] benchmark init
+     ^ ^               ^ ^            [_b_] personal bindings [_o_] unbound commands
+     ^ ^               ^ ^             ^ ^                    [_y_] emacs colors
+     ^ ^               ^ ^             ^ ^                    [_z_] list faces
+     ^ ^               ^ ^             ^ ^                    [_s_] transparency
+  --------------------------------------------------------------------------------
+        "
+        ("C-h b" counsel-descbinds "bindings")
+        ("f" counsel-describe-function)
+        ("v" counsel-describe-variable)
+        ("b" describe-personal-keybindings)
+        ("c" emacs-init-time)
+        ("i" package-install)
+        ("k" counsel-descbinds)
+        ("l" list-processes)
+        ("m" info-display-manual)
+        ("p" paradox-list-packages)
+        ("s" transparency)
+        ("t" counsel-load-theme)
+        ("u" paradox-upgrade-packages)
+        ("e" esup)
+        ("o" smex-show-unbound-commands)
+        ("y" counsel-colors-emacs)
+        ("z" counsel-faces)
+        ("x" counsel-M-x))
+
+    (defhydra hydra-file (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+        "
+                                                                          ╭──────┐
+       Ivy                    Dired        Ztree                          │ File │
+  ╭───────────────────────────────────────────────────────────────────────┴──────╯
+    [_o_] open file        [_d_] dired         [_z_] diff dirs
+    [_e_] open file extern [_r_] ranger
+  --------------------------------------------------------------------------------
+        "
+        ("o" counsel-find-file)
+        ("e" counsel-find-file-extern)
+        ("z" ztree-diff)
+        ("d" dired)
+        ("r" ranger))
+
+
+    (defhydra hydra-text (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+        "
+                                                                          ╭──────┐
+   Size  Toggle              Unicode                        Do            │ Text │
+  ╭───────────────────────────────────────────────────────────────────────┴──────╯
+    _k_  [_f_] fill column     [_d_] unicode character           [_a_] align with regex
+    ^↑^  [_h_] hidden chars    [_e_] evil digraphs table         [_w_] remove trailing ' '
+    ^ ^  [_l_] line numbers    [_s_] specific code block         [_n_] count words
+    ^↓^  [_t_] trailing ' '    [_u_] unicode character           [_i_] lorem ipsum
+    _j_  [_v_] font space      [_p_] character code              [_x_] comment box
+    ^ ^  [_c_] comment          ^ ^                              [_q_] boxquote
+    ^ ^  [_b_] multibyte chars  ^ ^                              [_m_] iedit (multiple)
+    ^ ^   ^ ^                   ^ ^                              [_r_] expand region
+    ^ ^   ^ ^                   ^ ^                              [_U_] tabs to spaces
+  --------------------------------------------------------------------------------
+        "
+        ("a" align-regexp)
+        ("b" toggle-enable-multibyte-characters)
+        ("c" comment-line)
+        ("d" insert-char)
+        ("e" evil-ex-show-digraphs)
+        ("f" fci-mode)
+        ("h" whitespace-mode)
+        ("i" lorem-ipsum-insert-paragraphs)
+        ("k" text-scale-increase :color red)
+        ("j" text-scale-decrease :color red)
+        ("l" linum-mode)
+        ("n" count-words)
+        ("m" iedit)
+        ("p" describe-char)
+        ("r" er/expand-region)
+        ("s" charmap)
+        ("t" antares-toggle-show-trailing-whitespace)
+        ("u" counsel-unicode-char)
+        ("v" variable-pitch-mode)
+        ("w" whitespace-cleanup)
+        ("U" untabify)
+        ("q" hydra-boxquote/body)
+        ("x" comment-box))
+
+    (defhydra hydra-git (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+        "
+                                                                           ╭─────┐
+     Magit                          VC                    Timemachine      │ Git │
+  ╭────────────────────────────────────────────────────────────────────────┴─────╯
+    [_s_] status              [_d_] diffs between revisions  [_t_] timemachine
+    [_B_] blame mode          [_b_] edition history
+    [_l_] file log
+  --------------------------------------------------------------------------------
+        "
+        ("B" magit-blame-mode)
+        ("b" vc-annotate)
+        ("d" vc-diff)
+        ("l" magit-file-log)
+        ("s" magit-status)
+        ("t" git-timemachine))
+
+    (defhydra hydra-internet (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+        "
+                                                                      ╭──────────┐
+      Browse       Search              Social               Post      │ Internet │
+  ╭───────────────────────────────────────────────────────────────────┴──────────╯
+    [_w_] eww      [_b_] DuckDuckGo       [_f_] elfeed            [_i_] imgur
+    [_u_] url      [_e_] DuckDuckGo (eww) [_x_] stack overflow
+     ^ ^           [_m_] google maps
+     ^ ^           [_d_] wordnik
+  --------------------------------------------------------------------------------
+        "
+        ("w" eww)
+        ("u" browse-url-at-point)
+        ("b" (antares-duckduckgo-search t))
+        ("e" (antares-duckduckgo-search nil))
+        ("m" google-maps)
+        ("d" define-word-at-point)
+        ("f" elfeed)
+        ("x" sx-tab-newest)
+        ("i" imgur-post))
+
+    (defhydra hydra-jump (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+        "
+                                                                          ╭──────┐
+    Window          Word/Char        Line         iSearch                 │ Jump │
+  ╭───────────────────────────────────────────────────────────────────────┴──────╯
+    [_w_] jump        [_j_] word         [_l_] jump     [_i_] jump
+    [_d_] close       [_p_] all words    [_y_] copy
+    [_z_] maximize    [_b_] subword      [_m_] move
+    [_s_] swap        [_c_] char         [_v_] copy region
+     ^ ^              [_a_] two chars
+  --------------------------------------------------------------------------------
+        "
+        ("w" ace-window)
+        ("d" ace-delete-window)
+        ("z" ace-maximize-window)
+        ("s" ace-swap-window)
+        ("j" avy-goto-word-1)
+        ("p" avy-goto-word-0)
+        ("b" avy-goto-subword-0)
+        ("c" avy-goto-char)
+        ("a" avy-goto-char-2)
+        ("l" avy-goto-line)
+        ("y" avy-copy-line)
+        ("m" avy-move-line)
+        ("v" avy-copy-region)
+        ("i" avy-isearch))
+
+    (defhydra hydra-spell (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+        "
+                                                                         ╭───────┐
+      Flyspell               Ispell                      Gtranslate      │ Spell │
+  ╭──────────────────────────────────────────────────────────────────────┴───────╯
+    [_k_] correct word       [_w_] check word            [_g_] en ⇆ ru
+    [_n_] next error         [_t_] toggle dictionary     [_G_] any lang
+    [_f_] toggle flyspell    [_d_] change dictionary
+    [_p_] toggle prog mode
+  --------------------------------------------------------------------------------
+        "
+        ("w" ispell-word)
+        ("d" ispell-change-dictionary)
+        ("t" antares-switch-dictionary)
+        ("g" google-translate-smooth-translate)
+        ("G" google-translate-query-translate)
+        ("f" flyspell-mode)
+        ("p" flyspell-prog-mode)
+        ("k" flyspell-correct-word-generic)
+        ("n" flyspell-goto-next-error))
+
+    (defhydra hydra-lisp (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+        "
+                                                                          ╭──────┐
+      Elisp              Bug hunter                                       │ Lisp │
+  ╭───────────────────────────────────────────────────────────────────────┴──────╯
+    [_r_] eval region    [_f_] file
+    [_s_] eval sexp      [_i_] init-file
+    [_b_] eval buffer
+  --------------------------------------------------------------------------------
+        "
+        ("f" bug-hunter-file)
+        ("i" bug-hunter-init-file)
+        ("r" eval-region)
+        ("b" eval-buffer)
+        ("s" eval-last-sexp))
+
+    (defhydra hydra-narrow (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+        "
+                                                                        ╭────────┐
+      Narrow                                                            │ Narrow │
+  ╭─────────────────────────────────────────────────────────────────────┴────────╯
+    [_f_] narrow to defun
+    [_p_] narrow to page
+    [_r_] narrow to region
+    [_w_] widen
+  --------------------------------------------------------------------------------
+        "
+        ("f" narrow-to-defun)
+        ("p" narrow-to-page)
+        ("r" narrow-to-region)
+        ("w" widen))
+
+    (defhydra hydra-project (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+        "
+                                                                    ╭────────────┐
+    Files             Search          Buffer             Do         │ Projectile │
+  ╭─────────────────────────────────────────────────────────────────┴────────────╯
+    [_f_] file          [_a_] ag          [_b_] switch         [_g_] magit
+    [_l_] file dwim     [_A_] grep        [_v_] show all       [_p_] commander
+    [_r_] recent file   [_s_] occur       [_V_] ibuffer        [_i_] info
+    [_d_] dir           [_S_] replace     [_K_] kill all
+    [_o_] other         [_t_] find tag
+    [_u_] test file     [_T_] make tags
+    [_h_] root
+                                                                        ╭────────┐
+    Other Window      Run             Cache              Do             │ Fixmee │
+  ╭──────────────────────────────────────────────────╯ ╭────────────────┴────────╯
+    [_F_] file          [_U_] test        [_kc_] clear         [_x_] TODO & FIXME
+    [_L_] dwim          [_m_] compile     [_kk_] add current   [_X_] toggle
+    [_D_] dir           [_c_] shell       [_ks_] cleanup
+    [_O_] other         [_C_] command     [_kd_] remove
+    [_B_] buffer
+  --------------------------------------------------------------------------------
+        "
+        ("a"   projectile-ag)
+        ("A"   projectile-grep)
+        ("b"   projectile-switch-to-buffer)
+        ("B"   projectile-switch-to-buffer-other-window)
+        ("c"   projectile-run-async-shell-command-in-root)
+        ("C"   projectile-run-command-in-root)
+        ("d"   projectile-find-dir)
+        ("D"   projectile-find-dir-other-window)
+        ("f"   projectile-find-file)
+        ("F"   projectile-find-file-other-window)
+        ("g"   projectile-vc)
+        ("h"   projectile-dired)
+        ("i"   projectile-project-info)
+        ("kc"  projectile-invalidate-cache)
+        ("kd"  projectile-remove-known-project)
+        ("kk"  projectile-cache-current-file)
+        ("K"   projectile-kill-buffers)
+        ("ks"  projectile-cleanup-known-projects)
+        ("l"   projectile-find-file-dwim)
+        ("L"   projectile-find-file-dwim-other-window)
+        ("m"   projectile-compile-project)
+        ("o"   projectile-find-other-file)
+        ("O"   projectile-find-other-file-other-window)
+        ("p"   projectile-commander)
+        ("r"   projectile-recentf)
+        ("s"   projectile-multi-occur)
+        ("S"   projectile-replace)
+        ("t"   projectile-find-tag)
+        ("T"   projectile-regenerate-tags)
+        ("u"   projectile-find-test-file)
+        ("U"   projectile-test-project)
+        ("v"   projectile-display-buffer)
+        ("V"   projectile-ibuffer)
+        ("X"   fixmee-mode)
+        ("x"   fixmee-view-listing))
+
+    (defhydra hydra-exit (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+        "
+                                                                          ╭──────┐
+     Quit                                                                 │ Exit │
+  ╭───────────────────────────────────────────────────────────────────────┴──────╯
+    [_c_] exit emacs (standalone or client)
+    [_s_] shutdown the emacs daemon
+  --------------------------------------------------------------------------------
+        "
+        ("c" save-buffers-kill-terminal)
+        ("s" save-buffers-kill-emacs))
+
+    (defhydra hydra-register (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+        "
+                                                                      ╭──────────┐
+     Logs                        Registers                Undo        │ Register │
+  ╭───────────────────────────────────────────────────────────────────┴──────────╯
+    [_c_] commands history       [^e^] emacs registers    [_u_] undo tree
+    [_o_] messages               [_r_] evil registers
+    [_l_] lossage (keystrokes)   [_m_] evil marks
+    [_d_] diff buffer with file  [_k_] kill ring
+  --------------------------------------------------------------------------------
+        "
+        ("d" antares-diff-buffer-with-file)
+        ("k" counsel-yank-pop)
+        ("l" view-lossage)
+        ("c" counsel-command-history)
+        ("m" evil-show-marks)
+        ("o" view-echo-area-messages)
+        ("r" evil-show-registers)
+        ("u" undo-tree-visualize))
+
+    (defhydra hydra-search (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+        "
+                                                                        ╭────────┐
+     Files                             Buffer                           │ Search │
+  ╭─────────────────────────────────────────────────────────────────────┴────────╯
+    [_a_] regex search (Ag)           [_b_] by word
+    [_r_] regex search (rg)           [_o_] by word (opened buffers)
+    [_p_] regex search (pt)           [_w_] by word (multi)
+    [_g_] regex search (grep)         [_h_] by word (grep or swiper)
+    [^f^] find                        [_t_] tags & titles
+    [_l_] locate                      [_s_] semantic
+  --------------------------------------------------------------------------------
+        "
+        ("a" (let ((current-prefix-arg "-."))
+               (call-interactively 'counsel-ag)))
+        ("r" (let ((current-prefix-arg "-."))
+               (call-interactively 'counsel-rg)))
+        ("p" (let ((current-prefix-arg "-."))
+               (call-interactively 'counsel-pt)))
+        ("g" rgrep)
+        ("l" counsel-locate)
+        ("b" swiper)
+        ("o" swiper-all)
+        ("h" counsel-grep-or-swiper)
+        ("t" counsel-imenu)
+        ("s" counsel-semantic)
+        ("w" swiper-multi))
+
+    (defhydra hydra-system (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+        "
+                                                                        ╭────────┐
+     Terminals                     System                               │ System │
+  ╭─────────────────────────────────────────────────────────────────────┴────────╯
+    [_s_] new multi-term           [_c_] shell command
+    [_n_] next multi-term          [_a_] aync shell command
+    [_p_] previous multi-term      [_m_] man page
+    [_d_] dedicated multi-term     [_l_] list system process
+    [_e_] eshell
+  --------------------------------------------------------------------------------
+        "
+        ("a" async-shell-command)
+        ("c" shell-command)
+        ("e" eshell)
+        ("m" man)
+        ("l" proced)
+        ("s" multi-term)
+        ("n" multi-term-next)
+        ("p" multi-term-previous)
+        ("d" multi-term-dedicated-toggle))
+
+    (defhydra hydra-media (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+        "
+                                                                         ╭───────┐
+     Mingus              Mpd                     Volume                  │ Media │
+  ╭──────────────────────────────────────────────────────────────────────┴───────╯
+   [_m_] mingus         [_n_] next song          [_-_] volume down
+   [_f_] search         [_p_] previous song      [_+_] volume up
+   [_l_] playlist       [_c_] clear playlist
+   [_a_] All            [_t_] pause
+    ^ ^                 [_s_] stop
+    ^ ^                 [_d_] start daemon
+  --------------------------------------------------------------------------------
+        "
+        ("m" mingus)
+        ("f" mingus-search)
+        ("c" mingus-clear)
+        ("n" mingus-next)
+        ("p" mingus-prev)
+        ("t" mingus-toggle)
+        ("s" mingus-stop)
+        ("d" mingus-start-daemon)
+        ("l" mingus-load-playlist)
+        ("a" mingus-load-all)
+        ("-" mingus-vol-down)
+        ("\+" mingus-vol-up))
+
+    (defhydra hydra-organization (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+        "
+                                                                  ╭──────────────┐
+       Tasks            Org mode               Comms      Others  │ Organization │
+  ╭───────────────────────────────────────────────────────────────┴──────────────╯
+    [_a_] agenda      [_c_] capture             [_m_] почта      [_x_] speed type
+    [_l_] agenda list [_p_] pomodoro            [_t_] контакты
+    [_d_] календарь   [_s_] search headings     [_h_] add location
+     ^ ^              [_g_] open location gmaps
+     ^ ^              [_f_] archive subtree
+  --------------------------------------------------------------------------------
+        "
+        ("a" org-agenda)
+        ("c" org-capture)
+        ("s" counsel-org-agenda-headlines)
+        ("d" cfw:open-org-calendar)
+        ("g" org-location-google-maps)
+        ("h" org-address-google-geocode-set)
+        ("l" org-agenda-list)
+        ("f" org-archive-subtree)
+        ("m" mu4e)
+        ("p" org-pomodoro)
+        ("t" org-contacts)
+        ("x" speed-type-text))
+
+     (defhydra hydra-leader ( :color blue :hint nil :idle 0.4)
+         "
+                                                                        ╭───────┐
+     Переключить                   Сделать                              │ Лидер │
+  ╭─────────────────────────────────────────────────────────────────────┴───────╯
+    [_c_] comment                  [_a_] align with regex
+    [_f_] fill column              [_p_] показать код символа
+    [_h_] непечатуемые символы     [_i_] вставить символ unicode
+    [_e_] trailing whitespace      [_<SPC>_] remove trailing whitespaces
+    [_v_] font space               [_u_] дерево отмен
+     ^ ^                           [_j_] jump word
+     ^ ^                           [_x_] comment box
+     ^ ^                           [_r_] expand region
+     ^ ^                           [_m_] iedit (multiple edit)
+     ^ ^                           [_g_] google translate
+     ^ ^                           [_s_] swiper
+     ^ ^                           [_t_] counsel imenu
+     ^ ^                           [_q_] quick-calc
+  -------------------------------------------------------------------------------
+        "
+        ("<escape>" nil "выход")
+        ("a" align-regexp)
+        ("c" comment-lines)
+        ("r" er/expand-region)
+        ("f" fci-mode)
+        ("g" google-translate-smooth-translate)
+        ("h" whitespace-mode)
+        ("i" counsel-unicode-char)
+        ("j" avy-goto-word-1)
+        ("m" iedit-mode)
+        ("n" count-words)
+        ("p" describe-char)
+        ("e" antares-toggle-show-trailing-whitespace)
+        ("u" undo-tree-visualize)
+        ("v" variable-pitch-mode)
+        ("<SPC>" whitespace-cleanup)
+        ("s" antares-swiper)
+        ("t" counsel-imenu)
+        ("q" (quick-calc t))
+        ("x" comment-box)))
+#+END_SRC
+
+** projectile
+
+[[https://github.com/bbatsov/projectile][Projectile]] библиотека проектного взаимодействия для Emacs.
+Цель библиотеки- обеспечение набора функция, работающих на уровне проекта без
+внешних зависимостей (по фозможности). Например - поиск файлов проекта имеет
+портативную реализацию, написанную на чистом Emacs Lisp, без использования GUI
+поиска (но ради производительности используется внешний механизм индексирования
+с помощью внешних команд).
+
+#+BEGIN_SRC emacs-lisp
+  (use-package projectile
+    :ensure t
+    :diminish projectile-mode
+    :config
+    (progn
+      (setq projectile-cache-file (concat antares-emacs-temporal-directory "projectile.cache")
+      projectile-known-projects-file (concat antares-emacs-temporal-directory "projectile-bookmarks.eld")
+      projectile-enable-caching t)
+      (projectile-global-mode)))
+#+END_SRC
+
+** org-mode
+#+begin_src emacs-lisp
+  (use-package org
+    :ensure t
+    :defer t
+    ;; :mode "\\.org\\'"
+    :pin manual
+    :config
+    (progn
+      ;; укажем модули, включённые по умолчанию
+      (setq org-modules '(
+                          ol-bbdb
+                          ol-bibtex
+                          ol-docview
+                          ol-mhe
+                          ol-rmail
+                          org-crypt
+                          org-protocol
+                          ol-gnus
+                          org-id
+                          ol-info
+                          org-habit
+                          ol-irc
+                          ;; org-annotate-file
+                          ob-eval
+                          ob-go
+                          ;; org-expiry
+                          ol-man
+                          ;; org-panel
+                          ;; org-toc
+                          org-tempo
+                          ))
+
+      ;; Настройка директории по умолчанию
+      (setq org-directory "~/Dropbox/org"
+            org-default-notes-file (concat org-directory "/notes.org"))
+
+      ;; Настройка архива
+      (setq org-archive-location "~/Dropbox/org/archive/%s_archive::datetree/** Archived")
+      (setq org-agenda-custom-commands
+            '(("Q" . "Custom queries") ;; gives label to "Q"
+              ("Qa" "Archive search" search ""
+               ((org-agenda-files (file-expand-wildcards "~/Dropbox/org/archive/*.org_archive"))))
+              ;; ...Тут прочие команды
+              ))
+
+      ;; Подсветка синтаксиса в блоках кода
+      (setq org-src-fontify-natively  t
+            org-src-tab-acts-natively t)
+      (add-to-list 'org-src-lang-modes (quote ("dot" . graphviz-dot)))
+
+      ;; Более правильное регулярное выражение для экспорта в HTML в качестве замены Markdown
+      (org-set-emph-re 'org-emphasis-regexp-components
+                       '(" \t({"
+                         "- \t.,:!?;)}[:multibyte:]"
+                         " \t\r\n,"
+                         "."
+                         1))
+
+      ;; Подсветка синтаксиса в блоках кода при экспорте в PDF
+      ;; Подключим latex-exporter
+      ;; (use-package ox-latex)
+      ;; Add minted to the defaults packages to include when exporting.
+      (add-to-list 'org-latex-packages-alist '("" "minted"))
+      (add-to-list 'org-latex-packages-alist '("" "xunicode"))
+      ;; Tell the latex export to use the minted package for source
+      ;; code coloration.
+      (setq org-latex-listings 'minted)
+      ;; Let the exporter use the -shell-escape option to let latex
+      ;; execute external programs.
+      ;; This obviously and can be dangerous to activate!
+      (setq org-latex-pdf-process
+            '("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+
+      ;; Управление задачами
+      (setq org-log-done t)
+      (setq org-clock-idle-time nil)
+
+      ;; Планировщик и дневник
+      (setq org-agenda-include-diary t)
+      ;;(setq org-agenda-diary-file diary-file)
+      (setq org-agenda-files '("~/Dropbox/org/Agenda" "~/Dropbox/org/webinar.org"))
+      (setq org-agenda-inhibit-startup t)
+
+      ;; Отключим стандартные праздники
+      (setq holiday-bahai-holidays nil
+            holiday-other-holidays nil
+            holiday-local-holidays nil
+            holiday-solar-holidays nil
+            holiday-hebrew-holidays nil
+            holiday-general-holidays nil
+            holiday-islamic-holidays nil
+            holiday-oriental-holidays nil
+            holiday-christian-holidays nil)
+
+      ;; конфигурация внешних приложений для открытия файлов
+      (setq org-file-apps
+            '(("\\.pdf\\'" . "zathura %s")
+              ("\\.gnumeric\\'" . "gnumeric %s")))
+
+      ;; protect hidden trees for being inadvertily edited (do not work with evil)
+      (setq-default org-catch-invisible-edits  'error
+                    org-ctrl-k-protect-subtree 'error)
+
+      ;; Показ картинок в тексте
+      ;; работает только в GUI, но это удобная функция
+      (when (window-system)
+        (setq org-startup-with-inline-images t))
+      ;; Ограничение ширины картинок
+      (setq org-image-actual-width '(800))
+
+      ;; :::::: Org-Babel ::::::
+
+      ;; Поддержка языков программирования
+      (org-babel-do-load-languages
+       (quote org-babel-load-languages)
+       (quote (
+               (calc . t)
+               (clojure . t)
+               (ditaa . t)
+               (dot . t)
+               (emacs-lisp . t)
+               (gnuplot . t)
+               ;; (go . t)
+               (latex . t)
+               ;; (ledger . t)
+               (octave . t)
+               (org . t)
+               (makefile . t)
+               (plantuml . t)
+               (python . t)
+               (R . t)
+               (ruby . t)
+               ;; (sh . t)
+               (sqlite . t)
+               (sql . nil))))
+      (setq org-babel-python-command "python")
+
+      ;; refresh images after execution
+      (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
+
+      ;; don't ask confirmation to execute "safe" languages
+      (defun antares-org-confirm-babel-evaluate (lang body)
+        (and (not (string= lang "ditaa"))
+             (not (string= lang "dot"))
+             (not (string= lang "go"))
+             (not (string= lang "gnuplot"))
+             (not (string= lang "ledger"))
+             (not (string= lang "plantuml"))))
+
+      (setq org-confirm-babel-evaluate 'antares-org-confirm-babel-evaluate)
+      (setq org-log-done 'time
+            org-confirm-babel-evaluate nil
+            org-export-babel-evaluate nil
+            org-html-validation-link nil)))
+#+end_src
+** org-bullets
+#+begin_src emacs-lisp
+(use-package org-bullets
+  :ensure t
+  ;; :defer t
+  ;; :mode "*\\.org$"
+  :after org
+  :config
+  (setq org-bullets-bullet-list '("◉" "○" "✸" "✿" "☼" "⚬"))
+  (add-hook 'org-mode-hook 'org-bullets-mode))
+#+end_src
+
+** org-present
+#+begin_src emacs-lisp
+(use-package org-present
+  :ensure t
+  :after org)
+#+end_src
+** RestClient
+#+begin_src emacs-lisp
+(use-package restclient
+  :ensure t
+  :mode (("\\.http\\'" . restclient-mode)))
+#+end_src
+** TODOtxt
+#+begin_src emacs-lisp
+(use-package todotxt
+  :ensure t)
+#+end_src
+
+** TODO boxquote
+
+[[https://github.com/davep/boxquote.el/blob/master/boxquote.el][boxquote.el]] предоставляет набор функций для использования
+текста в стиле цитат. Текст частично выделен в левой части. Такая разметка
+текста может быть использована для показа включённого внешнего текста или пример
+кода.
+
+Так выглядит boxquote:
+#+BEGIN_EXAMPLE
+╭────[ Lorem ipsum ]
+│ Nullam eu ante vel est convallis dignissim.  Fusce suscipit, wisi nec facilisis
+│ facilisis, est dui fermentum leo, quis tempor ligula erat quis odio.  Nunc porta
+│ vulputate tellus.  Nunc rutrum turpis sed pede.  Sed bibendum.  Aliquam posuere.
+│ Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada massa, quis
+│ varius mi purus non odio.  Pellentesque condimentum, magna ut suscipit
+│ hendrerit, ipsum augue ornare nulla, non luctus diam neque sit amet urna.
+╰────
+#+END_EXAMPLE
+
+#+BEGIN_SRC emacs-lisp
+  (use-package boxquote
+    :ensure t
+    :config
+    (setq-default  boxquote-bottom-corner "╰"      ; U+2570
+                   boxquote-side          "│ "     ; U+2572 + space
+                   boxquote-top-and-tail  "────"   ; U+2500 (×4)
+                   boxquote-top-corner    "╭")     ; U+256F
+  ;;   (when (package-installed-p 'hydra)
+  ;;     (eval-and-compile
+  ;;       (defhydra hydra-boxquote (:color blue :hint nil)
+  ;;        "
+  ;;                                                                     ╭──────────┐
+  ;;   Текст          External           Apropos         Do              │ Boxquote │
+  ;; ╭───────────────────────────────────────────────────────────────────┴──────────╯
+  ;;   [_r_] region        [_f_] file      [_K_] describe-key        [_t_] title
+  ;;   [_p_] paragraph     [_b_] buffer    [_F_] describe-function   [_u_] unbox
+  ;;   [_a_] buffer        [_s_] shell     [_V_] describe-variable   [_w_] fill-paragraph
+  ;;   [_e_] text           ^ ^            [_W_] where-is            [_n_] narrow
+  ;;   [_d_] defun         [_y_] yank       ^ ^                      [_c_] narrow to content
+  ;;   [_q_] boxquote      [_Y_] yanked     ^ ^                      [_x_] kill
+  ;; --------------------------------------------------------------------------------
+  ;;        "
+  ;;       ("<esc>" nil "quit")
+  ;;       ("x" boxquote-kill)
+  ;;       ("Y" boxquote-yank)
+  ;;       ("e" boxquote-text)
+  ;;       ("u" boxquote-unbox)
+  ;;       ("d" boxquote-defun)
+  ;;       ("t" boxquote-title)
+  ;;       ("r" boxquote-region)
+  ;;       ("a" boxquote-buffer)
+  ;;       ("q" boxquote-boxquote)
+  ;;       ("W" boxquote-where-is)
+  ;;       ("p" boxquote-paragraph)
+  ;;       ("f" boxquote-insert-file)
+  ;;       ("K" boxquote-describe-key)
+  ;;       ("s" boxquote-shell-command)
+  ;;       ("b" boxquote-insert-buffer)
+  ;;       ("y" boxquote-kill-ring-save)
+  ;;       ("w" boxquote-fill-paragraph)
+  ;;       ("F" boxquote-describe-function)
+  ;;       ("V" boxquote-describe-variable)
+  ;;       ("n" boxquote-narrow-to-boxquote)
+  ;;       ("c" boxquote-narrow-to-boxquote-content))))
+    )
+#+END_SRC
+
+** beacon
+
+[[https://github.com/Malabarba/beacon][Beacon]] дополнительный режим, который помогает в поиске курсора.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package beacon
+    :ensure t
+    :demand t
+    :config
+    (beacon-mode 1)
+    (setq beacon-push-mark 35
+          beacon-blink-when-focused t
+          beacon-color "deep sky blue"))
+#+END_SRC
+
+** async
+
+[[https://github.com/jwiegley/emacs-async][async.el]] модуль для создания асинхронных процессов в Emacs.
+
+#+begin_src emacs-lisp
+  (use-package async
+    :defer t
+    :ensure t
+    :config
+    (setq async-bytecomp-package-mode t))
+#+end_src
+
+** автодополнение
+
+[[https://github.com/auto-complete/auto-complete][Auto Complete Mode]] (aka =auto-complete.el=, =auto-complete-mode=) расширение
+которое автоматизирует и расширяет систему автодополнения.
+
+#+begin_src emacs-lisp
+  (use-package auto-complete
+    :ensure t
+    :demand t
+    :diminish auto-complete-mode
+    :config
+    (progn
+      (global-auto-complete-mode)
+      (add-to-list 'ac-sources 'ac-source-abbrev)
+      (add-to-list 'ac-sources 'ac-source-dictionary)
+      (add-to-list 'ac-sources 'ac-source-filename)
+      (add-to-list 'ac-sources 'ac-source-imenu)
+      (add-to-list 'ac-sources 'ac-source-semantic)
+      (add-to-list 'ac-sources 'ac-source-words-in-buffer)
+      ;; (add-to-list 'ac-sources 'ac-source-yasnippet)
+      (bind-keys :map ac-menu-map
+                 ("\C-n" . ac-next)
+                 ("\C-p" . ac-previous))
+      (setq ac-use-menu-map t
+            ac-ignore-case 'smart
+            ac-auto-start 2)
+      (ac-flyspell-workaround))
+
+    ;; файл в котором хранится история автодополнения.
+    (setq ac-comphist-file (concat antares-emacs-temporal-directory
+                                   "ac-comphist.dat"))
+
+    ;; грязный фикс для работы AC везде
+    (define-globalized-minor-mode real-global-auto-complete-mode
+      auto-complete-mode (lambda ()
+                           (if (not (minibufferp (current-buffer)))
+                             (auto-complete-mode 1))
+                           ))
+    (real-global-auto-complete-mode t))
+#+end_src
+** aria2c
+Основной режим для управления менеджером загрузок [[http://aria2.sourceforge.net/][aria2c]]
+#+begin_src emacs-lisp
+  (use-package aria2
+    :ensure t
+    ;; :config
+    ;; (setq aria2-add-evil-quirks t)
+    )
+#+end_src
+
+** bug-hunter
+
+[[https://github.com/Malabarba/elisp-bug-hunter][The Bug Hunter]] библиотека Emacs, которая ищет источник ошибки или
+неожиданного поведения внутри elisp файла конфигурации (обычно =init.el= или
+=.emacs=).
+
+#+begin_src emacs-lisp
+  (use-package bug-hunter
+    :ensure t
+    :commands (bug-hunter-file bug-hunter-init-file))
+#+end_src
+
+** calfw
+
+[[https://github.com/kiwanami/emacs-calfw][Calfw]] программа отображает календарь в буфере Emacs.
+
+#+begin_src emacs-lisp
+(use-package calfw
+  ;; :commands cfw:open-org-calendar
+  :defer 0.5
+  :ensure t
+  :config
+  (progn
+    ;; (use-package calfw-org)
+    ;; Unicode characters
+    (setq cfw:fchar-junction ?╋
+          cfw:fchar-vertical-line ?┃
+          cfw:fchar-horizontal-line ?━
+          cfw:fchar-left-junction ?┣
+          cfw:fchar-right-junction ?┫
+          cfw:fchar-top-junction ?┯
+          cfw:fchar-top-left-corner ?┏
+          cfw:fchar-top-right-corner ?┓)
+
+    ;; Месяцы
+    (setq calendar-month-name-array
+          ["Январь" "Февраль" "Март" "Апрель" "Май" "Июнь"
+           "Июль" "Август" "Сентябрь" "Октябрь" "Ноябрь" "Декабрь"])
+
+    ;; Дни недели
+    (setq calendar-day-name-array
+          ["Воскресенье" "Понедельник" "Вторник" "Среда" "Четверг"
+           "Пятница" "Суббота"])
+
+    ;; Первый день недели
+    (setq calendar-week-start-day 1) ; 0:Воскресенье, 1:Понедельник)
+
+    ;; Отключим показ праздников
+    (setq cfw:display-calendar-holidays nil)))
+(use-package calfw-org
+  :commands cfw:open-org-calendar
+  :ensure t
+  :after calfw)
+(use-package calfw-cal
+  :ensure t
+  :after calfw)
+#+end_src
+
+** charmap
+
+[[https://github.com/lateau/charmap][Charmap]] просмотр таблицы Unicode для Emacs.
+С помощью CharMap можно посмотреть таблицу Unicode основанную на стандарте Unicode 6.2.
+
+#+begin_src emacs-lisp
+   (use-package charmap
+     :commands charmap
+     :defer t
+     :ensure t
+     :config
+     (setq charmap-text-scale-adjust 2))
+#+end_src
+** TODO CIDER
+   [[https://github.com/clojure-emacs/cider][CIDER]] интерактивная среда разработки для Clojure
+#+BEGIN_SRC emacs-lisp
+  (use-package cider
+    :defer t
+    :ensure t
+  )
+#+END_SRC
+
+** cloc
+
+[[https://github.com/cosmicexplorer/cloc-emacs][cloc]] количество строк кода в буфере
+
+#+begin_src emacs-lisp
+  (use-package cloc
+    :ensure t
+    :commands cloc
+    :ensure-system-package (cloc . cloc))
+#+end_src
+
+** csv-mode
+
+[[https://github.com/emacsmirror/csv-mode][csv-mode]] основной режим для редактирования значений, разделённых запятой/символом.
+
+| Binding | Call                    | Do                                                                     |
+|---------+-------------------------+------------------------------------------------------------------------|
+| C-c C-v | csv-toggle-invisibility | Toggle invisibility of field separators when aligned                   |
+| C-c C-t | csv-transpose           | Rewrite rows (which may have different lengths) as columns             |
+| C-c C-c | csv-set-comment-start   | Set comment start for this CSV mode buffer to STRING                   |
+| C-c C-u | csv-unalign-fields      | Undo soft alignment and optionally remove redundant white space        |
+| C-c C-a | csv-align-fields        | Align all the fields in the region to form columns                     |
+| C-c C-z | csv-yank-as-new-table   | Yank fields as a new table starting at point                           |
+| C-c C-y | csv-yank-fields         | Yank fields as the ARGth field of each line in the region              |
+| C-c C-k | csv-kill-fields         | Kill specified fields of each line in the region                       |
+| C-c C-d | csv-toggle-descending   | Toggle csv descending sort ordering                                    |
+| C-c C-r | csv-reverse-region      | Reverse the order of the lines in the region                           |
+| C-c C-n | csv-sort-numeric-fields | Sort lines in region numerically by the ARGth field of each line       |
+| C-c C-s | csv-sort-fields         | Sort lines in region lexicographically by the ARGth field of each line |
+|---------+-------------------------+------------------------------------------------------------------------|
+
+#+begin_src emacs-lisp
+(use-package csv-mode
+  :ensure t
+  :mode (("\\.csv\\'" . csv-mode)))
+#+end_src
+
+** define-word
+
+[[https://github.com/abo-abo/define-word][define-word]] пакет GNU Emacs, позволяющий увидеть определение слова или фразы
+в точке, без необходимости переключаться в браузер.
+
+#+begin_src emacs-lisp
+  (use-package define-word
+    :ensure t
+    :defer t)
+#+end_src
+** diff-hl
+
+[[https://github.com/dgutov/diff-hl][diff-hl]] подсвечивает незакоммиченные изменения с левой стороны окна,
+позволяет перемещаться между ними и выборочно откатить их.
+
+| Bind    | Call                   | Do                                                                  |
+|---------+------------------------+---------------------------------------------------------------------|
+| C-x v = | diff-hl-diff-goto-hunk | Run VC diff command and go to the line corresponding to the current |
+| C-x v n | diff-hl-revert-hunk    | Revert the diff hunk with changes at or above the point             |
+| C-x v [ | diff-hl-previous-hunk  | Go to the beginning of the previous hunk in the current buffer      |
+| C-x v ] | diff-hl-next-hunk      | Go to the beginning of the next hunk in the current buffer          |
+|---------+------------------------+---------------------------------------------------------------------|
+
+#+begin_src emacs-lisp
+  (use-package diff-hl
+    :ensure t
+    :init
+    (progn
+      (add-hook 'dired-mode-hook  'diff-hl-dired-mode)
+      (add-hook 'org-mode-hook    'turn-on-diff-hl-mode)
+      (add-hook 'prog-mode-hook   'turn-on-diff-hl-mode)
+      (add-hook 'vc-dir-mode-hook 'turn-on-diff-hl-mode)))
+#+end_src
+
+** esup
+
+[[https://github.com/jschaf/esup][Esup]] пакет для тестирования времени запуска Emacs даже без выхода из Emacs.
+
+#+begin_src emacs-lisp
+  (use-package esup
+    :ensure t
+    :commands esup)
+#+end_src
+** fill-column-indicator
+
+[[https://github.com/alpaker/Fill-Column-Indicator][fill-column-indicator]] переключает вертикальный столбец, указывающий на заполнение строки.
+
+#+begin_src emacs-lisp
+  (use-package fill-column-indicator
+    :ensure t
+    :commands fci-mode
+    :demand t
+    :config
+    (progn
+      (setq fci-rule-column 79)
+      (add-hook 'prog-mode-hook 'fci-mode))
+    (fci-mode))
+#+end_src
+
+** fixmee
+
+[[https://github.com/rolandwalker/fixmee][fixmee]] для быстрой навигации к FIXME и TODO меткам в Emacs.
+
+| Binding | Call                             | Do                                       |
+|---------+----------------------------------+------------------------------------------|
+| C-c f   | fixmee-goto-nextmost-urgent      | Go to the next TODO/FIXME                |
+| C-c F   | fixmee-goto-prevmost-urgent      | Go to the previous TODO/FIXME            |
+| C-c v   | fixmee-view-listing              | View the list of TODOs                   |
+| M-n     | fixmee-goto-next-by-position     | Go to the next TODO/FIXME (above a TODO) |
+| M-p     | fixmee-goto-previous-by-position | Go to the next TODO/FIXME (above a TODO) |
+
+#+BEGIN_SRC emacs-lisp
+  (use-package fixmee
+    :ensure t
+    ;; :elpaca ignore-maybe
+    :diminish fixmee-mode
+    :after pcache
+    :commands (fixmee-mode fixmee-view-listing)
+    :init
+    (add-hook 'prog-mode-hook 'fixmee-mode))
+  (use-package button-lock
+    :diminish button-lock-mode)
+#+END_SRC
+
+** ibuffer-vc
+
+[[https://github.com/purcell/ibuffer-vc][ibuffer-vc]] поакзывает буферы сгруппированные по системам контроля версий.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ibuffer-vc
+    :ensure t
+    :commands ibuffer
+    :init
+    (add-hook 'ibuffer-hook
+              (lambda ()
+                (ibuffer-vc-set-filter-groups-by-vc-root)
+                (unless (eq ibuffer-sorting-mode 'alphabetic)
+                  (ibuffer-do-sort-by-alphabetic))))
+    :config
+    (setq ibuffer-formats
+          '((mark modified read-only vc-status-mini " "
+                  (name 18 18 :left :elide)
+                  " "
+                  (size 9 -1 :right)
+                  " "
+                  (mode 16 16 :left :elide)
+                  " "
+                  (vc-status 16 16 :left)
+                  " "
+                  filename-and-process))))
+#+END_SRC
+
+** lorem-ipsum
+
+[[https://github.com/jschaf/emacs-lorem-ipsum][lorem-ipsum]] добавляет текст-рыбу lorem ipsum для Emacs.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package lorem-ipsum
+    :ensure t
+    :commands lorem-ipsum-insert-paragraphs)
+#+END_SRC
+
+** multi-term
+
+[[http://www.emacswiki.org/emacs/multi-term.el][multi-term]] для создания и управления множеством терминальных буферов в Emacs.
+
+#+BEGIN_SRC emacs-lisp
+(use-package multi-term
+  :ensure t
+  :after (tramp)
+  :commands (multi-term multi-term-next)
+  :config
+  (setq multi-term-program "/bin/zsh"))
+#+END_SRC
+
+** org-pomodoro
+
+[[https://github.com/lolownia/org-pomodoro][org-pomodoro]] добавляет очень простую поддержку техники Pomodoro в org-mode Emacs'а.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-pomodoro
+    :ensure t
+    :commands org-pomodoro)
+#+END_SRC
+
+** ox-pandoc
+
+[[https://github.com/kawabata/ox-pandoc][ox-pandoc]] переводит файлы org-mode в различные форматы, используя Pandoc.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ox-pandoc
+    :ensure t)
+#+END_SRC
+
+** parinfer
+   [[https://github.com/DogLooksGood/parinfer-mode][parinfer]] умное расставление скобок
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package parinfer-rust-mode
+  :ensure t
+  :bind
+  (("C-," . parinfer-toggle-mode))
+  :init
+  (progn
+    (setq parinfer-extensions
+          '(defaults       ; should be included.
+            pretty-parens  ; different paren styles for different modes.
+            lispy          ; If you use Lispy. With this extension, you should install Lispy and do not enable lispy-mode directly.
+            smart-tab      ; C-b & C-f jump positions and smart shift with tab & S-tab.
+            smart-yank))   ; Yank behavior depend on mode.
+    (add-hook 'clojure-mode-hook #'parinfer-mode)
+    (add-hook 'emacs-lisp-mode-hook #'parinfer-mode)))
+#+END_SRC
+
+** password-store
+
+Поддержка [[http://www.zx2c4.com/projects/password-store/][Password store (pass)]] в Emacs.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package password-store
+    :ensure t)
+#+END_SRC
+
+** pcache
+
+[[https://github.com/sigma/pcache][pcache]] персистентное кэширование для Emacs. Необходимо для других пакетов таких как =fixmee=.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package pcache
+    :ensure t
+    :init
+    (setq pcache-directory (concat antares-emacs-temporal-directory "pcache" )))
+#+END_SRC
+
+** speed-type
+
+[[https://github.com/hagleitn/speed-type][speed-type]] is for practice touch/speed typing in Emacs.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package speed-type
+    :ensure t)
+#+END_SRC
+
+** smartparens
+
+[[https://github.com/Fuco1/smartparens][smartparens]] is a minor mode for Emacs that deals with parens pairs and tries to
+be smart about it.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package smartparens
+    :ensure t
+    :diminish smartparens-mode
+    :config
+    (smartparens-global-mode))
+#+END_SRC
+** WAIT popper
+#+begin_src emacs-lisp :tangle no
+(use-package popper
+  :ensure t
+  :bind (("C-`"   . popper-toggle)
+         ("M-`"   . popper-cycle)
+         ("C-M-`" . popper-toggle-type))
+  :init
+  (setq popper-reference-buffers
+        '("\\*Messages\\*"
+          "Output\\*$"
+          "\\*Async Shell Command\\*"
+          help-mode
+          compilation-mode))
+  (popper-mode +1)
+  (popper-echo-mode +1))
+#+end_src
+** popwin
+
+[[https://github.com/m2ym/popwin-el][Popwin]] это менеджер всплывающих окон Emacs, который освобождает вас от ада раздражающих буферов,
+таких как *Help*, *Completions*, *compilation*, и так далее.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package popwin
+    :ensure t
+    :config
+    (progn
+    (setq popwin:popup-window-height 35
+          popwin:special-display-config
+          '(("*Miniedit Help*" :noselect t)
+            (help-mode :noselect nil)
+            (completion-list-mode :noselect t)
+            (compilation-mode :noselect nil)
+            (grep-mode :noselect t)
+            (occur-mode :noselect t)
+            ("*Pp Macroexpand Output*" :noselect t)
+            ("*Shell Command Output*")
+            ("*Async Shell Command*")
+            ("*vc-diff*")
+            ("*vc-change-log*")
+            ("*undo-tree*" :width 60 :position right)
+            ("*undo-tree Diff*" :width 60 :position right)
+            ("^\\*anything.*\\*$" :regexp t)
+            ("*slime-apropos*")
+            ("*slime-macroexpansion*")
+            ("*slime-description*")
+            ("*slime-compilation*" :noselect t)
+            ("*slime-xref*")
+            ("*Flycheck errors*")
+            ("*Warnings*")
+            ("*Error*")
+            ("*Process List*")
+            ("*Smex: Unbound Commands*")
+            ("*Paradox Report*" :noselect nil)
+            ("*Package Commit List*" :noselect nil)
+            ("*Diff*" :noselect nil)
+            ("*Messages*" :noselect nil)
+            ("*Google Maps*" :noselect nil)
+            ("*ag search*" :noselect nil)
+            ("*PDF-Occur*" :noselect nil)
+            ("*PDF-Metadata*" :noselect nil)
+            ("^\\*Outline .*\\.pdf\\*$" :regexp t :noselect nil)
+            ("*MULTI-TERM-DEDICATED*" :noselect nil :stick t)
+            (sldb-mode :stick t)
+            (slime-repl-mode)
+            (slime-connection-list-mode))
+    )
+    (popwin-mode 1))
+    ;; (add-hook 'popwin:after-popup-hook 'turn-off-evil-mode)
+    (bind-keys :map popwin:window-map
+               ((kbd "<escape>") . popwin:close-popup-window))
+    )
+#+END_SRC
+
+** flycheck
+
+[[https://github.com/yasuyk/helm-flycheck][helm-flycheck]] показ ошибок flycheck с помощью helm.
+
+#+BEGIN_SRC emacs-lisp
+    (use-package flycheck
+      :ensure t
+      :defer t
+      :config
+      (add-hook 'prog-mode-hook 'flycheck-mode)
+      (add-hook 'sgml-mode 'flycheck-mode))
+      ;; (use-package helm-flycheck
+      ;;   :ensure t
+      ;;   :ensure helm
+      ;;   :commands helm-flycheck))
+#+END_SRC
+
+** mingus
+
+#+BEGIN_SRC emacs-lisp
+  (use-package mingus
+    :ensure t)
+(use-package mingus-stays-home
+  :ensure t
+  :disabled t
+  :after mingus)
+#+END_SRC
+
+** paradox
+
+[[https://github.com/Bruce-Connor/paradox][Paradox]] проект модернизации Emacs'овского меню пакетов. С оценками пакетов,
+статистикой использования, настраиваемостью и многим другим.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package paradox
+    :ensure t
+    :defer t
+    :commands paradox-list-packages
+    :config
+    (setq paradox-github-token t
+          paradox-automatically-star nil
+          paradox-execute-asynchronously t))
+#+END_SRC
+
+** winum
+[[https://github.com/deb0ch/emacs-winum][winum]]
+#+begin_src emacs-lisp
+(use-package winum
+  :ensure t
+  :config
+  (progn
+    (setq winum-keymap
+          (let ((map (make-sparse-keymap)))
+            (define-key map (kbd "C-`") 'winum-select-window-by-number)
+            (define-key map (kbd "C-²") 'winum-select-window-by-number)
+            (define-key map (kbd "M-0") 'winum-select-window-0-or-10)
+            (define-key map (kbd "M-1") 'winum-select-window-1)
+            (define-key map (kbd "M-2") 'winum-select-window-2)
+            (define-key map (kbd "M-3") 'winum-select-window-3)
+            (define-key map (kbd "M-4") 'winum-select-window-4)
+            (define-key map (kbd "M-5") 'winum-select-window-5)
+            (define-key map (kbd "M-6") 'winum-select-window-6)
+            (define-key map (kbd "M-7") 'winum-select-window-7)
+            (define-key map (kbd "M-8") 'winum-select-window-8)
+            map))
+
+    (defun winum-assign-9-to-calculator-8-to-flycheck-errors ()
+      (cond
+       ((equal (buffer-name) "*Calculator*") 9)
+       ((equal (buffer-name) "*Flycheck errors*") 8)))
+
+    (defun winum-assign-0-to-neotree ()
+      (when (string-match-p (buffer-name) ".*\\*NeoTree\\*.*") 10))
+
+    (add-to-list 'winum-assign-functions #'winum-assign-9-to-calculator-8-to-flycheck-errors)
+    (add-to-list 'winum-assign-functions #'winum-assign-0-to-neotree)
+
+    (set-face-attribute 'winum-face nil :weight 'bold)
+
+    (setq window-numbering-scope            'global
+          winum-reverse-frame-list          nil
+          winum-auto-assign-0-to-minibuffer t
+          winum-assign-func                 'my-winum-assign-func
+          winum-auto-setup-mode-line        t
+          winum-format                      " %s "
+          winum-mode-line-position          1
+          winum-ignored-buffers             '(" *which-key*")
+          winum-ignored-buffers-regexp      '(" \\*Treemacs-.*"))
+
+    (winum-mode)))
+#+end_src
+
+** redacted
+#+begin_src emacs-lisp
+  (use-package redacted
+    :ensure t)
+#+end_src
+
+** Vertico
+#+begin_src emacs-lisp
+  (use-package vertico
+    :ensure t
+    :custom
+  ;; (vertico-scroll-margin 0) ;; Different scroll margin
+     (vertico-count 20) ;; Show more candidates
+  ;; (vertico-resize t) ;; Grow and shrink the Vertico minibuffer
+     (vertico-cycle t) ;; Enable cycling for `vertico-next/previous'
+  :init
+  (vertico-mode))
+#+end_src
+
+** Orderless
+#+begin_src emacs-lisp
+  (use-package orderless
+    :ensure t
+    :custom
+    ;; Configure a custom style dispatcher (see the Consult wiki)
+    ;; (orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch))
+    ;; (orderless-component-separator #'orderless-escapable-split-on-space)
+    (completion-styles '(orderless basic))
+    (completion-category-defaults nil)
+    (completion-category-overrides '((file (styles partial-completion)))))
+#+end_src
+
+** savehist
+
+#+begin_src emacs-lisp :tangle no
+  (use-package savehist
+  :init
+  (savehist-mode))
+#+end_src
+
+** emacs
+#+begin_src emacs-lisp :tangle no
+  (use-package emacs
+  :custom
+  ;; Support opening new minibuffers from inside existing minibuffers.
+  (enable-recursive-minibuffers t)
+  ;; Emacs 28 and newer: Hide commands in M-x which do not work in the current
+  ;; mode.  Vertico commands are hidden in normal buffers. This setting is
+  ;; useful beyond Vertico.
+  (read-extended-command-predicate #'command-completion-default-include-p)
+  :init
+  ;; Add prompt indicator to `completing-read-multiple'.
+  ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
+  (defun crm-indicator (args)
+    (cons (format "[CRM%s] %s"
+                  (replace-regexp-in-string
+                   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                   crm-separator)
+                  (car args))
+          (cdr args)))
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
+  ;; Do not allow the cursor in the minibuffer prompt
+  (setq minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode))
+#+end_src
+
+** eshell
+#+begin_src emacs-lisp :tangle no
+  (use-package eshell
+    :ensure t)
+#+end_src
+** Emmet
+#+begin_src emacs-lisp
+  (use-package emmet-mode
+    :ensure (:host github :repo "smihica/emmet-mode"))
+#+end_src
+** git-sync-mode
+#+begin_src emacs-lisp
+  (use-package git-sync-mode
+    :ensure (:host github :repo "justinbarclay/git-sync-mode")
+    ;;:config
+    ;;(git-sync-global-mode)
+    ;;(add-to-list git-sync-allow-list '(/path/to/project))
+    ;;(add-to-list git-sync-deny-list '(/path/to/project/subdir))
+  )
+#+end_src
+#+begin_example :file .dir-locals.el
+((prog-mode . ((made . git-sync)))
+ (org-mode . ((mode . git-sync))))
+#+end_example
+** Elgantt
+Диаграмма Ганта для org-mode
+#+begin_src emacs-lisp
+(use-package elgantt
+    :ensure (:host github :repo "legalnonsense/elgantt")
+    :commands elgantt-open)
+#+end_src
+** Leetcode
+#+begin_src emacs-lisp
+(use-package leetcode
+    :ensure t)
+#+end_src
+** Org-jira
+https://github.com/ahungry/org-jira
+#+begin_src emacs-lisp :tangle no
+(use-package org-jira
+  :ensure t
+  :defer t
+  :config (progn
+            (setq org-jira-working-dir "~/Dropbox/org/Jira"
+                  jiralib-url "https://jira.itech-group.ru")
+    (setq org-jira-map
+          (let ((map (make-sparse-keymap)))
+            (define-key map (kbd "C-c pg") 'org-jira-get-projects)
+            (define-key map (kbd "C-c ib") 'org-jira-browse-issue)
+            (define-key map (kbd "C-c ig") 'org-jira-get-issues)
+            (define-key map (kbd "C-c ij") 'org-jira-get-issues-from-custom-jql)
+            (define-key map (kbd "C-c ih") 'org-jira-get-issues-headonly)
+            (define-key map (kbd "C-c il") 'org-jira-update-issue-labels)
+            (define-key map (kbd "C-c iu") 'org-jira-update-issue)
+            (define-key map (kbd "C-c iw") 'org-jira-progress-issue)
+            (define-key map (kbd "C-c in") 'org-jira-progress-issue-next)
+            (define-key map (kbd "C-c ia") 'org-jira-assign-issue)
+            (define-key map (kbd "C-c ir") 'org-jira-refresh-issue)
+            (define-key map (kbd "C-c iR") 'org-jira-refresh-issues-in-buffer)
+            (define-key map (kbd "C-c ic") 'org-jira-create-issue)
+            (define-key map (kbd "C-c ik") 'org-jira-copy-current-issue-key)
+            (define-key map (kbd "C-c sc") 'org-jira-create-subtask)
+            (define-key map (kbd "C-c sg") 'org-jira-get-subtasks)
+            (define-key map (kbd "C-c cc") 'org-jira-add-comment)
+            (define-key map (kbd "C-c cu") 'org-jira-update-comment)
+            (define-key map (kbd "C-c wu") 'org-jira-update-worklogs-from-org-clocks)
+            (define-key map (kbd "C-c tj") 'org-jira-todo-to-jira)
+            (define-key map (kbd "C-c if") 'org-jira-get-issues-by-fixversion)
+            map))
+            ))
+#+end_src
+#+begin_example emacs-lisp
+(setq org-jira-custom-jqls
+  '(
+    (:jql " project IN (EX, AHU) and createdDate < '2019-01-01' order by created DESC "
+          :limit 10
+          :filename "last-years-work")
+    (:jql " project IN (EX, AHU) and createdDate >= '2019-01-01' order by created DESC "
+          :limit 10
+          :filename "this-years-work")
+    (:jql "
+project IN (EX, AHU)
+and status IN ('To Do', 'In Development')
+AND (labels = EMPTY or labels NOT IN ('FutureUpdate'))
+order by priority, created DESC "
+          :limit 20
+          :filename "ex-ahu-priority-items")
+    ))
+
+(defconst org-jira-progress-issue-flow
+  '(("To Do" . "In Progress"
+    ("In Progress" . "Done"))))
+
+(defconst org-jira-progress-issue-flow
+  '(("To Do" . "Start Progress")
+    ("In Development" . "Ready For Review")
+    ("Code Review" . "Done")
+    ("Done" . "Reopen")))
+
+(setq jiralib-token
+    (cons "Authorization"
+          (concat "Bearer " (auth-source-pick-first-password
+              :host "jira.company.com"))))
+
+(defconst jiralib-token
+   '("Cookie" . "cloud.session.token=<YOUR COOKIE VALUE>"))
+
+(defconst jiralib-available-actions-cache
+  '(("To Do"
+     ("71" . "Business Question")
+     ("11" . "Start Progress"))
+    ("Code Review"
+     ("71" . "Business Question")
+     ("91" . "Reject")
+     ("171" . "Failed Peer Review")
+     ("221" . "Done"))
+    ("In Development"
+     ("71" . "Business Question")
+     ("21" . "Ready For Review")
+     ("81" . "Reject")
+     ("161" . "Stop Progress"))
+    ("Done"
+     ("71" . "Business Question")
+     ("141" . "Re-open"))))
+#+end_example
+
+** Ejira
+Пример получения токена
+#+begin_example bash
+curl -X POST https://site.address/rest/pat/latest/tokens -H "Content-Type: application/json" -d '{"name": "emacs","expirationDuration": 90}' --user "user:pass"
+#+end_example
+
+#+begin_src emacs-lisp :tangle no
+(use-package ejira
+  :ensure (:host github :repo "nyyManni/ejira")
+  :init
+  (setq jiralib2-url              "https://jira.itech-group.ru"
+        jiralib2-auth             'basic
+        jiralib2-user-login-name  "a.salnikov"
+        jiralib2-token            "personal-token"
+
+        ;; NOTE, this directory needs to be in `org-agenda-files'`
+        ejira-org-directory       "~/Dropbox/org/Jira"
+        ejira-projects            '("EJ" "JL2")
+
+        ejira-priorities-alist    '(("Highest" . ?A)
+                                    ("High"    . ?B)
+                                    ("Medium"  . ?C)
+                                    ("Low"     . ?D)
+                                    ("Lowest"  . ?E))
+        ejira-todo-states-alist   '(("To Do"       . 1)
+                                    ("In Progress" . 2)
+                                    ("Done"        . 3)))
+  :config
+  ;; Tries to auto-set custom fields by looking into /editmeta
+  ;; of an issue and an epic.
+  (add-hook 'jiralib2-post-login-hook #'ejira-guess-epic-sprint-fields)
+
+  ;; They can also be set manually if autoconfigure is not used.
+  ;; (setq ejira-sprint-field       'customfield_10001
+  ;;       ejira-epic-field         'customfield_10002
+  ;;       ejira-epic-summary-field 'customfield_10004)
+
+  (require 'ejira-agenda)
+
+  ;; Make the issues visisble in your agenda by adding `ejira-org-directory'
+  ;; into your `org-agenda-files'.
+  (add-to-list 'org-agenda-files ejira-org-directory)
+
+  ;; Add an agenda view to browse the issues that
+  (org-add-agenda-custom-command
+   '("j" "My JIRA issues"
+    ((ejira-jql "resolution = unresolved and assignee = currentUser()"
+                ((org-agenda-overriding-header "Assigned to me")))))))
+#+end_src
+#+begin_example emacs-lisp
+        (org-add-agenda-custom-command
+ '("j" "JIRA issues"
+   ((ejira-jql "filter = \"Filter for Ejira\" and resolution = unresolved and assignee = currentUser()"
+               ((org-agenda-overriding-header "Assigned to me")))
+    (ejira-jql "filter = \"Filter for Ejira\" and resolution = unresolved and assignee is EMPTY"
+               ((org-agenda-overriding-header "Unassigned")))
+    (ejira-jql "filter = \"Filter for Ejira\" and resolution = unresolved and assignee != currentUser()"
+               ((org-agenda-overriding-header "Others"))))))
+#+end_example
+
+** TODO mu4e
+#+begin_example bash
+        $yay mu mbsync-git cyrus-sasl-xoauth2-git sasl-xoauth2-git
+#+end_example
+
+[[http://www.djcbsoftware.nl/code/mu/mu4e.html][mu4e]] основанный на emacs e-mail клиент, который использует mu как бэкенд.
+
+С помощью mu mu4e отображается поверх вашего почтового каталога (который
+вы обновляете, например, с помощью offlineimap или fetchmail). mu4e
+разработан для обеспечения сверхэффективной обработки электронной почты:
+поиска, чтения, ответа, перемещения, удаления.
+
+Особенности включают в себя:
+
+ * Полностью основанный на поиске: нет папок, только запросы
+ * Полностью документированный, с примерами конфигураций
+ * Пользовательский интерфейс, оптимизированный для повышения скорости, с горячими клавишами для выполнения общих действий
+ * Поддержка языков, отличных от английского (таким образом, "angstrom" будет соответствовать "Ångström")
+ * Асинхронность; тяжелые действия не блокируют emacs3
+ * Поддержка криптографии
+ * Написание электронных писем с расширенным текстом в org-режиме
+ * Автоматическое заполнение адресов на основе контактов в ваших сообщениях - нет необходимости управлять адресными книгами
+ * Возможность расширения с помощью собственных фрагментов elisp
+
+*** TODO Как это работает
+
+Это актуальная схема текущей конфигурации (отрисованная с помощью =graphviz=)
+
+#+BEGIN_SRC dot :file ./img/mu4e_scheme.png :cmdline -Kdot -Tpng :tangle no
+  digraph G {
+      // General properties
+      size="6,5"
+      dpi=300
+      ratio=auto
+      rankdir="LR"
+      compound=true
+      labelloc=t
+      fontname="Ubuntu Bold"
+      fontsize=48
+      label="Emacs & mu4e email config"
+
+      // NODES
+      node [fontname="Ubuntu Bold"]
+
+      subgraph cluster_mailservers {
+          label="Mail Servers"
+          color=goldenrod4
+          style=dashed
+          penwidth=3
+          margin=30
+          fontsize=20
+          node [penwidth=2, margin=0.2]
+          imap [shape=house, color=blue, label="IMAP\naccount"]
+          pop3 [shape=egg, color=chartreus, label="POP3\naccounts"]
+      }
+
+      {
+          rank=same
+          node [penwidth=2, style=filled, margin=0.2]
+          notifications [
+              color=gold4
+              fillcolor=yellow
+              shape=note
+              margin=0.3
+              label="notifications"
+          ]
+          subgraph {
+              label=""
+              node [penwidth=2, style=filled, margin=0.2]
+              getmail [fillcolor=beige]
+              procmail [fillcolor=beige]
+              postfix [fillcolor=beige]
+              cleanup_maildir [label="cleanup-maildir", fillcolor=moccasin]
+          }
+      }
+
+      subgraph cluster_maildirs {
+          label=""
+          color=invis
+          fontsize=18
+          margin=20
+          subgraph cluster_maili {
+              label=" Maildir IMAP "
+              color=blue
+              fixedsize=true
+              rank=same
+              style=rounded
+              penwidth=2
+              node [shape=folder, color=blue, width=1.4, fontcolor=dimgrey]
+              inbox [label="Inbox"]
+              outbox [label="Outbox"]
+          }
+
+          subgraph cluster_mailp {
+              label=" Maildir Pop3 "
+              color=darkgreen
+              penwidth=2
+              style=rounded
+              node [
+                  shape=folder
+                  color=darkgreen
+                  width=1.4
+                  height=0.4
+                  fontcolor=dimgrey
+              ]
+              Archive [label="Archive"]
+              business [label="business"]
+              code [label="code"]
+              Drafts [label="Drafts"]
+              education [label="education"]
+              Inbox [label="Inbox"]
+              antares [label="antares"]
+              lists [label="lists"]
+              Local [label="Local"]
+              motley [label="motley"]
+              publicity [label="publicity"]
+              Sent [label="Sent"]
+              Spam [label="Spam"]
+              Trash [label="Trash"]
+            work [label="work"]
+          }
+      }
+
+     subgraph cluster_emacsauth {
+          color=invis
+          label=""
+          subgraph cluster_emacs {
+              label="Emacs"
+              color=darkgreen
+              fontsize=28
+              fontcolor=darkgreen
+              fillcolor=darkseagreen1
+              style="filled, rounded"
+              penwidth=3
+              margin=60
+              rank=same
+              node [style=filled, shape=square, fontcolor=white]
+              mu4e [fillcolor=purple, fontsize=30, margin=0.6, peripheries=2]
+              maildirs [fillcolor=maroon, margin=0.2, peripheries=2]
+              epa [fillcolor=green2, margin=0.5, fontcolor=black, label="EasyPG"]
+              dired [fillcolor=aquamarine, margin=0.5, fontcolor=black]
+              flyspell [fillcolor=green2, margin=0.3, fontcolor=black]
+              org [fillcolor=seagreen, margin=0.7, label="org"]
+              contacts [fillcolor=olivedrab, label="org-contacts"]
+              smtp [
+                  label="SmtpMail"
+                  fillcolor=olivedrab1
+                  fontcolor=black
+                  margin=0.3
+              ]
+              gnus [
+                  color=darkblue
+                  fillcolor=palegreen1
+                  label="Gnus\n message-mode"
+                  margin=0.3
+                  fontcolor=black
+              ]
+          }
+          {
+              rank=sink
+              node [penwidth=2, margin=0.2]
+              authinfo [
+                  shape=signature
+                  label="authinfo.gpg"
+                  fontcolor=gold4
+              ]
+              mail_gpg [
+                  shape=signature
+                  label="mail.el.gpg"
+                  fontcolor=gold4
+             ]
+             gpg_agent [
+                  fillcolor=lightskyblue
+                  style=filled
+                  label="gpg-agent"
+             ]
+          }
+      }
+
+      node [fillcolor=beige, style=filled, penwidth=2]
+
+      localhost [shape=plaintext, fillcolor=grey, margin=0.2]
+      mu [margin=0.15, shape=doublecircle, fontsize=18]
+
+      // EDGES
+      edge [fontname="Ubuntu", fontsize=18, penwidth=2]
+
+      imap -> getmail [color=blue, label="retrieve email regularly", dir=both]
+      pop3 -> getmail [color=darkgreen]
+
+      getmail -> procmail [color=darkgreen, label="process mail"]
+      procmail -> notifications [
+          color=gold4
+          label="via notify-send"
+          style=dashed
+          constraint=none
+          minlen=3
+      ]
+
+      inbox -> mu [
+          ltail=cluster_maili
+          penwidth=3
+          color=blue
+          style=dashed
+          dir=back
+          label="index"
+      ]
+      Inbox -> mu [
+          ltail=cluster_mailp
+          penwidth=3
+          color=darkgreen
+          style=dashed
+          dir=back
+          label="index"
+      ]
+
+      getmail -> inbox  [
+          color=blue
+          dir=both
+          lhead=cluster_maili
+          label="update"
+      ]
+
+      localhost -> postfix [color=gold4]
+      postfix -> Local [color=gold4, taillabel="store"]
+      procmail -> code [color=darkgreen]
+      procmail -> education [color=darkgreen]
+      procmail -> Inbox [color=darkgreen, penwidth=3, label="store"]
+      procmail -> lists [color=darkgreen]
+      procmail -> publicity [color=darkgreen]
+      procmail -> Spam [color=darkgreen]
+
+      edge [fontname="Ubuntu", fontsize=18, penwidth=2]
+      lists    -> cleanup_maildir [color=crimson]
+      Trash    -> cleanup_maildir [color=crimson]
+      publicity-> cleanup_maildir [color=crimson, label="delete"]
+      Local    -> cleanup_maildir [color=crimson]
+      Spam     -> cleanup_maildir [color=crimson]
+
+      edge [fontname="Ubuntu", fontsize=18, penwidth=2]
+      mu4e -> gnus [label="compose, reply & forward", color=darkgreen]
+      contacts -> gnus [label="auto-complete\n contacts", style=dotted]
+      flyspell -> gnus [style=dotted, label="spell check"]
+      gnus -> smtp [label="send", color=darkgreen]
+      gnus -> epa [style=dashed, label="sign & encrypt", dir=both]
+      epa -> gpg_agent [
+          label="sign & encrypt"
+          color=darkgreen
+          style=dashed
+          dir=both
+      ]
+
+      gpg_agent -> epa [
+          label="decrypt & verify"
+          color=darkgreen
+          style=dashed
+      ]
+      epa -> mu4e [style=dashed, label="decrypt & verify"]
+      org -> gnus [
+          label="compose\n rich-text messages"
+          dir=both
+          style=dotted
+      ]
+
+      dired -> gnus [label="attach & compose", style=dotted]
+      smtp -> pop3 [label="send", color=darkgreen]
+      smtp -> Sent [label="store", color=darkgreen]
+      smtp -> imap [label="send", color=blue]
+
+      mu -> mu4e [
+          color=purple
+          penwidth=3
+          style=dashed
+          label="search & view"
+          fontcolor=purple
+          fontsize=18
+          fontname="Ubuntu Bold"
+      ]
+      maildirs -> mu4e [style=dotted, label="summarize"]
+
+      edge [style=dashed]
+      authinfo -> epa [label="server config"]
+      epa -> smtp [label="read server config"]
+      authinfo -> gpg_agent [dir=back, label="decrypt", minlen=2.0]
+      mail_gpg -> gpg_agent [dir=back, label="decrypt", minlen=3.0]
+      mail_gpg -> mu4e [label="read user's info"]
+  }
+#+END_SRC
+
+#+ATTR_HTML: title="mu4e scheme"
+#+RESULTS:
+[[file:./img/mu4e_scheme.png]]
+
+Полностью процесс выглядит так:
+
++ Почта забирается каждые ~x~ минут (по cron) через [[http://pyropus.ca/software/getmail/][getmail]]. Почта собирается c
+  аккаунта IMAP и нескольких POP3 аккаунтов.
++ At the same time the local email (in =localhost=) is fetched by [[http://www.postfix.org/][postfix]] and stored directly in the =Local= folder of the POP3's Maildir.
++ The email that comes from the IMAP account via =getmail= is stored directly in a Maildir directory. In that case I only care about Inbox and Outbox (sent) folders.
++ The email that comes from the several POP3 accounts is processed by [[http://www.procmail.org/][procmail]].
+  Various rules filter the emails and stores them in their own sub-directory in the POP3's Maildir.
+  The SPAM messages are already checked by my account servers, so I only use the SPAM fields already present to filter them.
+  So, is as simple as that:
+
+    #+BEGIN_EXAMPLE
+        ## By using the f and w flags and no condition, spamassassin is going add the
+        ## X-Spam headers to every single mail, and then process other recipes.
+        ## No lockfile is used.
+
+        :0fw
+        | /usr/bin/vendor_perl/spamc
+
+        ...
+
+        ## SPAM
+
+        :0:
+        * ^X-Spam-Status: Yes
+        Spam/
+
+        :0:
+        * ^X-Spam-Flag: YES
+        Spam/
+
+        :0:
+        * ^X-Spam-Level: \*\*\*\*\*
+        Spam/
+    #+END_EXAMPLE
+
+  I use a =procmail= rule to send ~notifications~ to the desktop via =notify-send=. I'm using it for almost all of them (spam and some others are skipped, to not distract me) and is like this:
+
+    #+BEGIN_EXAMPLE
+        ## Notification
+        ## None of the above categories sends any notification at all
+
+        :0 ic:
+        | notify-send -a 'Correo nuevo: ' "$(grep "^From:\|^To:\|^Subject:")"
+    #+END_EXAMPLE
+
++ Daily, a script, [[https://github.com/joedicastro/cleanup-maildir][cleanup-maildir]], deletes all mails older than 14 days from several folders in the POP3's Maildir.
++ Each two minutes, Emacs orders to [[http://www.djcbsoftware.nl/code/mu/][mu]] to index all emails in both Maildirs. *Mu* is the main key of all the configuration.
++ Into Emacs [[http://www.djcbsoftware.nl/code/mu/mu4e.html][mu4e]] allows us to search & view email. Also we can Reply, Forward an Compose new emails.
+  The sensitive user's info is stored in an encrypted file =mail.el.gpg= managed by [[http://epg.sourceforge.jp/][EasyPG (aka EPA)]] and =gpg-agent= (from [[https://www.gnupg.org/][GnuPG]]).
+  Also =EasyPG= is used to decrypt encrypted emails and verify signatures in mu4e's View mode.
++ The extension ~maildirs~ is used to summarize the Maildir folders and see how many mails read/unread are in each folder.
++ When a email is composed =mu4e= uses Gnus' message mode to do the task. I use =flyspell-mode= to do a spell check into the message.
+  The email address (in fields like To:, Cc:, ...) can be auto-completed using the addresses stored in the emails sent to us and at the same time from the contacts stored in [[https://julien.danjou.info/projects/emacs-packages#org-contacts][org-contacts]]
+  [[http://orgmode.org/][Org]] can be used to compose rich-text emails (HTML) easily.
+  The emails can be signed & encypted using =EasyPG=.
++ We can attach a file a compose a new email with it directly from [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Dired.html][Dired]]
++ Emacs' =SmtpMail= is used to send emails to the servers. The configuration of the servers is stored in an encrypted file =authinfo.gpg=.
+  The emails sent to a POP3 account are stored in the POP3's Maildir Sent folder, the ones sent to the IMAP account are no stored.
+  The email can be sent immediately or queued (useful for offline situations). All the queued email is sent at the same time when this feature is turned off.
++ In View mode & Edit mode, if emoticons are present in the message's body, they are rendered as an image.
+
+*** TODO ToDo List [81%]
+
++ [X] Enqueue messages
++ [X] Send messages asynchronously
++ [X] Add contact from mail
++ [X] Send local mails to Maildir (made via postfix)
++ [X] Spam management (via procmail)
++ [X] Notifications (via procmail)
++ [X] Rules/filters (via procmail)
++ [X] Fix signature
++ [X] Multiple identities
++ [X] Return Receipt (Disposition-Notification-To:)?
++ [X] Fix Edit Draft messages
++ [X] Attachment remember?
++ [X] View Emoticons?
++ [X] Three attempts when failed the passphrase (use gpg-agent)
++ [X] Encrypt/Decrypt messages and & signing
++ [X] Autoarchive/delete mails periodically (cleanup-maildir)
++ [X] Configuration scheme
++ [X] +Vim Keybindings?+ Discarded: I'm used to the defaults now
++ [ ] complete the emoticons to cover more
++ [ ] HTML messages
++ [ ] Reply only to the list (List-ID)
++ [ ] +View Gravatars?+ Discarded: I didn't find a non-dirty solution to insert them in the header
+  
+*** Включаем mu4e
+
+#+BEGIN_SRC emacs-lisp
+(use-package mu4e
+  :ensure (:host github :repo "djcb/mu" :files ("mu4e/*.el"))
+  :commands mu4e
+  :config
+  (add-to-list 'mu4e-bookmarks
+               '(:query "flag:flagged" :name "Помеченные" :key ?f))
+  (add-to-list 'mu4e-bookmarks
+               '(:query "date:48h..now" :name "Последние 2 дня" :key ?l))
+  (add-to-list 'mu4e-bookmarks
+               '(:query "date:1h..now" :name "Последний час" :key ?h))
+  (add-to-list 'mu4e-bookmarks
+               '(:query "flag:attach" :name "С вложениями" :key ?a) t)
+  (add-to-list 'mu4e-bookmarks
+               '(:query "mime:application/pdf" :name "С документами PDF" :key ?d) t)
+  (add-to-list 'mu4e-bookmarks
+               '(:query "size:3M..500M" :name "Большие сообщения" :key ?b) t)
+  (setq mu4e-maildir-shortcuts '((:maildir "/antares@antares.me/INBOX" :key ?i :name "Входящие"))) ;; :hide nil :hide-unread nil
+  )
+#+END_SRC
+
+*** Current keybindings
+**** Main view
+
+[[./img/mu4e_main.png]]
+
+| Binding | Call                                 | Do                                                  |
+|---------+--------------------------------------+-----------------------------------------------------|
+| j       | mu4e-headers-jump-to-maildir         | jump to some maildir (followed by a letter or =/=)  |
+| b       | mu4e-headers-search-bookmark         | run a bookmark (saved query) (followed by a letter) |
+| B       | mu4e-headers-search-bookmark-edit    | run & edit a bookmark                               |
+| s       | mu4e-headers-search                  | run a search query                                  |
+| C       | mu4e-compose-new                     | compose a news message                              |
+| u       | mu4e-maildirs-extension-force-update | update the cache & index of maildirs extension      |
+| U       | mu4e-update-mail-and-index           | update email & database                             |
+| m       | mu4e-main-toggle-mail-sending-mode   | toggles between sending mail directly & queuing it  |
+| f       | smtpmail-send-queued-mail            | send queued mail                                    |
+| H       | mu4e-display-manual                  | show the mu4e help about the main view              |
+| A       | mu4e-about                           | show the mu4e about buffer                          |
+| q       | mu4e-quit                            | exit mu4e                                           |
+| $       | mu4e-show-log                        | show the log (with logging enabled)                 |
+| ?       | describe-mode                        | describe the mode                                   |
+
+**** Headers view
+
+[[./img/mu4e_headers.png]]
+
+| Binding     | Call                                | Do                                            |
+|-------------+-------------------------------------+-----------------------------------------------|
+| n           | mu4e-headers-next                   | go to next message                            |
+| p           | mu4e-headers-prev                   | go to previous message                        |
+| y           | mu4e-select-other-view              | select the message view (if it's visible)     |
+| RET         | mu4e-headers-view-message           | open the message at point in the message view |
+| s           | mu4e-headers-search                 | search                                        |
+| S           | mu4e-headers-search-edit            | edit last query                               |
+| /           | mu4e-headers-search-narrow          | narrow the search                             |
+| b           | mu4e-headers-search-bookmark        | search bookmark                               |
+| B           | mu4e-headers-search-bookmark-edit   | edit bookmark before search                   |
+| g           | mu4e-headers-rerun-search           | re-run previous search                        |
+| j           | mu4e-headers-jump-to-maildir        | jump to maildir                               |
+| \           | mu4e-headers-query-prev             | previous query                                |
+| M-left      | mu4e-headers-query-prev             | previous query                                |
+| M-right     | mu4e-headers-query-next             | next query                                    |
+| O           | mu4e-headers-change-sorting         | change sort order                             |
+| P           | mu4e-headers-toggle-threading       | toggle threading                              |
+| Q           | mu4e-headers-toggle-full-search     | toggle full-search                            |
+| V           | mu4e-headers-toggle-skip-duplicates | toggle skip-duplicates                        |
+| W           | mu4e-headers-toggle-include-related | toggle include-related                        |
+| d           | mu4e-headers-mark-for-trash         | mark for moving to the trash folder           |
+| <backspace> | mu4e-headers-mark-for-trash         | mark for moving to the trash folder           |
+| DEL         | mu4e-headers-mark-for-delete        | mark for complete deletion                    |
+| D           | mu4e-headers-mark-for-delete        | mark for complete deletion                    |
+| m           | mu4e-headers-mark-for-move          | mark for moving to another maildir folder     |
+| r           | mu4e-headers-makr-for-refile        | mark for refiling                             |
+| +           | mu4e-headers-mark-for-flag          | mark for flagging                             |
+| -           | mu4e-headers-mark-for-unflag        | mark for unflagging                           |
+| !           | mu4e-headers-mark-for-read          | mark message as read                          |
+| ?           | mu4e-headers-mark-for-unread        | mark message as unread                        |
+| u           | mu4e-headers-mark-unmark            | unmark message at point                       |
+| U           | mu4e-headers-mark-unmark-all        | unmark *all* messages                         |
+| %           | mu4e-headers-mark-pattern           | mark based on a regular expression            |
+| &           | mu4e-headers-mark-custom            | mark based on a custom user-provided function |
+| T           | mu4e-headers-mark-thread            | mark whole thread                             |
+| t           | mu4e-headers-mark-subthread         | mark whole subthread                          |
+| <insert>    | mu4e-headers-mark-for-something     | mark for 'something' (decide later)           |
+| #           | mu4e-mark-resolve-deferred-marks    | resolve deferred 'something' marks            |
+| x           | mu4e-mark-execute-all               | execute actions for the marked messages       |
+| A           | mu4e-headers-action                 | execute some custom action on a header        |
+| R           | mu4e-compose-reply                  | reply                                         |
+| F           | mu4e-compose-forward                | forward                                       |
+| C           | mu4e-compose-new                    | compose                                       |
+| E           | mu4e-compose-edit                   | edit (only allowed for draft messages)        |
+| C-+         | mu4e-headers-split-view-grow        | increase the number of headers shown          |
+| C--         | mu4e-headers-split-view-shrink      | decrease the number of headers shown          |
+| H           | mu4e-display-manual                 | get help                                      |
+| h           | describe-mode                       | describe the current mode                     |
+| C-S-u       | mu4e-update-mail-and-index          | update mail & reindex                         |
+| q           | mu4e-headers-quit-buffer            | leave the headers buffer                      |
+| z           | mu4e-headers-quit-buffer            | leave the headers buffer                      |
+| $           | mu4e-show-log                       | show the log (if enabled)                     |
+
+**** Message view
+
+[[./img/mu4e_mail.png]]
+| Binding     | Call                                | Do                                               |
+|-------------+-------------------------------------+--------------------------------------------------|
+| n           | mu4e-view-headers-next              | go to next message                               |
+| p           | mu4e-view-headers-prev              | go to previous message                           |
+| y           | mu4e-select-other-view              | select the message view (if it's visible)        |
+| RET         | mu4e-scroll-up                      | scroll down                                      |
+| SPC         | mu4e-view-scroll-up-or-next         | scroll down, if at end, move to next message     |
+| s           | mu4e-headers-search                 | search                                           |
+| S           | mu4e-view-search-edit               | edit last query                                  |
+| /           | mu4e-view-search-narrow             | narrow the search                                |
+| O           | mu4e-headers-change-sorting         | change sort order                                |
+| P           | mu4e-headers-toggle-threading       | toggle threading                                 |
+| Q           | mu4e-headers-toggle-full-search     | toggle full-search                               |
+| W           | mu4e-headers-toggle-include-related | toggle include-related                           |
+| b           | mu4e-headers-search-bookmark        | search bookmark                                  |
+| B           | mu4e-headers-search-bookmark-edit   | edit bookmark before search                      |
+| j           | mu4e-headers-jump-to-maildir        | jump to maildir                                  |
+| M-left      | mu4e-headers-query-prev             | previous query                                   |
+| M-right     | mu4e-headers-query-next             | next query                                       |
+| d           | mu4e-view-mark-for-trash            | mark for moving to the trash folder              |
+| <backspace> | mu4e-view-mark-for-trash            | mark for moving to the trash folder              |
+| D           | mu4e-view-mark-for-delete           | mark for complete deletion                       |
+| DEL         | mu4e-view-mark-for-delete           | mark for complete deletion                       |
+| m           | mu4e-view-mark-for-move             | mark for moving to another maildir folder        |
+| r           | mu4e-view-mark-for-refile           | mark for refiling                                |
+| +           | mu4e-view-mark-for-flag             | mark for flagging                                |
+| -           | mu4e-view-mark-for-unflag           | mark for unflagging                              |
+| u           | mu4e-view-unmark                    | unmark message at point                          |
+| U           | mu4e-view-unmark-all                | unmark *all* messages                            |
+| %           | mu4e-view-mark-pattern              | mark based on a regular expression               |
+| &           | mu4e-view-mark-custom               | mark based on a custom user-provided function    |
+| T           | mu4e-view-mark-thread               | mark whole thread                                |
+| t           | mu4e-view-mark-subthread            | mark whole subthread                             |
+| <insert>    | mu4e-view-mark-for-something        | mark for 'something' (decide later)              |
+| #           | mu4e-mark-resolve-deferred-marks    | resolve deferred 'something' marks               |
+| x           | mu4e-view-marked-execute            | execute actions for the marked messages          |
+| \vert       | mu4e-view-pipe                      | pipe message through shell command               |
+| R           | mu4e-compose-reply                  | reply                                            |
+| F           | mu4e-compose-forward                | forward                                          |
+| C           | mu4e-compose-new                    | compose                                          |
+| E           | mu4e-compose-edit                   | edit (only allowed for draft messages)           |
+| g           | mu4e-view-go-to-url                 | go to (visit) numbered URL (using =browse-url=)  |
+| e           | mu4e-view-save-attachment           | extract (save) attachment (asks for number)      |
+| C-u e       | mu4e-view-save-attachment           | extracts multiple attachments                    |
+| o           | mu4e-view-open-attachment           | open attachment (asks for number)                |
+| a           | mu4e-view-action                    | execute some custom action on the message        |
+|-------------+-------------------------------------+--------------------------------------------------|
+| a b         |                                     | browse mail                                      |
+| a c         |                                     | capture message                                  |
+| a o         |                                     | add contact to org-contact                       |
+| a r         |                                     | retag email                                      |
+| a v         |                                     | view message as pdf                              |
+| a x         |                                     | search messages from the same sender             |
+|-------------+-------------------------------------+--------------------------------------------------|
+| A           |                                     | execute some custom action on an attachment      |
+|-------------+-------------------------------------+--------------------------------------------------|
+| A \vert     |                                     | pipe attachment through shell command            |
+| A e         |                                     | open the attachment in emacs                     |
+| A w         |                                     | open the attachment with an external application |
+|-------------+-------------------------------------+--------------------------------------------------|
+| w           | visual-line-mode                    | toggle line wrapping                             |
+| h           | mu4e-view-toggle-hide-cited         | toggle showing cited parts                       |
+| v           | mu4e-view-verify-msg-popup          | show details about the cryptographic signature   |
+| C-c RET v   | mml-validate                        | validate the email                               |
+| .           | mu4e-view-raw-message               | show the raw message view. =q= takes you back.   |
+| C-+         | mu4e-headers-split-view-grow        | increase the number of headers shown             |
+| C--         | mu4e-headers-split-view-shrink      | decrease the number of headers shown             |
+| H           | mu4e-display-manual                 | get help                                         |
+| C-S-u       | mu4e-update-mail-and-index          | update mail & reindex                            |
+| q           | mu4e-view-quit-buffer               | leave the message view                           |
+| z           | mu4e-view-quit-buffer               | leave the message view                           |
+| $           | mu4e-show-log                       | show the log (if enabled)                        |
+| ?           | describe-mode                       | describe the current mode                        |
+
+**** Editor view
+
+[[./img/mu4e_editor.png]]
+
+| Binding     | Call                                           | Do                                                          |
+|-------------+------------------------------------------------+-------------------------------------------------------------|
+| C-c C-c     | message-send-and-exit                          | send message and quit the buffer                            |
+| C-c C-s     | message-send                                   | send the message                                            |
+| C-c C-d     | message-dont-send                              | save to drafts and leave                                    |
+| C-c C-k     | message-kill-buffer                            | kill the message                                            |
+| C-c C-a     | mml-attach-file                                | attach a file (pro-tip: drag & drop works as well)          |
+| C-c RET f   | mml-attach-file                                | attach a file                                               |
+| C-c RET b   | mml-attach-buffer                              | attach a buffer                                             |
+|-------------+------------------------------------------------+-------------------------------------------------------------|
+| TAB         | message-tab                                    | auto-complete email address                                 |
+| C-c C-f C-o | message-goto-from                              | move to the *From:* header                                  |
+| C-c C-f C-t | message-goto-to                                | insert/move to the *To:* header                             |
+| C-c C-f C-c | message-goto-cc                                | insert/move to the *Cc:* header                             |
+| C-c C-f C-b | message-goto-bcc                               | insert/move to the *Bcc:* header                            |
+| C-c C-f C-w | message-goto-fcc                               | insert/move to the *Fcc:* header                            |
+| C-c C-f C-s | message-goto-subject                           | insert/move to the *Subject:* header                        |
+| C-c C-f C-f | message-goto-followup-to                       | insert/move to the *Followup-To:* header                    |
+| C-c C-f C-r | message-goto-reply-to                          | insert/move to the *Reply-To:* header                       |
+| C-c C-f C-k | message-goto-keywords                          | insert/move to the *Keywords:* header                       |
+| C-c C-f C-u | message-goto-summary                           | insert/move to the *Summary:* header                        |
+| C-c C-u     | message-insert-or-toggle-importance            | insert or toggle *Importance:* header                       |
+| C-c C-f TAB | message-insert-or-toggle-importance            | insert or toggle *Importance:* header                       |
+| C-c M-n     | message-insert-disposition-notification-to     | insert *Disposition-Notification-To:* (request receipt)     |
+| C-c C-f C-a | message-generate-unsubscribed-mail-followup-to | insert a *Mail-Followup-To:* header                         |
+| C-c C-f RET | message-goto-mail-followup-to                  | move to the *Mail-Followup-To:* header                      |
+| C-c C-f t   | message-reduce-to-to-cc                        |                                                             |
+| C-c C-w     | message-insert-signature                       | insert a signature                                          |
+| C-c C-o     | message-sort-headers                           | sort the message headers                                    |
+|-------------+------------------------------------------------+-------------------------------------------------------------|
+| C-c C-b     | message-goto-body                              | move to the beginning of the message's body                 |
+| C-c TAB     | message-goto-signature                         | move to the signature                                       |
+|-------------+------------------------------------------------+-------------------------------------------------------------|
+| C-c C-M-y   | message-yank-buffer                            | insert a buffer into the message and quote it               |
+| C-c M-f     | message-mark-insert-file                       | insert file at point, marking it with enclosing tags.       |
+| C-c M-m     | message-mark-inserted-region                   | mark some region in the current article with enclosing tags |
+| C-c C-e     | message-elide-region                           | replace a region with an ellipsis =[...]=                   |
+| M-RET       | message-newline-and-reformat                   | insert a newline & reformat quoted text                     |
+| C-c C-q     | message-fill-yanked-message                    | fill the body (and signature)                               |
+| C-c C-z     | message-kill-to-signature                      | kill all the text up the signature                          |
+| C-c C-v     | message-delete-not-region                      | delete all the rest of the body out of the current region   |
+| C-c C-r     | message-caesar-buffer-body                     | apply the Caesar cipher to the body (and signature)         |
+|-------------+------------------------------------------------+-------------------------------------------------------------|
+| C-c RET C-c | mml-secure-message-encrypt                     | encrypt the entire message                                  |
+| C-c RET C-e | mml-secure-message-sign-encrypt                | encrypt & sign the entire message                           |
+| C-c RET C-s | mml-secure-message-sign                        | sign the entire message                                     |
+| C-c RET C-n | mml-unsecure-message                           | remove secure features                                      |
+| C-c RET v   | mml-validate                                   | validate the email                                          |
+|-------------+------------------------------------------------+-------------------------------------------------------------|
+| C-S-u       | mu4e-update-mail-and-index                     | update mail & reindex                                       |
+| C-c ?       | describe-mode                                  | describe the current mode                                   |
+
+*** SMTP configuration
+
+This is the default smtp configuration to use with a default account
+and allowing to choose between another multiple additional accounts
+too.
+
+**** First load the user's sensitive information
+
+This load the =mail.el.gpg= file where I store the email information
+that I prefer to keep private (since I share this config in GitHub) to
+inquisitive eyes.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (defvar antares-mu4e-user-info nil
+    "This var is to only load this info once.")
+  (add-hook 'mu4e-main-mode-hook (lambda ()
+      (unless antares-mu4e-user-info
+        (load-library (concat user-emacs-directory "mail.el.gpg"))
+                      (setq antares-mu4e-user-info t))))
+#+END_SRC
+
+Even when I keep this information private, I still going to share with
+you the current code stored in that file with make up data.
+
+#+BEGIN_EXAMPLE emacs-lisp :tangle no
+    ;; a list of current and past email accounts to display correctly
+    ;; the From/To field in view mode with sent emails.
+    (setq mu4e-user-mail-address-list (list "default_account@example.com"
+                                            "another_account@sample.com"
+                                            "another_one@fake.com"
+                                            "past_account@example.com" ))
+
+    ;; the smtp configuration for the default account
+    (setq message-send-mail-function   'smtpmail-send-it
+           smtpmail-default-smtp-server "smtp.example.com"
+           smtpmail-smtp-server "smtp.example.com"
+           smtpmail-local-domain "example.com"
+           smtpmail-stmp-user "default_user"
+           smtpmail-stream-type 'starttls
+           smtpmail-smtp-service 587
+           mu4e-sent-messages-behavior 'sent
+           message-signature
+                (concat "Anton Salnikov\n"
+                        "http://antares.me\n"))
+
+    ;; a list of stmp configurations for each additional account
+    (defvar my-mu4e-account-alist
+       '(
+         ;; a pop3 account
+         ("other"
+          (user-mail-address "another_account@sample.com")
+          (user-full-name "joey")
+          (smtpmail-default-smtp-server "smtp.sample.com")
+          (smtpmail-smtp-server "smtp.sample.com")
+          (smtpmail-stmp-user "joey")
+          (smtpmail-local-domain "sample.com")
+          (smtpmail-stream-type starttls)
+          (smtpmail-smtp-service 587)
+          (mu4e-sent-messages-behavior 'sent)
+          (message-signature
+                (concat "Joey\n"
+                        "It’s a moo point. "
+                        "It’s like a cow’s opinion; it doesn’t matter. "
+                        "It’s moo.")))
+         ;; an imap account
+         ("another_one"
+          (user-mail-address "another_one@fake.com")
+          (user-full-name "John Doe")
+          (smtpmail-default-smtp-server "mail.fake.com")
+          (smtpmail-smtp-server "mail.fake.com")
+          (smtpmail-stmp-user "john$doe")
+          (smtpmail-local-domain "fake.com")
+          (smtpmail-stream-type starttls)
+          (smtpmail-smtp-service 587)
+          (mu4e-sent-messages-behavior 'delete)
+          (message-signature "John Doe"))
+    ))
+#+END_EXAMPLE
+
+**** The rest of the SMTP configuration
+
+This is the config needed to choose the right smtp configuration for
+the proper account in each moment (for new messages, replies, forwards
+& drafts editing).
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  ;; set a stronger TLS configuration than the default to avoid nasty
+  ;; warnings and for a little more secure configuration
+  (setq gnutls-min-prime-bits 2048)
+
+  ;; the multiple functions that provide the multiple accounts selection functionality
+  (defun antares-mu4e-choose-account ()
+      (completing-read (format "Compose with account: (%s) "
+        (mapconcat #'(lambda (var) (car var)) my-mu4e-account-alist "/"))
+            (mapcar #'(lambda (var) (car var)) my-mu4e-account-alist)
+                                nil t nil nil (caar my-mu4e-account-alist)))
+
+  (defun antares-mu4e-get-field (a)
+      (let ((field (cdar (mu4e-message-field mu4e-compose-parent-message a))))
+          (string-match "@\\(.*\\)\\..*" field)
+          (match-string 1 field)))
+
+
+  (defun antares-mu4e-is-not-draft ()
+      (let ((maildir (mu4e-message-field (mu4e-message-at-point) :maildir)))
+         (if (string-match "drafts*" maildir) nil t)))
+
+  (defun antares-mu4e-set-account ()
+    "Set the account for composing a message."
+    (let* ((account
+            (if mu4e-compose-parent-message
+              (let ((field (if (antares-mu4e-is-not-draft)
+                              (antares-mu4e-get-field :to)
+                              (antares-mu4e-get-field :from))))
+                  (if (assoc field my-mu4e-account-alist)
+                      field
+                      (antares-mu4e-choose-account)))
+              (antares-mu4e-choose-account)))
+           (account-vars (cdr (assoc account my-mu4e-account-alist))))
+      (if account-vars
+          (mapc #'(lambda (var)
+                    (set (car var) (cadr var)))
+                account-vars)
+        (error "No email account found"))))
+
+  (add-hook 'mu4e-compose-pre-hook 'antares-mu4e-set-account)
+#+END_SRC
+
+*** Queuing emails
+
+When offline or when you want do delay a message, you can go to the
+queuing mode and send them all turning it off.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  ;; Allow queuing mails
+  (setq smtpmail-queue-mail nil ;; start in non-queuing mode
+      smtpmail-queue-dir "~/MEGA/org/mail/mails/Queue")
+#+END_SRC
+
+*** Signature
+
+Add the signature by default when a new email is composed.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (setq mu4e-compose-signature-auto-include t)
+  (setq
+          message-signature t
+          mu4e-compose-signature t)
+#+END_SRC
+
+*** Sending emails asynchronous
+
+This is useful to send emails with attachments and do not block emacs
+until end the transmission.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (use-package smtpmail-async
+    :ensure (:host github :repo "jwiegley/emacs-async")
+    :config
+    (setq
+     auth-sources '("~/.authinfo.gpg" "~/.netrc")
+     send-mail-function 'async-smtpmail-send-it
+     message-send-mail-function 'async-smtpmail-send-it))
+#+END_SRC
+
+*** Setup maildir & folders
+
+The default Maildir path and subfolders.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (setq
+      mu4e-maildir       "~/MEGA/org/mail"        ;; top-level Maildir
+      mu4e-sent-folder   "/mails/Sent"       ;; folder for sent messages
+      mu4e-drafts-folder "/mails/Drafts"     ;; unfinished messages
+      mu4e-trash-folder  "/mails/Trash"      ;; trashed messages
+      mu4e-refile-folder "/mails/Archive")   ;; saved messages
+
+  ;; where store the saved attachments
+  (setq mu4e-attachment-dir  "~/tmp")
+#+END_SRC
+
+*** General Options
+
+mu4e's general options.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  ;; use 'fancy' non-ascii characters in various places in mu4e
+  (setq mu4e-use-fancy-chars t)
+
+  ;; do not ask for confirmation on exit
+  (setq mu4e-confirm-quit  nil)
+
+  ;; set mu4e as the default emacs email client
+  (setq mail-user-agent 'mu4e-user-agent)
+
+  ;; decorate mu main view
+  (defun antares-mu4e-main-mode-font-lock-rules ()
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward "\\[\\([a-zA-Z]\\{1,2\\}\\)\\]" nil t)
+        (add-text-properties (match-beginning 1) (match-end 1)
+        '(face font-lock-variable-name-face)))))
+  (add-hook 'mu4e-main-mode-hook 'antares-mu4e-main-mode-font-lock-rules)
+
+  ;; attempt to automatically retrieve public keys when needed
+  (setq mu4e-auto-retrieve-keys t)
+
+  ;; don't reply to myself
+  (setq mu4e-compose-dont-reply-to-self t)
+
+  ;; only personal messages get in the address book
+  (setq mu4e-compose-complete-only-personal t)
+
+#+END_SRC
+
+*** org-mode integration
+
+Integrate with org-mode
+
+#+BEGIN_SRC emacs-lisp
+  (use-package mu4e-org
+    :ensure (:host github :repo "djcb/mu" :files ("mu4e/*.el"))
+    :config
+    (progn
+      (setq org-mu4e-convert-to-html t)
+      (defalias 'org-mail 'org-mu4e-compose-org-mode)))
+#+END_SRC
+
+#+RESULTS:
+
+*** Updating the email
+
+Update the index every 2 minutes but don't retrieve the email via
+Emacs.
+
+#+BEGIN_SRC emacs-lisp
+  (setq
+    mu4e-get-mail-command "mbsync -a" ;; or fetchmail, or ...
+    mu4e-update-interval 300)         ;; update every 5 minutes
+#+END_SRC
+
+*** Header's view config
+
+The headers view configuration.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  ;; more cool and practical than the default
+  (setq mu4e-headers-from-or-to-prefix '("" . "➜ "))
+  ;; to list a lot of mails, more than the default 500
+  ;; is reasonable fast, so why not?
+  (setq mu4e-headers-results-limit 750)
+  ;; columns to show
+  (setq mu4e-headers-fields
+      '(
+        (:human-date . 9)
+        (:flags . 6)
+        (:mailing-list . 10)
+        (:size . 6)
+        (:from-or-to . 22)
+        (:subject)))
+#+END_SRC
+
+*** Message view config
+
+Config for view mode.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  ;; visible fields
+  (setq mu4e-view-fields
+      '(
+          :from
+          :to
+          :cc
+          :bcc
+          :subject
+          :flags
+          :date
+          :maildir
+          :mailing-list
+          :tags
+          :attachments
+          :signature
+  ))
+
+  ;; program to convert to pdf
+  (setq mu4e-msg2pdf "/usr/bin/msg2pdf")
+
+  ;; view email addresses not only the name
+  (setq mu4e-view-show-addresses t)
+
+  ;; attempt to show images when viewing messages
+  (setq
+     mu4e-view-show-images t
+     mu4e-view-image-max-width 800)
+
+  ;; use imagemagick if available
+  (when (fboundp 'imagemagick-register-types)
+    (imagemagick-register-types))
+#+END_SRC
+
+*** Editor view config
+
+The editor view configuration.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  ;; kill the buffer when is no needed any more
+  (setq message-kill-buffer-on-exit t)
+
+  ;; set the text width and activate the spell checking
+  (add-hook 'mu4e-compose-mode-hook (lambda ()
+                                      (set-fill-column 80)
+                                      (flyspell-mode)))
+#+END_SRC
+
+*** Message view actions
+
+Define actions for message view.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  ;; add the action to open an HTML message in the browser
+  (add-to-list 'mu4e-view-actions
+    '("browse mail" . mu4e-action-view-in-browser) t)
+
+  ;; add the action to retag messages
+  (add-to-list 'mu4e-view-actions
+    '("retag mail" . mu4e-action-retag-message) t)
+
+  ;;Search for messages sent by the sender of the message at point
+  (defun antares-search-for-sender (msg)
+      (mu4e-headers-search
+          (concat "from:" (cdar (mu4e-message-field msg :from)))))
+
+  ;; define 'x' as the shortcut
+  (add-to-list 'mu4e-view-actions
+      '("xsearch for sender" . antares-search-for-sender) t)
+
+  ;; integration with org-contacts
+  (setq mu4e-org-contacts-file "~/MEGA/org/contacts.org")
+
+  (add-to-list 'mu4e-headers-actions
+               '("org-contact-add" . mu4e-action-add-org-contact) t)
+  (add-to-list 'mu4e-view-actions
+               '("org-contact-add" . mu4e-action-add-org-contact) t)
+
+
+  ;; get a pgp key from a message
+  ;; from  http://hugoduncan.org/post/snarf-pgp-keys-in-emacs-mu4e/
+  (defun antares-mu4e-view-snarf-pgp-key (&optional msg)
+    "get the pgp key for the specified message."
+    (interactive)
+    (let* ((msg (or msg (mu4e-message-at-point)))
+            (path (mu4e-message-field msg :path))
+            (cmd (format "%s verify --verbose %s"
+                   mu4e-mu-binary
+                   (shell-quote-argument path)))
+            (output (shell-command-to-string cmd)))
+      (let ((case-fold-search nil))
+        (when (string-match "key:\\([A-F0-9]+\\)" output)
+          (let* ((cmd (format "%s --recv %s"
+                              epg-gpg-program (match-string 1 output)))
+                 (output (shell-command-to-string cmd)))
+            (message output))))))
+
+  (add-to-list 'mu4e-view-actions
+               '("get PGP keys" . antares-mu4e-view-snarf-pgp-key) t)
+
+#+END_SRC
+
+*** Deal with HTML messages
+
+Try to visualize as best as possible the HTML messages in text mode.
+
+#+BEGIN_SRC emacs-lisp
+  (setq mu4e-view-prefer-html t)
+  (setq mu4e-html2text-command "w3m -dump -cols 110 -T text/html")
+#+END_SRC
+
+*** Smileys (emoticons)
+
+Show emoticons when viewing and editing messages.
+
+**** autosmiley.el
+
+[[http://www.emacswiki.org/emacs/autosmiley.el][autosmiley.el]] by Damyan Pepper
+
+#+BEGIN_SRC emacs-lisp :tangle no
+    (use-package smiley
+      :config
+      (progn
+        (defun autosmiley-overlay-p (overlay)
+          "Return whether OVERLAY is an overlay of autosmiley mode."
+          (memq (overlay-get overlay 'category)
+                '(autosmiley)))
+
+        (defun autosmiley-remove-smileys (beg end)
+          (dolist (o (overlays-in beg end))
+            (when (autosmiley-overlay-p o)
+              (delete-overlay o))))
+
+        (defvar *autosmiley-counter* 0
+          "Each smiley needs to have a unique display string otherwise
+          adjacent smileys will be merged into a single image.  So we put
+          a counter on each one to make them unique")
+
+        (defun autosmiley-add-smiley (beg end image)
+          (let ((overlay (make-overlay beg end)))
+            (overlay-put overlay 'category 'autosmiley)
+            (overlay-put overlay 'display (append image (list :counter (incf *autosmiley-counter*))))))
+
+        (defun autosmiley-add-smileys (beg end)
+          (save-excursion
+            (dolist (entry smiley-cached-regexp-alist)
+              (let ((regexp (car entry))
+                    (group (nth 1 entry))
+                    (image (nth 2 entry)))
+                (when image
+                  (goto-char beg)
+                  (while (re-search-forward regexp end t)
+                    (autosmiley-add-smiley (match-beginning group) (match-end group) image)))))))
+
+        (defun autosmiley-change (beg end &optional old-len)
+          (let ((beg-line (save-excursion (goto-char beg) (line-beginning-position)))
+                (end-line (save-excursion (goto-char end) (line-end-position))))
+            (autosmiley-remove-smileys beg-line end-line)
+            (autosmiley-add-smileys beg-line end-line)))
+
+        ;;;###autoload
+        (define-minor-mode autosmiley-mode
+          "Minor mode for automatically replacing smileys in text with
+          cute little graphical smileys."
+          :group 'autosmiley :lighter " :)"
+          (save-excursion
+            (save-restriction
+              (widen)
+              (autosmiley-remove-smileys (point-min) (point-max))
+              (if autosmiley-mode
+                  (progn
+                    (unless smiley-cached-regexp-alist
+                      (smiley-update-cache))
+                    (jit-lock-register 'autosmiley-change))
+                (jit-lock-unregister 'autosmiley-change))))))
+
+  ;;**** Use gnome emoticons
+
+  ;;Seen [[https://github.com/ahilsend/dotfiles/blob/3b9756a4f544403b7013bff80245df1b37feecec/.emacs.d/rc/rc-smiley.el][here]]
+
+    (setq
+        smiley-data-directory "/usr/share/icons/gnome/22x22/emotes/"
+        smiley-regexp-alist '(("\\(:-?)\\)\\W" 1 "face-smile")
+                              ("\\(;-?)\\)\\W" 1 "face-wink")
+                              ("\\(:-|\\)\\W" 1 "face-plain")
+                              ("\\(:-?/\\)[^/]\\W" 1 "face-uncertain")
+                              ("\\(;-?/\\)\\W" 1 "face-smirk")
+                              ("\\(:-?(\\)\\W" 1 "face-sad")
+                              ("\\(:,-?(\\)\\W" 1 "face-crying")
+                              ("\\(:-?D\\)\\W" 1 "face-laugh")
+                              ("\\(:-?P\\)\\W" 1 "face-raspberry")
+                              ("\\(8-)\\)\\W" 1 "face-cool")
+                              ("\\(:-?\\$\\)\\W" 1 "face-embarrassed")
+                              ("\\(:-?O\\)\\W" 1 "face-surprise")))
+    (add-to-list 'gnus-smiley-file-types "png"))
+#+END_SRC
+
+**** View emoticons in mu4e
+
+#+BEGIN_SRC emacs-lisp
+  ;; Show Smileys
+  ;; (add-hook 'mu4e-view-mode-hook 'autosmiley-mode)
+  (add-hook 'mu4e-view-mode-hook 'emojify-mode)
+  ;; Test smileys:  :-] :-o :-) ;-) :-\ :-| :-d :-P 8-| :-(
+#+END_SRC
+
+*** Shortcuts
+
+My defined shortcuts
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  ;; Folder shortcuts
+  (setq mu4e-maildir-shortcuts '((:maildir "/antares@antares.me/INBOX" :key ?i :name "Входящие"))) ;; :hide nil :hide-unread nil
+#+END_SRC
+
+*** Dired integration
+
+Integration with Dired, so we can attach a file to a new email
+directly from Dired.
+
+| Binding     | Call              | Do                           |
+|-------------+-------------------+------------------------------|
+| C-c RET C-a | gnus-dired-attach | Attach a file to a new email |
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (use-package gnus-dired
+    :config
+    (progn
+      ;; make the `gnus-dired-mail-buffers' function also work on
+      ;; message-mode derived modes, such as mu4e-compose-mode
+      (defun gnus-dired-mail-buffers ()
+        "Return a list of active message buffers."
+        (let (buffers)
+          (save-current-buffer
+            (dolist (buffer (buffer-list t))
+              (set-buffer buffer)
+              (when (and (derived-mode-p 'message-mode)
+                       (null message-sent-message-via))
+                (push (buffer-name buffer) buffers))))
+          (nreverse buffers)))
+
+      (setq gnus-dired-mail-mode 'mu4e-user-agent)
+      (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode)))
+#+END_SRC
+
+*** Encrypt/Decrypt
+
+Config for encrypt/decrypt emails
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (setq mu4e-decryption-policy t)
+
+;; ; Sign the messages by default
+;; (add-hook 'mu4e-compose-mode-hook 'mml-secure-message-sign)
+;; ;rename to signature.asc
+;; (defadvice mml2015-sign (after mml2015-sign-rename (cont) act)
+;;   (save-excursion
+;;     (search-backward "Content-Type: application/pgp-signature")
+;;     (goto-char (point-at-eol))
+;;     (insert "; name=\"signature.asc\"; description=\"Digital signature\"")))
+#+END_SRC
+
+*** Attachment reminder
+
+To avoid memory faults, as forget to attach a file after mention it
+in the message's body.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  ;; simple regexp used to check the message. Tweak to your own need.
+  (defvar antares-message-attachment-regexp "\\(adjunto\\|attach\\)")
+  ;; the function that checks the message
+  (defun antares-message-check-attachment nil
+    "Check if there is an attachment in the message if I claim it."
+    (save-excursion
+      (message-goto-body)
+      (when (search-forward-regexp antares-message-attachment-regexp nil t nil)
+        (message-goto-body)
+        (unless (or (search-forward "<#part" nil t nil)
+          (message-y-or-n-p
+     "No attachment. Send the message ?" nil nil))
+    (error "No message sent")))))
+    ;; check is done just before sending the message
+    (add-hook 'message-send-hook 'antares-message-check-attachment)
+#+END_SRC
+*** Open a mu4e search in a new frame
+
+This is useful when you are composing a new email and need to do a
+search in your emails to get a little context in the conversation.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (defun antares-mu4e-headers-search-in-new-frame
+      (&optional expr prompt edit ignore-history)
+          "Execute `mu4e-headers-search' in a new frame."
+          (interactive)
+          (select-frame (make-frame))
+          (mu4e-headers-search expr prompt edit ignore-history))
+#+END_SRC
+** Confluence-el
+#+begin_src emacs-lisp :tangle no
+(use-package confluence
+  :ensure (:host github :repo "danp/confluence-el")
+  :init
+  (progn
+    (setf confluence-url "http://cfl.itech-group.ru/confluence/rpc/xmlrpc")))
+#+end_src
+
+** Guix
+#+begin_src emacs-lisp
+  (use-package guix
+    :ensure t
+    :defer t)
+#+end_src
+
+** Tramp
+#+begin_src emacs-lisp
+(use-package tramp
+  :ensure t)
+#+end_src
+** Bitrix24
+#+begin_src emacs-lisp :tangle no
+(use-package bitrix24
+  :elpaca (:repo "~/tmp/bitrix24-mode/" :file))
+#+end_src
+** Emoticons
+#+begin_src emacs-lisp
+(use-package emojify
+  :ensure t
+  :init (global-emojify-mode 1)
+  :config
+  (if (display-graphic-p)
+      (setq emojify-display-style 'image)
+    (setq emojify-display-style 'unicode)))
+#+end_src
+** elfeed
+
+[[https://github.com/skeeto/elfeed][Elfeed]] предоставляет расширяемую читалку лент новостей для Emacs с поддержкой Atom и RSS
+
+*Режим поиска*
+
+[[./img/elfeed.png]]
+
+*Режим просмотра*
+
+[[./img/elfeed_show.png]]
+
+#+BEGIN_SRC emacs-lisp
+  (use-package elfeed
+    :ensure t
+    :commands elfeed
+    :config
+    (add-hook 'elfeed-new-entry-hook
+              (elfeed-make-tagger :before "4 weeks ago"
+                                  :remove 'unread))
+    (setq elfeed-db-directory  (concat antares-emacs-temporal-directory "elfeed")
+          elfeed-search-filter "@4-weeks-old +unread "
+          elfeed-search-title-max-width 100)
+    (setq elfeed-feeds
+          '(
+            ("https://geektimes.ru/rss/" geektimes)
+            ("https://habrahabr.ru/rss/all/" habrahabr)
+            ("http://archlinux.org.ru/news/feed/" arch)
+            ("http://endlessparentheses.com/atom.xml" emacs)
+            ("http://planet.emacsen.org/atom.xml" emacs)
+            ("https://www.reddit.com/r/emacs/.rss" emacs)
+            ("https://www.reddit.com/r/orgmode/.rss" emacs)
+            ("http://www.blackhats.es/wordpress/?p=670" emacs)
+            ("http://www.howardism.org/index.xml" emacs)
+            ("http://www.masteringemacs.org/feed/" emacs)))
+    (bind-keys :map elfeed-search-mode-map
+               ("a"   .  elfeed-search-update--force)
+               ("A"   .  elfeed-update)
+               ("d"   .  elfeed-unjam)
+               ("o"   .  elfeed-search-browse-url)
+               ("j"   .  next-line)
+               ("k"   .  previous-line)
+               ("g"   .  beginning-of-buffer)
+               ("G"   .  end-of-buffer)
+               ("v"   .  set-mark-command)
+               ("<escape>" .  keyboard-quit))
+    (bind-keys :map elfeed-show-mode-map
+               ("j"     . elfeed-show-next)
+               ("k"     . elfeed-show-prev)
+               ("o"     . elfeed-show-visit)
+               ("<escape>" .  keyboard-quit)
+               ("SPC"   . scroll-up)
+               ("S-SPC" . scroll-down)
+               ("TAB"   . shr-next-link)
+               ("S-TAB" . shr-previous-link))
+
+    (when (package-installed-p 'hydra)
+        (bind-keys :map elfeed-search-mode-map
+               ("\\"   . hydra-elfeed-search/body))
+        (bind-keys :map elfeed-show-mode-map
+               ("\\"   . hydra-elfeed-show/body))
+        (eval-and-compile
+          (defhydra hydra-elfeed-common (:color blue)
+            ("\\" hydra-master/body "back")
+            ("<ESC>" nil "quit")))
+
+        (defhydra hydra-elfeed-search (:hint nil :color blue :inherit (hydra-elfeed-common/heads))
+          "
+                                                                        ╭────────┐
+    Move   Filter     Entries        Tags          Do                   │ Elfeed │
+  ╭─────────────────────────────────────────────────────────────────────┴────────╯
+    _p_/_k_    [_s_] live   [_RET_] view     [_r_] read      [_a_] refresh
+    ^ ^↑^ ^    [_S_] set    [_o_] browse     [_u_] unread    [_A_] fetch
+    ^ ^ ^ ^     ^ ^         [_y_] yank url   [_+_] add       [_d_] unjam
+    ^ ^↓^ ^     ^ ^         [_v_] mark       [_-_] remove    [_E_] edit feeds
+    _n_/_j_     ^ ^          ^ ^              ^ ^            [_q_] exit
+  --------------------------------------------------------------------------------
+          "
+          ("q"    quit-window)
+          ("a"    elfeed-search-update--force)
+          ("A"    elfeed-update)
+          ("d"    elfeed-unjam)
+          ("s"    elfeed-search-live-filter)
+          ("S"    elfeed-search-set-filter)
+          ("RET"  elfeed-search-show-entry)
+          ("o"    elfeed-search-browse-url)
+          ("y"    elfeed-search-yank)
+          ("v"    set-mark-command)
+          ("n"    next-line :color red)
+          ("j"    next-line :color red)
+          ("p"    previous-line :color red)
+          ("k"    previous-line :color red)
+          ("r"    elfeed-search-untag-all-unread)
+          ("u"    elfeed-search-tag-all-unread)
+          ("E"    (lambda() (interactive)(find-file "~/.emacs.d/elfeed.el.gpg")))
+          ("+"    elfeed-search-tag-all)
+          ("-"    elfeed-search-untag-all))
+
+      (defhydra hydra-elfeed-show (:hint nil :color blue)
+          "
+                                                                        ╭────────┐
+    Scroll       Entries        Tags          Links                     │ Elfeed │
+  ╭─────────────────────────────────────────────────────────────────────┴────────╯
+    _S-SPC_    _p_/_k_  [_g_] refresh   [_u_] unread    _S-TAB_
+    ^  ↑  ^    ^ ^↑^ ^  [_o_] browse    [_+_] add       ^  ↑  ^
+    ^     ^    ^ ^ ^ ^  [_y_] yank url  [_-_] remove    ^     ^
+    ^  ↓  ^    ^ ^↓^ ^  [_q_] quit       ^ ^            ^  ↓  ^
+     _SPC_     _n_/_j_  [_s_] quit & search^^            _TAB_
+  --------------------------------------------------------------------------------
+          "
+          ("q"     elfeed-kill-buffer)
+          ("g"     elfeed-show-refresh)
+          ("n"     elfeed-show-next :color red)
+          ("j"     elfeed-show-next :color red)
+          ("p"     elfeed-show-prev :color red)
+          ("k"     elfeed-show-prev :color red)
+          ("s"     elfeed-show-new-live-search)
+          ("o"     elfeed-show-visit)
+          ("y"     elfeed-show-yank)
+          ("u"     (elfeed-show-tag 'unread))
+          ("+"     elfeed-show-tag)
+          ("-"     elfeed-show-untag)
+          ("SPC"   scroll-up :color red)
+          ("S-SPC" scroll-down :color red)
+          ("TAB"   shr-next-link :color red)
+          ("S-TAB" shr-previous-link :color red))))
+#+END_SRC
+** jetbrains
+#+begin_src emacs-lisp
+(use-package jetbrains
+  :ensure t)
+#+end_src

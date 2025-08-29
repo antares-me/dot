@@ -4,3 +4,12 @@
 [submodule "nerd-fonts"]
 	path = nerd-fonts
 	url = https://github.com/ryanoasis/nerd-fonts
+[submodule "emacs/.config/emacs"]
+	path = emacs/.config/emacs
+	url = https://github.com/plexus/chemacs2.git
+[submodule "emacs/.config/emacs_doom"]
+	path = emacs/.config/emacs_doom
+	url = https://github.com/doomemacs/doomemacs
+[submodule "emacs/.config/emacs_spacemacs"]
+	path = emacs/.config/emacs_spacemacs
+	url = https://github.com/syl20bnr/spacemacs

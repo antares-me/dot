@@ -1,0 +1,93 @@
+# mbsyncrc based on
+# http://www.ict4g.net/adolfo/notes/2014/12/27/EmacsIMAP.html
+# ACCOUNT INFORMATION
+IMAPAccount antares@antares.me
+# Address to connect to
+Host imap.gmail.com
+User antares@antares.me
+# Create a plain text file that contains your password. Name it mbsyncpass-acc1. 
+# Then, gpg encrypt it by running: gpg2 -c mbsyncpass-acc1
+# Then delete the plain text file, leaving only mbsyncpass-acc1.gpg.
+# PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.password-store/Personal/Email/Gmail/antares@antares.me.gpg"
+Pass 4/0AVG7fiThGjKml1Xdrx_BfqJsfwg5Sb_N_HqPryOKcshJUK7HqZQCE3IPGaqY3xkFyx5p8A
+AuthMechs XOAUTH2
+TLSType IMAPS
+TLSVersions +1.3
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+# THEN WE SPECIFY THE LOCAL AND REMOTE STORAGE
+# - THE REMOTE STORAGE IS WHERE WE GET THE MAIL FROM (E.G., THE
+#   SPECIFICATION OF AN IMAP ACCOUNT)
+# - THE LOCAL STORAGE IS WHERE WE STORE THE EMAIL ON OUR COMPUTER
+# REMOTE STORAGE (USE THE IMAP ACCOUNT SPECIFIED ABOVE)
+IMAPStore antares@antares.me-remote
+Account antares@antares.me
+
+# LOCAL STORAGE (CREATE DIRECTORIES with mkdir -p ~/Maildir/derek-distrotube)
+MaildirStore antares@antares.me-local
+Path ~/Maildir/antares@antares.me/
+Inbox ~/Maildir/antares@antares.me/INBOX
+
+# REQUIRED ONLY IF YOU WANT TO DOWNLOAD ALL SUBFOLDERS; SYNCING SLOWS DOWN
+# SubFolders Verbatim
+# CONNECTIONS SPECIFY LINKS BETWEEN REMOTE AND LOCAL FOLDERS
+#
+# CONNECTIONS ARE SPECIFIED USING PATTERNS, WHICH MATCH REMOTE MAIL
+# FOLDERS. SOME COMMONLY USED PATTERS INCLUDE:
+#
+# 1 "*" TO MATCH EVERYTHING
+# 2 "!DIR" TO EXCLUDE "DIR"
+# 3 "DIR" TO MATCH DIR
+Channel antares@antares.me
+Far :antares@antares.me-remote:
+Near :antares@antares.me-local:
+Patterns *
+Create Both
+Expunge Both
+SyncState *
+
+
+# ACCOUNT INFORMATION
+IMAPAccount a.salnikov@itech-group.ru
+# Address to connect to
+Host imap.itech-group.ru
+User a.salnikov
+# Create a plain text file that contains your password. Name it mbsyncpass-acc1. 
+# Then, gpg encrypt it by running: gpg2 -c mbsyncpass-acc1
+# Then delete the plain text file, leaving only mbsyncpass-acc1.gpg.
+PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.password-store/Work/itech/owa.itech-group.ru.gpg"
+AuthMechs LOGIN
+CertificateFile ~/Загрузки/owa-itech-group-ru.pem
+TLSType IMAPS
+TLSVersions +1.2
+
+# THEN WE SPECIFY THE LOCAL AND REMOTE STORAGE
+# - THE REMOTE STORAGE IS WHERE WE GET THE MAIL FROM (E.G., THE
+#   SPECIFICATION OF AN IMAP ACCOUNT)
+# - THE LOCAL STORAGE IS WHERE WE STORE THE EMAIL ON OUR COMPUTER
+# REMOTE STORAGE (USE THE IMAP ACCOUNT SPECIFIED ABOVE)
+IMAPStore a.salnikov@itech-group.ru-remote
+Account a.salnikov@itech-group.ru
+
+# LOCAL STORAGE (CREATE DIRECTORIES with mkdir -p ~/Maildir/derek-distrotube)
+MaildirStore a.salnikov@itech-group.ru-local
+Path ~/Maildir/a.salnikov@itech-group.ru/
+Inbox ~/Maildir/a.salnikov@itech-group.ru/INBOX
+
+# REQUIRED ONLY IF YOU WANT TO DOWNLOAD ALL SUBFOLDERS; SYNCING SLOWS DOWN
+# SubFolders Verbatim
+# CONNECTIONS SPECIFY LINKS BETWEEN REMOTE AND LOCAL FOLDERS
+#
+# CONNECTIONS ARE SPECIFIED USING PATTERNS, WHICH MATCH REMOTE MAIL
+# FOLDERS. SOME COMMONLY USED PATTERS INCLUDE:
+#
+# 1 "*" TO MATCH EVERYTHING
+# 2 "!DIR" TO EXCLUDE "DIR"
+# 3 "DIR" TO MATCH DIR
+Channel a.salnikov@itech-group.ru
+Far :a.salnikov@itech-group.ru-remote:
+Near :a.salnikov@itech-group.ru-local:
+Patterns *
+Create Both
+Expunge Both
+SyncState *

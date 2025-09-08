@@ -1,0 +1,60 @@
+IMAPAccount antares@antares.me
+Host imap.gmail.com
+Port 993
+AuthMechs LOGIN
+User antares@antares.me 
+PassCmd "pass Personal/Email/Gmail/mbsync"
+#PassCmd "emacsclient -e '(password-store-get-field \"fastmail.com/myaccount@fastmail.com\" \"smtp\)'"
+TLSType IMAPS
+TLSVersions +1.2
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+IMAPStore antares@antares.me-remote
+Account antares@antares.me
+
+MaildirStore antares@antares.me-local
+Path ~/Maildir/antares@antares.me/
+Inbox ~/Maildir/antares@antares.me/INBOX
+SubFolders Verbatim
+
+Channel antares@antares.me
+Far :antares@antares.me-remote:
+Near :antares@antares.me-local:
+#Patterns *
+Patterns * ![Gmail]* "!Магазины*" "!Соцсети*" "!GitHub" "[Gmail]/Важное" "[Gmail]/Помеченные" "!Приоритетные" "!Прочие" "!Требуется ответ"
+Expunge Both
+CopyArrivalDate yes
+Sync All
+Create Both
+SyncState *
+
+# Yandex
+#IMAPAccount a.salnikov@notamedia.ru
+#Host imap.yandex.ru
+#Port 993
+#AuthMechs LOGIN
+#User a.salnikov@notamedia.ru
+#PassCmd "pass Work/nota/yandex.ru/a.salnikov@notamedia.ru"
+##PassCmd "emacsclient -e '(password-store-get-field \"fastmail.com/myaccount@fastmail.com\" \"smtp\)'"
+#TLSType IMAPS
+#TLSVersions +1.2
+#CertificateFile /etc/ssl/certs/ca-certificates.crt
+#
+#IMAPStore a.salnikov@notamedia.ru-remote
+#Account a.salnikov@notamedia.ru
+#
+#MaildirStore a.salnikov@notamedia.ru-local
+#Path ~/Maildir/a.salnikov@notamedia.ru/
+#Inbox ~/Maildir/a.salnikov@notamedia.ru/INBOX
+#SubFolders Verbatim
+#
+#Channel a.salnikov@notamedia.ru
+#Far :a.salnikov@notamedia.ru-remote:
+#Near :a.salnikov@notamedia.ru-local:
+#Patterns *
+## Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail" "[Gmail]/Trash"
+#Expunge Both
+#CopyArrivalDate yes
+#Sync All
+#Create Both
+#SyncState *

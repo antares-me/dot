@@ -23,3 +23,9 @@ ranger/.config/ranger/history
 ranger/.config/ranger/tagged
 systemd/.config/systemd/user/xsession.target.wants
 mpd/.mpd/log
+/emacs/.config/emacs_default/.cache/
+/emacs/.config/emacs_default/.dap-breakpoints
+/emacs/.config/emacs_default/.extension/
+/emacs/.config/emacs_default/.lsp-session-v1
+/emacs/.config/emacs_default/*.el
+/emacs/.config/emacs_default/eln-cache/

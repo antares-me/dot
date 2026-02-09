@@ -130,7 +130,7 @@ Tangling происходит автоматически каждый раз п�
 * Встроенные возможности
 ** Сообщения отладки с метками времени
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 ;; Временные метки (timestamp) в *Messages*
 ;; via https://www.reddit.com/r/emacs/comments/3hagxf/how_to_automatically_timestamp_messages_in/
 (defun current-time-microseconds ()
@@ -147,7 +147,7 @@ Tangling происходит автоматически каждый раз п�
           (if (not (bolp))
               (newline))
           (insert (current-time-microseconds))))))
-#+END_SRC
+#+end_src
 
 ** Изменеиее прозрачности
 #+begin_src emacs-lisp
@@ -175,7 +175,7 @@ Tangling происходит автоматически каждый раз п�
 
 Значения по-умолчанию, которые я считаю хорошим началом.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
     (set-frame-parameter nil 'alpha-background 100)  ;; Прозрачный бэкграунд
     (add-to-list 'default-frame-alist '(alpha-background . 100))
     (add-to-list 'default-frame-alist '(fullscreen . maximized)) ;; Запуск в полноэкранном режиме
@@ -283,7 +283,7 @@ Tangling происходит автоматически каждый раз п�
     (setq user-full-name    "Salnikov Anton"
           user-mail-address "antares@antares.me"
           epg-user-id "DFF74643BBB53D84")
-#+END_SRC
+#+end_src
 
 ** Временные файлы
 
@@ -293,16 +293,16 @@ Tangling происходит автоматически каждый раз п�
 Сначала создадим переменную, в которую поместим путь к этой директории и если
 она не существует создадим её.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (defvar antares-emacs-temporal-directory (concat user-emacs-directory "tmp/"))
   (unless (file-exists-p antares-emacs-temporal-directory)
     (make-directory antares-emacs-temporal-directory))
-#+END_SRC
+#+end_src
 
 Сохраним все временные файлы во временных каталогах вместо того, чтобы плодить их
 в $HOME директории.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (setq-default
    ;; История tramp
    tramp-persistency-file-name (concat antares-emacs-temporal-directory "tramp")
@@ -314,13 +314,13 @@ Tangling происходит автоматически каждый раз п�
    url-configuration-directory (concat antares-emacs-temporal-directory "url")
    ;; eshell файлы
    eshell-directory-name (concat antares-emacs-temporal-directory "eshell" ))
-#+END_SRC
+#+end_src
 
 ** История
 
 Поддерживать историю прошлых действий в списке с разумными пределами.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (setq-default history-length 1000)
   (setq savehist-file (concat antares-emacs-temporal-directory "history")
         history-delete-duplicates t
@@ -330,7 +330,7 @@ Tangling происходит автоматически каждый раз п�
           search-ring
           regexp-search-ring))
   (savehist-mode t)
-#+END_SRC
+#+end_src
 
 ** Недавние файлы
 
@@ -338,7 +338,7 @@ Recentf - это второстепенный режим, который стр�
 файлов. Этот список автоматически сохраняется во время сеанса Emacs. Вы можете
 получить доступ к этому списку через меню.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package recentf
   :ensure nil
   :diminish nil
@@ -349,13 +349,13 @@ Recentf - это второстепенный режим, который стр�
           recentf-max-saved-items 100
           recentf-exclude '("COMMIT_MSG" "COMMIT_EDITMSG"))
     (recentf-mode t)))
-#+END_SRC
+#+end_src
 
 ** Сохранить сессию между запусками Emacs (Desktop)
 
 Desktop Save Mode - функция сохранения состояния Emacs от одного сеанса к другому.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 ;; У меня отключен пока эта конфигурация не стабильна
 (use-package desktop
   :ensure t
@@ -381,7 +381,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
                     register-alist)))
     (desktop-save-mode 1)))
 
-#+END_SRC
+#+end_src
 
 ** Сохранение позиции курсора между сеансами
 
@@ -389,21 +389,21 @@ Desktop Save Mode - функция сохранения состояния Emacs
 открытии файла, курсор будет в той позиции, в которой вы последний раз его
 открыли.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package saveplace
   :ensure nil
   :config
   (progn
     (setq save-place-file (concat antares-emacs-temporal-directory "saveplace.el") )
     (setq-default save-place t)))
-#+END_SRC
+#+end_src
 
 ** Шрифт
 
 Используемый шрифт. Мой выбор моноширинный /Fira Code/ потому что он
 свободный и имеет отличную поддержку Юникода, да и выглядит неплохо!
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (set-face-attribute 'default nil :family "FiraCode Nerd Font Mono" :height 110)
 
   ;; Установим шрифт с отличной поддержкой символов Unicode, чтобы в случае
@@ -411,7 +411,8 @@ Desktop Save Mode - функция сохранения состояния Emacs
   ;; резервного
   (set-fontset-font "fontset-default" nil
                     (font-spec :size 20 :name "Symbola"))
-#+END_SRC
+  (set-fontset-font t 'unicode "Symbola" nil 'append)
+#+end_src
 
 ** Лигатуры
 
@@ -494,7 +495,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
 Показывает более удобные номера строк. Я не часто использую их потому, что это
 очень медленная функция, но иногда она удобна.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (unless window-system
     (add-hook 'linum-before-numbering-hook
               (lambda ()
@@ -510,26 +511,26 @@ Desktop Save Mode - функция сохранения состояния Emacs
 
   (unless window-system
     (setq linum-format 'antares-linum-format-func))
-#+END_SRC
+#+end_src
 
 ** Показ завершающих пробелов
 
 Показать/скрыть завершающие пробелы в буфере
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   ;; from http://stackoverflow.com/a/11701899/634816
   (defun antares-toggle-show-trailing-whitespace ()
     "Переключение show-trailing-whitespace между t и nil"
     (interactive)
     (setq show-trailing-whitespace (not show-trailing-whitespace)))
-#+END_SRC
+#+end_src
 
 ** Убить внутренний процесс с помощью =list process= буфера
 
 Добавляет функционал возможности завершения процесса прямо в =list process=
 буфере
 
-#+BEGIN_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
   ;; seen at http://stackoverflow.com/a/18034042
   (defun antares-delete-process-at-point ()
     (interactive)
@@ -542,13 +543,13 @@ Desktop Save Mode - функция сохранения состояния Emacs
              (error "no process at point!")))))
 
   (define-key process-menu-mode-map (kbd "C-c k") 'antares-delete-process-at-point)
-#+END_src
+#+end_src
 
 ** Вспомогательные функции для управления буферами
 
 Несколько кастомных функций для управления буферами.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (defun antares-alternate-buffers ()
     "Переключение между последними двумя буферами"
     (interactive)
@@ -569,15 +570,15 @@ Desktop Save Mode - функция сохранения состояния Emacs
     (interactive)
     (let ((diff-switches "-u"))
       (diff-buffer-with-file (current-buffer))))
-#+END_SRC
+#+end_src
 
 ** Сетевая безопасность
 
 Установить уровень безопасности Emacs Network Security Manager
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
    (setq network-security-level 'high)
-#+END_SRC
+#+end_src
 
 * Пакеты
 ** Внешний вид
@@ -620,7 +621,7 @@ Emacs версия Vim powerline.
 будут установлены пропатченные шрифты.
 По умолчанию все терминальные режимы Emacs используют разделители UTF-8.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp :tangle no
     (use-package powerline
       :ensure t
       :disabled t
@@ -637,7 +638,7 @@ Emacs версия Vim powerline.
   ;;     :straight powerline)
   ;; Выбор цвета строки состояния.(Default: blue)
   ;;(moe-theme-set-color 'cyan)
-#+END_SRC
+#+end_src
 
 *** Темы
 **** Tron legacy
@@ -654,7 +655,7 @@ Emacs версия Vim powerline.
 
 [[https://github.com/kuanyui/moe-theme.el][Moe-theme]] понравившаяся мне цветовая тема.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package moe-theme
     :ensure t
     :disabled t
@@ -673,7 +674,7 @@ Emacs версия Vim powerline.
           show-paren-style 'expression)
       (powerline-moe-theme)
       (moe-dark)))
-#+END_SRC
+#+end_src
 **** Dracula theme
 #+begin_src emacs-lisp 
   (use-package dracula-theme
@@ -706,16 +707,16 @@ Emacs версия Vim powerline.
 [[https://github.com/purcell/page-break-lines][page-break-lines]] предоставляет глобальный режим, в котором уродливые символы перевода
 строки =^L= отображаются как аккуратные горизонтальные черты.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package page-break-lines
     :ensure t
     :diminish page-break-lines-mode
     :config
     (global-page-break-lines-mode t))
-#+END_SRC
+#+end_src
 
 **** Dashboard
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package dashboard
     :ensure t
     :demand t
@@ -793,7 +794,7 @@ Emacs версия Vim powerline.
 
       (dashboard-setup-startup-hook)
       ))
-#+END_SRC
+#+end_src
 **** Hide mode-line
 #+begin_src emacs-lisp
   (use-package hide-mode-line
@@ -802,7 +803,7 @@ Emacs версия Vim powerline.
     :hook (dashboard-mode . hide-mode-line-mode))
 #+end_src
 **** Random-splash-image
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
   (use-package random-splash-image
     :ensure t
     :demand t
@@ -812,7 +813,7 @@ Emacs версия Vim powerline.
       (setq random-splash-image-dir (concat (getenv "HOME") "/Pictures"))
       (random-splash-image-set))
     )
-#+END_SRC
+#+end_src
 **** Solaire mode
 #+begin_src emacs-lisp
   (use-package solaire-mode
@@ -826,13 +827,13 @@ Emacs версия Vim powerline.
 #+end_src
 *** Шрифт
 **** FiraCode
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
   (use-package fira-code-mode
     :ensure t
     :custom (fira-code-mode-disabled-ligatures '("[]" "x"))  ; ligatures you don't want
     :hook prog-mode
     )                                         ; mode to enable fira-code-mode in
-#+END_SRC
+#+end_src
 ** transient
 Библиотека для создания клавиатурно-ориентированного меню для *magit*, *docker*
 и других режимов.
@@ -850,7 +851,7 @@ Emacs версия Vim powerline.
   :defer t
   :config
   (setq mastodon-active-user "antares@antares.me"
-        mastodon-instance-url "https://emacs.ch"))
+        mastodon-instance-url "https://mastodon.ml"))
 #+end_src
 ** tp
 Некоторые функции, классы и методы, упрощающие создание временных меню, которые отправляют сложные запросы POST, PUT или PATCH в JSON API.
@@ -872,9 +873,14 @@ Emacs версия Vim powerline.
   :fetcher github
   :repo "emacsmirror/mathjax"))
 #+end_src
+** Track-changes
+#+begin_src emacs-lisp
+  (use-package track-changes
+    :ensure t)
+#+end_src
 ** Undo-tree
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package undo-tree
     :ensure (:host github :repo "apchamberlain/undo-tree.el")
     :diminish undo-tree-mode
@@ -888,14 +894,14 @@ Emacs версия Vim powerline.
             undo-tree-auto-save-history t
             undo-tree-visualizer-timestamps t
             undo-tree-visualizer-diff t)))
-#+END_SRC
+#+end_src
 
 ** ranger
  [[https://github.com/ralesi/ranger.el][Ranger]] is a minor mode that runs within dired emulating many of the features of
  [[https://github.com/ralesi/ranger.el][ranger]]. This minor mode shows a stack of the parent directories and updates the
  parent buffers while navigating the file system.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package ranger
     :ensure t
     :defer t
@@ -904,7 +910,7 @@ Emacs версия Vim powerline.
           ranger-show-hidden t
           ranger-dont-show-binary t
           ranger-show-literal nil))
-#+END_SRC
+#+end_src
 
 ** graphviz-dot-mode
 
@@ -921,12 +927,12 @@ Emacs версия Vim powerline.
 ** Утилиты
 *** Работа с текстом
 **** Rainbow-delimiters
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package rainbow-delimiters
     :ensure t
     :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
           (setq rainbow-delimiters-max-face-count 9))
-#+END_SRC
+#+end_src
 *** Поиск текста
 **** ag
 
@@ -958,13 +964,13 @@ Emacs версия Vim powerline.
 
 *** Разметка
 **** Markdown-mode
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package markdown-mode
   :ensure t
   :defer t
   :mode (("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode)))
-#+END_SRC
+#+end_src
 *** Погода
 #+begin_src emacs-lisp
   ;; Display format
@@ -998,30 +1004,54 @@ Emacs версия Vim powerline.
     :init
     (display-wttr-mode))
 #+end_src
-
+*** Праздники и календарь
+**** Праздники
+#+begin_src emacs-lisp
+  (use-package russian-holidays
+    :ensure t)
+#+end_src
+**** Календарь
+#+begin_src emacs-lisp
+  (use-package russian-calendar
+    :ensure t)
+#+end_src
 ** Мессенджеры
 *** Telegram
 #+begin_src emacs-lisp
   (use-package telega
     :ensure t
+    :pin manual
     :demand t
+    :hook (telega-load-hook . telega-notifications-mode)
     :config
     (progn
       (define-key global-map (kbd "C-c t") telega-prefix-map)
-      (require 'telega-alert)
+      (setq telega-use-docker t
+            telega-adblock-mode t
+            telega-notifications-mode t
+            telega-mode-line-mode t
+            ;;telega-alert-mode t
+            telega-language "ru")
+      ;;(require 'telega-alert)
       (require 'telega-adblock)
       (require 'telega-dashboard)
       (require 'ol-telega)
       ;;(add-hook 'telega-load-hook (lambda () (add-to-list 'dashboard-items '(telega-chats . 5))))
       (require 'telega-transient)
-      (telega-transient-mode t)
-      (setq telega-use-docker t
-            telega-adblock-mode t
-            telega-notifications-mode t
-            telega-mode-line-mode t
-            telega-alert-mode t
-            telega-language "ru")))
+      (telega-transient-keymaps-mode t)
+      (setq telega-transient-keymaps '(telega-prefix-map telega-sort-map telega-filter-map
+                   telega-describe-map telega-folder-map
+                   telega-voip-map telega-root-fastnav-map
+                   telega-root-view-map telega-chatbuf-fastnav-map))
+      ))
   #+end_src
+
+*** telega-export
+#+begin_src emacs-lisp
+  (use-package telega-export
+    :ensure (:host github :repo "gnu-emacs-ru/telega-export")
+    :after '(telega))
+#+end_src
 
 *** Matrix
 #+begin_src emacs-lisp
@@ -1029,6 +1059,7 @@ Emacs версия Vim powerline.
   :ensure t
   :defer t)
 #+end_src
+
 ** AI
 *** Codeium
 #+begin_src emacs-lisp :tangle no
@@ -1078,9 +1109,24 @@ Emacs версия Vim powerline.
   ;; or use aider-transient-menu-2cols / aider-transient-menu-1col, for narrow screen
   (aider-magit-setup-transients)) ;; add aider magit function to magit menu
 #+end_src
+*** TODO Copilot
+#+begin_src emacs-lisp
+  (use-package copilot
+    :after '(track-changes)
+    :ensure (
+    :host github
+    :repo "copilot-emacs/copilot.el"
+    :branch "main"
+    :files ("*.el")))
+#+end_src
+*** Copilot-chat
+#+begin_src emacs-lisp
+  (use-package copilot-chat
+    :ensure t)
+#+end_src
 ** company-mode
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package company
     :ensure t
     :init
@@ -1088,23 +1134,23 @@ Emacs версия Vim powerline.
       (add-hook 'after-init-hook 'global-company-mode)))
   (use-package company-restclient
     :ensure t
-    :after (know-your-http-well))
+    :after '(know-your-http-well))
   (use-package company-web
     :ensure t)
-#+END_SRC
+#+end_src
 
 ** Программирование
 *** devdocs
 
 [[https://github.com/xuchunyang/DevDocs.el][devdocs]] пакет Emacs, позволяющий легко искать документацию на [[https://devdocs.io][DevDocs]].
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package devdocs
     :ensure t
     :after mathjax
     :config
     (setq devdocs-data-dir (concat antares-emacs-temporal-directory "devdocs")))
-#+END_SRC
+#+end_src
 *** Devdocs-browser
 #+begin_src emacs-lisp
 (use-package devdocs-browser
@@ -1142,7 +1188,7 @@ Emacs версия Vim powerline.
 #+end_src
 *** Go
 **** Go-mode
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package go-mode
     :ensure t
     :defer t
@@ -1164,50 +1210,50 @@ Emacs версия Vim powerline.
             (multi-compile-locate-file-dir ".git"))))))
     )
     :mode ("\\.go\\'" . go-mode))
-#+END_SRC
+#+end_src
 
 **** Golint
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package golint
     :ensure t
     :mode ("\\.go\\'" . go-mode))
-#+END_SRC
+#+end_src
 
 **** Go-eldoc
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package go-eldoc
     :ensure t
     :init
         (add-hook 'go-mode-hook 'go-eldoc-setup)
     :mode ("\\.go\\'" . go-mode))
-#+END_SRC
+#+end_src
 **** Company-go
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package company-go
     :ensure t
     :init
     (add-hook 'go-mode-hook (lambda ()
                               (set (make-local-variable 'company-backends) '(company-go))
                               (company-mode))))
-#+END_SRC
+#+end_src
 **** Go-rename
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package go-rename
     :ensure t
     :mode ("\\.go\\'" . go-mode))
-#+END_SRC
+#+end_src
 
 **** Go-direx
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package go-direx
     :ensure t
     ;; :config
     ;;(bind-keys :map go-mode-map
     ;;("s" . go-direx-pop-to-buffer))
     :mode ("\\.go\\'" . go-mode))
-#+END_SRC
+#+end_src
 **** Golangci-lint
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package flycheck-golangci-lint
     :ensure t
     :hook (go-mode . flycheck-golangci-lint-setup)
@@ -1217,7 +1263,7 @@ Emacs версия Vim powerline.
   ;;   (setq flycheck-golangci-lint-tests t)
   ;;   (setq flycheck-golangci-lint-fast t)
   )
-#+END_SRC
+#+end_src
 
 **** dlv
 #+begin_src emacs-lisp
@@ -1317,7 +1363,7 @@ PHP-debugger (Устарел)
   :inherit t
   :depth 1
   :tag "v0.6.0"
-  :version "0.6"
+  ;;:version "0.6"
   :fetcher github
   :repo "for-GET/know-your-http-well"
   :files ("emacs/*.el")))
@@ -1342,6 +1388,54 @@ PHP-debugger (Устарел)
 #+begin_src emacs-lisp
   (use-package dape
     :ensure t
+    :config
+    (progn
+      ;;(bind-keys :map dape-mode
+      ;;           ("d" . dape))
+      (add-hook 'dape-info-parent-mode-hook
+          (defun dape--info-compact ()
+            (face-remap-add-relative 'header-line :height 0.8)
+            (face-remap-add-relative 'default :height 0.8)))
+      (when (package-installed-p 'hydra)
+          (bind-keys :map dape-mode
+                  ("\\" . hydra-dape/body))
+          (defhydra hydra-dape (:hint nil :color blue)
+                  "
+                                                                          ╭──────────────────┐
+                Rev.   Do                                                 │ DAPE debugger    │
+              ╭───────────────────────────────────────────────────────────┴──────────────────╯
+                ^Stepping^                ^Breakpoints^               ^Info
+                 ^^^^^^^^-----------------------------------------------------------
+                 _n_: Next                 _bb_: Toggle (add/remove)   _si_: Info
+                 _i_/_o_: Step in/out      _bd_: Delete                _sm_: Memory
+                 _<_/_>_: Stack up/down    _bD_: Delete all            _ss_: Select Stack
+                 _c_: Continue             _bl_: Set log message       _R_: Repl
+                 _r_: Restart
+                 _d_: Init   _k_: Kill   _q_: Quit
+              --------------------------------------------------------------------------------
+                  "
+                  ("\\" hydra-master/body "back")
+                  ("<ESC>" nil "quit")
+                  ("n" dape-next)
+                  ("i" dape-step-in)
+                  ("o" dape-step-out)
+                  ("<" dape-stack-select-down)
+                  (">" dape-stack-select-up)
+                  ("c" dape-continue)
+                  ("r" dape-restart)
+                  ("ba" dape-breakpoint-toggle)
+                  ("bb" dape-breakpoint-toggle)
+                  ("be" dape-breakpoint-expression)
+                  ("bd" dape-breakpoint-remove-at-point)
+                  ("bD" dape-breakpoint-remove-all)
+                  ("bl" dape-breakpoint-log)
+                  ("si" dape-info)
+                  ("sm" dape-read-memory)
+                  ("ss" dape-select-stack)
+                  ("R"  dape-repl)
+                  ("d" dape)
+                  ("k" dape-kill :color blue)
+                  ("q" dape-quit :color blue))))
     :init
     (setq
      ;; Performance tweaks
@@ -1438,18 +1532,18 @@ PHP-debugger (Устарел)
 [[https://github.com/magit/git-modes][Git modes]] GNU Emacs режимы для файлов связанных с Git.
 Доступен в репозитории на GitHub, но также доступен как независимый пакет в Melpa.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package git-modes
     :ensure t
     :defer t)
-#+END_SRC
+#+end_src
 
 **** git-timemachine
 
 Use [[https://github.com/pidu/git-timemachine][git-timemachine]] для просмотра истории версий файла.
 =p= (предыдущая) и =n= (следующая).
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package git-timemachine
     :ensure t
     :commands git-timemachine
@@ -1489,7 +1583,7 @@ Use [[https://github.com/pidu/git-timemachine][git-timemachine]] для прос
 		;;  и включаем его обратно при выключении `git-timemachine-mode'."
 		;;  (evil-local-mode (if git-timemachine-mode -1 1)))
                 ))
-#+END_SRC
+#+end_src
 
 **** Magit
 
@@ -1498,17 +1592,38 @@ Use [[https://github.com/pidu/git-timemachine][git-timemachine]] для прос
 отслеживаемые файлы, а также просмотреть историю последних изменений. Есть
 поддержка cherry picking, откатов, мерджей, ребэйзов и прочих общих операций Git.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package magit
     :ensure t
     :after (transient nerd-icons)
     :custom (magit-format-file-function #'magit-format-file-nerd-icons)
     :commands magit-status)
-#+END_SRC
+#+end_src
+
+**** Magit-popup
+#+begin_src emacs-lisp
+  (use-package magit-popup
+    :ensure t)
+#+end_src
+
+*** Elisp
+**** Prettify-utils
+#+begin_src emacs-lisp
+  (use-package prettify-utils
+    :ensure (:host github :repo "Ilazki/prettify-utils.el"))
+#+end_src
+**** Russian-lisp-mode
+#+begin_src emacs-lisp
+  (use-package russian-lisp-mode
+    :ensure (:host github :repo "gnu-emacs-ru/russian-lisp-mode")
+    ;;:load-path "russian-lisp-mode/"
+    ;;:hook ((emacs-lisp-mode . russian-lisp-mode))
+)
+#+end_src
 
 ** HOLD NeoTree
 [[https://github.com/jaypei/emacs-neotree][NeoTree]] это аналог NerdTree (менеджера файлов) в Vim.
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
   (use-package neotree
     :ensure t
     :after (all-the-icons)
@@ -1519,7 +1634,7 @@ Use [[https://github.com/pidu/git-timemachine][git-timemachine]] для прос
       (setq
         neo-smart-open t)))
   (global-set-key [f8] 'neotree-toggle)
-#+END_SRC
+#+end_src
 
 ** treemacs
 [[https://github.com/Alexander-Miller/treemacs][treemacs]]
@@ -1659,7 +1774,7 @@ regex. Based in ivy.
 [[https://github.com/abo-abo/swiper][Counsel]] provides versions of common Emacs commands that are customised to make
 the best use of ivy.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package ivy
     :ensure (ivy-hydra)
     :diminish ivy-mode
@@ -1686,7 +1801,7 @@ the best use of ivy.
     :ensure t
     :config
     (setq counsel-ag-base-command "ag --nocolor --nogroup --smart-case --column %s"))
-#+END_SRC
+#+end_src
 
 ** hydra
 
@@ -1733,38 +1848,38 @@ Unite работал в качестве интерфейса для неско�
 
 #+BEGIN_SRC emacs-lisp
   (use-package hydra
-    :ensure t
     :defer 0.1
     :init
     (bind-key "\\" 'hydra-master/body)
     :config
     (setq lv-use-separator t)
     (set-face-attribute 'hydra-face-blue nil :foreground "deep sky blue" :weight 'bold)
-
+    
     (eval-and-compile
       (defhydra hydra-common (:color blue)
         ("<ESC>" nil "quit")))
-
+    
     (defhydra hydra-master (:color blue :idle 0.4)
       "
-                                                                         ╭───────┐
-                                                                         │ Index │
-  ╭──────────────────────────────────────────────────────────────────────┴───────╯
-    [_a_] bookmarks    [^h^]               [_o_] organization  [^v^]
-    [_b_] buffers      [_i_] интернет      [_p_] project       [_w_] window
-    [_c_] flycheck     [_j_] jump          [_q_] exit          [_x_] shell
-    [_d_] development  [_k_] spell         [_r_] register      [^y^]
-    [_e_] emacs        [_l_] lisp          [_s_] поиск         [^z^]
-    [_f_] file         [_m_] media         [_t_] text
-    [_g_] git          [_n_] narrow        [^u^]
-  --------------------------------------------------------------------------------
-      "
+                                                                               ╭───────┐
+                                                                               │ Старт │
+        ╭──────────────────────────────────────────────────────────────────────┴───────╯
+        │  [^a^]              [^h^] Справка       [_o_] Орг           [^v^]
+        │  [^b^]              [^i^]               [_p_] project       [_w_] window
+        │  [_c_] Коммуникации [^j^]               [_q_] exit          [_x_] shell
+        │  [_d_] Разработка   [^k^]               [_r_] Служебные     [^y^]
+        │  [_e_] Emacs        [^l^]               [_s_] Система       [^z^]
+        │  [_f_] Файл         [_m_] Медиа         [_t_] text
+        │  [^g^]              [^n^] Навигация     [^u^]
+        ╰───────────────────────────────────────────────────────────────────────────────
+  "
       ("<SPC>" antares-alternate-buffers "альтернативный буфер")
       ("<ESC>" nil "выход")
       ("\\" (insert "\\") "\\")
       ("a"     hydra-bookmarks/body nil)
       ("b"     hydra-buffers/body nil)
-      ("c"     hydra-flycheck/body nil)
+      ("c" hydra-communications/body nil)
+      ;;("c"     hydra-flycheck/body nil)
       ("d"     hydra-development/body nil)
       ("e"     hydra-emacs/body nil)
       ("f"     hydra-file/body nil)
@@ -1784,538 +1899,1157 @@ Unite работал в качестве интерфейса для неско�
       ;; ("v"     hydra-games/body nil)
       ("w"     ace-window nil)
       ("x"     hydra-system/body nil))
+    
+    (defhydra hydra-communications (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+            "
+  ╭────
+  │ | Соцсети        | Мессенджеры  | Почта      | Битрикс |
+  │ |----------------+--------------+------------+---------|
+  │ | [^m^] Mastodon   | [^a^] Matrix   | [^e^] mu4e   |         |
+  │ |                | [^t^] Telega   |            |         |
+  ╰────
+    "
+            )
 
-    (defhydra hydra-bookmarks (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
-      "
-                                                                     ╭───────────┐
-         List                          Do                            │ Bookmarks │
-  ╭──────────────────────────────────────────────────────────────────┴───────────╯
-    [_l_] list bookmarks            [_j_] jump to a bookmark
-     ^ ^                            [_m_] set bookmark at point
-     ^ ^                            [_s_] save bookmarks
-  --------------------------------------------------------------------------------
-      "
-      ("j" bookmark-jump)
-      ("l" list-bookmarks)
-      ("m" bookmark-set)
-      ("s" bookmark-save))
+          (defhydra hydra-bookmarks (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+            "
+                                                                           ╭───────────┐
+               List                          Do                            │ Bookmarks │
+        ╭──────────────────────────────────────────────────────────────────┴───────────╯
+          [_l_] list bookmarks            [_j_] jump to a bookmark
+           ^ ^                            [_m_] set bookmark at point
+           ^ ^                            [_s_] save bookmarks
+        --------------------------------------------------------------------------------
+            "
+            ("j" bookmark-jump)
+            ("l" list-bookmarks)
+            ("m" bookmark-set)
+            ("s" bookmark-save))
 
-    (defhydra hydra-buffers (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
-      "
-                                                                       ╭─────────┐
-    Switch                 Do                                          │ Buffers │
-  ╭────────────────────────────────────────────────────────────────────┴─────────╯
-    [_b_] switch             [_d_] kill the buffer
-    [_i_] ibuffer            [_r_] toggle read-only mode
-    [_a_] alternate          [_u_] revert buffer changes
-     ^ ^                     [_w_] save buffer
-  --------------------------------------------------------------------------------
-      "
-      ("a" antares-alternate-buffers)
-      ("b" ivy-switch-buffer)
-      ("d" kill-this-buffer)
-      ("i" ibuffer)
-      ("r" read-only-mode)
-      ("u" antares-revert-buffer)
-      ("w" save-buffer))
+          (defhydra hydra-buffers (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+            "
+                                                                             ╭─────────┐
+          Switch                 Do                                          │ Buffers │
+        ╭────────────────────────────────────────────────────────────────────┴─────────╯
+          [_b_] switch             [_d_] kill the buffer
+          [_i_] ibuffer            [_r_] toggle read-only mode
+          [_a_] alternate          [_u_] revert buffer changes
+           ^ ^                     [_w_] save buffer
+        --------------------------------------------------------------------------------
+            "
+            ("a" antares-alternate-buffers)
+            ("b" ivy-switch-buffer)
+            ("d" kill-this-buffer)
+            ("i" ibuffer)
+            ("r" read-only-mode)
+            ("u" antares-revert-buffer)
+            ("w" save-buffer))
 
-      (defhydra hydra-flycheck (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
-        "
-                                                                      ╭──────────┐
-     Navigate          Show Errors                  Do                │ Flycheck │
-  ╭───────────────────────────────────────────────────────────────────┴──────────╯
-     ^_p_^revious     [_l_] list errors           [_t_] toggle Flycheck
-        ^^↑^^         [_d_] clear all errors      [_c_] select checker
-      ^_f_^irst        ^ ^                        [_r_] run via compile
-        ^^↓^^          ^ ^                        [_h_] describe checker
-      ^_n_^ext
-  --------------------------------------------------------------------------------
-        "
-        ("c" flycheck-select-checker)
-        ("h" flycheck-describe-checker)
-        ("d" flycheck-clear)
-        ("f" flycheck-first-error)
-        ("l" flycheck-list-errors)
-        ("n" flycheck-next-error :color red)
-        ("p" flycheck-previous-error :color red)
-        ("r" flycheck-compile)
-        ("t" flycheck-mode))
+            (defhydra hydra-flycheck (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+              "
+                                                                            ╭──────────┐
+           Navigate          Show Errors                  Do                │ Flycheck │
+        ╭───────────────────────────────────────────────────────────────────┴──────────╯
+           ^_p_^revious     [_l_] list errors           [_t_] toggle Flycheck
+              ^^↑^^         [_d_] clear all errors      [_c_] select checker
+            ^_f_^irst        ^ ^                        [_r_] run via compile
+              ^^↓^^          ^ ^                        [_h_] describe checker
+            ^_n_^ext
+        --------------------------------------------------------------------------------
+              "
+              ("c" flycheck-select-checker)
+              ("h" flycheck-describe-checker)
+              ("d" flycheck-clear)
+              ("f" flycheck-first-error)
+              ("l" flycheck-list-errors)
+              ("n" flycheck-next-error :color red)
+              ("p" flycheck-previous-error :color red)
+              ("r" flycheck-compile)
+              ("t" flycheck-mode))
 
-      (defhydra hydra-development (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
-        "
-                                                                   ╭─────────────┐
-       Code                   Web                 Quickrun         │ Development │
-  ╭────────────────────────────────────────────────────────────────┴─────────────╯
-    [_d_] search docs (at point) [_c_] Web Colors          [_q_] buffer
-     ^ ^                         [_h_] HTTP header         [_v_] region
-     ^ ^                         [_m_] HTTP method         [_x_] shell
-     ^ ^                         [_r_] HTTP relation       [_p_] with arg
-     ^ ^                         [_s_] HTTP status code    [_o_] only compile
-     ^ ^                         [_t_] Media types         [_R_] replace
-     ^ ^                         [_g_] RESTclient          [_e_] eval/print
-     ^ ^                         [_f_] RFC doc
-    [_l_] lines of code          [_F_] RFC index
-  --------------------------------------------------------------------------------
-        "
-        ("d" devdocs-search)
-        ("c" counsel-colors-web)
-        ("g" restclient-mode)
-        ("f" irfc-visit)
-        ("F" irfc-index)
-        ("q" quickrun)
-        ("v" quickrun-region)
-        ("x" quickrun-shell)
-        ("p" quickrun-with-arg)
-        ("o" quickrun-compile-only)
-        ("R" quickrun-replace-region)
-        ("e" quickrun-eval-print)
-        ("h" http-header)
-        ("m" http-method)
-        ("r" http-relation)
-        ("s" http-status-code)
-        ("t" media-type)
-        ("l" cloc))
+            (defhydra hydra-development (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+              "
+                                                                         ╭─────────────┐
+             Code                   Web                 Quickrun         │ Development │
+        ╭────────────────────────────────────────────────────────────────┴─────────────╯
+          [_d_] search docs (at point) [_c_] Web Colors          [_q_] buffer
+           ^ ^                         [_h_] HTTP header         [_v_] region
+           ^ ^                         [_m_] HTTP method         [_x_] shell
+           ^ ^                         [_r_] HTTP relation       [_p_] with arg
+           ^ ^                         [_s_] HTTP status code    [_o_] only compile
+           ^ ^                         [_t_] Media types         [_R_] replace
+           ^ ^                         [_g_] RESTclient          [_e_] eval/print
+           ^ ^                         [_f_] RFC doc             
+          [_l_] lines of code          [_F_] RFC index           
+        --------------------------------------------------------------------------------
+              "
+              ("d" devdocs-search)
+              ("c" counsel-colors-web)
+              ("g" restclient-mode)
+              ("f" irfc-visit)
+              ("F" irfc-index)
+              ("q" quickrun)
+              ("v" quickrun-region)
+              ("x" quickrun-shell)
+              ("p" quickrun-with-arg)
+              ("o" quickrun-compile-only)
+              ("R" quickrun-replace-region)
+              ("e" quickrun-eval-print)
+              ("h" http-header)
+              ("m" http-method)
+              ("r" http-relation)
+              ("s" http-status-code)
+              ("t" media-type)
+              ("l" cloc))
 
-    (defhydra hydra-emacs (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
-        "
-                                                                         ╭───────┐
-     Execute       Packages         Help                     Misc        │ Emacs │
-  ╭──────────────────────────────────────────────────────────────────────┴───────╯
-    [_x_] counsel M-x [_p_] list      [_f_] describe function [_t_] change theme
-     ^ ^              [_i_] install   [_v_] describe variable [_l_] list emacs process
-     ^ ^              [_u_] upgrade   [_m_] info manual       [_c_] init time
-     ^ ^               ^ ^            [_k_] bindings          [_e_] benchmark init
-     ^ ^               ^ ^            [_b_] personal bindings [_o_] unbound commands
-     ^ ^               ^ ^             ^ ^                    [_y_] emacs colors
-     ^ ^               ^ ^             ^ ^                    [_z_] list faces
-     ^ ^               ^ ^             ^ ^                    [_s_] transparency
-  --------------------------------------------------------------------------------
-        "
-        ("C-h b" counsel-descbinds "bindings")
-        ("f" counsel-describe-function)
-        ("v" counsel-describe-variable)
-        ("b" describe-personal-keybindings)
-        ("c" emacs-init-time)
-        ("i" package-install)
-        ("k" counsel-descbinds)
-        ("l" list-processes)
-        ("m" info-display-manual)
-        ("p" paradox-list-packages)
-        ("s" transparency)
-        ("t" counsel-load-theme)
-        ("u" paradox-upgrade-packages)
-        ("e" esup)
-        ("o" smex-show-unbound-commands)
-        ("y" counsel-colors-emacs)
-        ("z" counsel-faces)
-        ("x" counsel-M-x))
+          (defhydra hydra-emacs (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+              "
+                                                                               ╭───────┐
+           Execute       Packages         Help                     Misc        │ Emacs │
+        ╭──────────────────────────────────────────────────────────────────────┴───────╯
+          [_x_] counsel M-x [_p_] list      [_f_] describe function [_t_] change theme
+           ^ ^              [_i_] install   [_v_] describe variable [_l_] list emacs process
+           ^ ^              [_u_] upgrade   [_m_] info manual       [_c_] init time
+           ^ ^               ^ ^            [_k_] bindings          [_e_] benchmark init
+           ^ ^               ^ ^            [_b_] personal bindings [_o_] unbound commands 
+           ^ ^               ^ ^             ^ ^                    [_y_] emacs colors
+           ^ ^               ^ ^             ^ ^                    [_z_] list faces
+        --------------------------------------------------------------------------------
+              "
+              ("C-h b" counsel-descbinds "bindings")
+              ("f" counsel-describe-function)
+              ("v" counsel-describe-variable)
+              ("b" describe-personal-keybindings)
+              ("c" emacs-init-time)
+              ("i" package-install)
+              ("k" counsel-descbinds)
+              ("l" list-processes)
+              ("m" info-display-manual)
+              ("p" paradox-list-packages)
+              ("t" counsel-load-theme)
+              ("u" paradox-upgrade-packages)
+              ("e" esup)
+              ("o" smex-show-unbound-commands)
+              ("y" counsel-colors-emacs)
+              ("z" counsel-faces)
+              ("x" counsel-M-x))
 
-    (defhydra hydra-file (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
-        "
-                                                                          ╭──────┐
-       Ivy                    Dired        Ztree                          │ File │
-  ╭───────────────────────────────────────────────────────────────────────┴──────╯
-    [_o_] open file        [_d_] dired         [_z_] diff dirs
-    [_e_] open file extern [_r_] ranger
-  --------------------------------------------------------------------------------
-        "
-        ("o" counsel-find-file)
-        ("e" counsel-find-file-extern)
-        ("z" ztree-diff)
-        ("d" dired)
-        ("r" ranger))
+          (defhydra hydra-file (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+              "
+                                                                                ╭──────┐
+             Ivy                    Dired        Ztree                          │ File │
+        ╭───────────────────────────────────────────────────────────────────────┴──────╯
+          [_o_] open file        [_d_] dired         [_z_] diff dirs
+          [_e_] open file extern [_r_] ranger
+        --------------------------------------------------------------------------------
+              "
+              ("o" counsel-find-file)
+              ("e" counsel-find-file-extern)
+              ("z" ztree-diff)
+              ("d" dired)
+              ("r" ranger))
 
 
-    (defhydra hydra-text (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
-        "
-                                                                          ╭──────┐
-   Size  Toggle              Unicode                        Do            │ Text │
-  ╭───────────────────────────────────────────────────────────────────────┴──────╯
-    _k_  [_f_] fill column     [_d_] unicode character           [_a_] align with regex
-    ^↑^  [_h_] hidden chars    [_e_] evil digraphs table         [_w_] remove trailing ' '
-    ^ ^  [_l_] line numbers    [_s_] specific code block         [_n_] count words
-    ^↓^  [_t_] trailing ' '    [_u_] unicode character           [_i_] lorem ipsum
-    _j_  [_v_] font space      [_p_] character code              [_x_] comment box
-    ^ ^  [_c_] comment          ^ ^                              [_q_] boxquote
-    ^ ^  [_b_] multibyte chars  ^ ^                              [_m_] iedit (multiple)
-    ^ ^   ^ ^                   ^ ^                              [_r_] expand region
-    ^ ^   ^ ^                   ^ ^                              [_U_] tabs to spaces
-  --------------------------------------------------------------------------------
-        "
-        ("a" align-regexp)
-        ("b" toggle-enable-multibyte-characters)
-        ("c" comment-line)
-        ("d" insert-char)
-        ("e" evil-ex-show-digraphs)
-        ("f" fci-mode)
-        ("h" whitespace-mode)
-        ("i" lorem-ipsum-insert-paragraphs)
-        ("k" text-scale-increase :color red)
-        ("j" text-scale-decrease :color red)
-        ("l" linum-mode)
-        ("n" count-words)
-        ("m" iedit)
-        ("p" describe-char)
-        ("r" er/expand-region)
-        ("s" charmap)
-        ("t" antares-toggle-show-trailing-whitespace)
-        ("u" counsel-unicode-char)
-        ("v" variable-pitch-mode)
-        ("w" whitespace-cleanup)
-        ("U" untabify)
-        ("q" hydra-boxquote/body)
-        ("x" comment-box))
+          (defhydra hydra-text (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+              "
+                                                                                ╭──────┐
+         Size  Toggle              Unicode                        Do            │ Text │
+        ╭───────────────────────────────────────────────────────────────────────┴──────╯
+          _k_  [_f_] fill column     [_d_] unicode character           [_a_] align with regex
+          ^↑^  [_h_] hidden chars    [_e_] evil digraphs table         [_w_] remove trailing ' '
+          ^ ^  [_l_] line numbers    [_s_] specific code block         [_n_] count words
+          ^↓^  [_t_] trailing ' '    [_u_] unicode character           [_i_] lorem ipsum
+          _j_  [_v_] font space      [_p_] character code              [_x_] comment box
+          ^ ^  [_c_] comment          ^ ^                              [_q_] boxquote
+          ^ ^  [_b_] multibyte chars  ^ ^                              [_m_] iedit (multiple)
+          ^ ^   ^ ^                   ^ ^                              [_r_] expand region
+          ^ ^   ^ ^                   ^ ^                              [_U_] tabs to spaces
+        --------------------------------------------------------------------------------
+              "
+              ("a" align-regexp)
+              ("b" toggle-enable-multibyte-characters)
+              ("c" comment-line)
+              ("d" insert-char)
+              ("e" evil-ex-show-digraphs)
+              ("f" fci-mode)
+              ("h" whitespace-mode)
+              ("i" lorem-ipsum-insert-paragraphs)
+              ("k" text-scale-increase :color red)
+              ("j" text-scale-decrease :color red)
+              ("l" linum-mode)
+              ("n" count-words)
+              ("m" iedit)
+              ("p" describe-char)
+              ("r" er/expand-region)
+              ("s" charmap)
+              ("t" antares-toggle-show-trailing-whitespace)
+              ("u" counsel-unicode-char)
+              ("v" variable-pitch-mode)
+              ("w" whitespace-cleanup)
+              ("U" untabify)
+              ("q" hydra-boxquote/body)
+              ("x" comment-box))
 
-    (defhydra hydra-git (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
-        "
-                                                                           ╭─────┐
-     Magit                          VC                    Timemachine      │ Git │
-  ╭────────────────────────────────────────────────────────────────────────┴─────╯
-    [_s_] status              [_d_] diffs between revisions  [_t_] timemachine
-    [_B_] blame mode          [_b_] edition history
-    [_l_] file log
-  --------------------------------------------------------------------------------
-        "
-        ("B" magit-blame-mode)
-        ("b" vc-annotate)
-        ("d" vc-diff)
-        ("l" magit-file-log)
-        ("s" magit-status)
-        ("t" git-timemachine))
+          (defhydra hydra-git (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+              "
+                                                                                 ╭─────┐
+           Magit                          VC                    Timemachine      │ Git │
+        ╭────────────────────────────────────────────────────────────────────────┴─────╯
+          [_s_] status              [_d_] diffs between revisions  [_t_] timemachine
+          [_B_] blame mode          [_b_] edition history
+          [_l_] file log
+        --------------------------------------------------------------------------------
+              "
+              ("B" magit-blame-mode)
+              ("b" vc-annotate)
+              ("d" vc-diff)
+              ("l" magit-file-log)
+              ("s" magit-status)
+              ("t" git-timemachine))
 
-    (defhydra hydra-internet (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
-        "
-                                                                      ╭──────────┐
-      Browse       Search              Social               Post      │ Internet │
-  ╭───────────────────────────────────────────────────────────────────┴──────────╯
-    [_w_] eww      [_b_] DuckDuckGo       [_f_] elfeed            [_i_] imgur
-    [_u_] url      [_e_] DuckDuckGo (eww) [_x_] stack overflow
-     ^ ^           [_m_] google maps
-     ^ ^           [_d_] wordnik
-  --------------------------------------------------------------------------------
-        "
-        ("w" eww)
-        ("u" browse-url-at-point)
-        ("b" (antares-duckduckgo-search t))
-        ("e" (antares-duckduckgo-search nil))
-        ("m" google-maps)
-        ("d" define-word-at-point)
-        ("f" elfeed)
-        ("x" sx-tab-newest)
-        ("i" imgur-post))
+          (defhydra hydra-internet (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+              "
+                                                                            ╭──────────┐
+            Browse       Search              Social               Post      │ Internet │
+        ╭───────────────────────────────────────────────────────────────────┴──────────╯
+          [_w_] eww      [_b_] DuckDuckGo       [_f_] elfeed            [_i_] imgur
+          [_u_] url      [_e_] DuckDuckGo (eww) [_x_] stack overflow
+           ^ ^           [_m_] google maps     
+           ^ ^           [_d_] wordnik         
+        --------------------------------------------------------------------------------
+              "
+              ("w" eww)
+              ("u" browse-url-at-point)
+              ("b" (antares-duckduckgo-search t))
+              ("e" (antares-duckduckgo-search nil))
+              ("m" google-maps)
+              ("d" define-word-at-point)
+              ("f" elfeed)
+              ("x" sx-tab-newest)
+              ("i" imgur-post))
 
-    (defhydra hydra-jump (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
-        "
-                                                                          ╭──────┐
-    Window          Word/Char        Line         iSearch                 │ Jump │
-  ╭───────────────────────────────────────────────────────────────────────┴──────╯
-    [_w_] jump        [_j_] word         [_l_] jump     [_i_] jump
-    [_d_] close       [_p_] all words    [_y_] copy
-    [_z_] maximize    [_b_] subword      [_m_] move
-    [_s_] swap        [_c_] char         [_v_] copy region
-     ^ ^              [_a_] two chars
-  --------------------------------------------------------------------------------
-        "
-        ("w" ace-window)
-        ("d" ace-delete-window)
-        ("z" ace-maximize-window)
-        ("s" ace-swap-window)
-        ("j" avy-goto-word-1)
-        ("p" avy-goto-word-0)
-        ("b" avy-goto-subword-0)
-        ("c" avy-goto-char)
-        ("a" avy-goto-char-2)
-        ("l" avy-goto-line)
-        ("y" avy-copy-line)
-        ("m" avy-move-line)
-        ("v" avy-copy-region)
-        ("i" avy-isearch))
+          (defhydra hydra-jump (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+              "
+                                                                                ╭──────┐
+          Window          Word/Char        Line         iSearch                 │ Jump │
+        ╭───────────────────────────────────────────────────────────────────────┴──────╯
+          [_w_] jump        [_j_] word         [_l_] jump     [_i_] jump
+          [_d_] close       [_p_] all words    [_y_] copy
+          [_z_] maximize    [_b_] subword      [_m_] move
+          [_s_] swap        [_c_] char         [_v_] copy region
+           ^ ^              [_a_] two chars
+        --------------------------------------------------------------------------------
+              "
+              ("w" ace-window)
+              ("d" ace-delete-window)
+              ("z" ace-maximize-window)
+              ("s" ace-swap-window)
+              ("j" avy-goto-word-1)
+              ("p" avy-goto-word-0)
+              ("b" avy-goto-subword-0)
+              ("c" avy-goto-char)
+              ("a" avy-goto-char-2)
+              ("l" avy-goto-line)
+              ("y" avy-copy-line)
+              ("m" avy-move-line)
+              ("v" avy-copy-region)
+              ("i" avy-isearch))
 
-    (defhydra hydra-spell (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
-        "
-                                                                         ╭───────┐
-      Flyspell               Ispell                      Gtranslate      │ Spell │
-  ╭──────────────────────────────────────────────────────────────────────┴───────╯
-    [_k_] correct word       [_w_] check word            [_g_] en ⇆ ru
-    [_n_] next error         [_t_] toggle dictionary     [_G_] any lang
-    [_f_] toggle flyspell    [_d_] change dictionary
-    [_p_] toggle prog mode
-  --------------------------------------------------------------------------------
-        "
-        ("w" ispell-word)
-        ("d" ispell-change-dictionary)
-        ("t" antares-switch-dictionary)
-        ("g" google-translate-smooth-translate)
-        ("G" google-translate-query-translate)
-        ("f" flyspell-mode)
-        ("p" flyspell-prog-mode)
-        ("k" flyspell-correct-word-generic)
-        ("n" flyspell-goto-next-error))
+          (defhydra hydra-spell (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+              "
+                                                                               ╭───────┐
+            Flyspell               Ispell                      Gtranslate      │ Spell │
+        ╭──────────────────────────────────────────────────────────────────────┴───────╯
+          [_k_] correct word       [_w_] check word            [_g_] en ⇆ ru
+          [_n_] next error         [_t_] toggle dictionary     [_G_] any lang
+          [_f_] toggle flyspell    [_d_] change dictionary
+          [_p_] toggle prog mode
+        --------------------------------------------------------------------------------
+              "
+              ("w" ispell-word)
+              ("d" ispell-change-dictionary)
+              ("t" antares-switch-dictionary)
+              ("g" google-translate-smooth-translate)
+              ("G" google-translate-query-translate)
+              ("f" flyspell-mode)
+              ("p" flyspell-prog-mode)
+              ("k" flyspell-correct-word-generic)
+              ("n" flyspell-goto-next-error))
 
-    (defhydra hydra-lisp (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
-        "
-                                                                          ╭──────┐
-      Elisp              Bug hunter                                       │ Lisp │
-  ╭───────────────────────────────────────────────────────────────────────┴──────╯
-    [_r_] eval region    [_f_] file
-    [_s_] eval sexp      [_i_] init-file
-    [_b_] eval buffer
-  --------------------------------------------------------------------------------
-        "
-        ("f" bug-hunter-file)
-        ("i" bug-hunter-init-file)
-        ("r" eval-region)
-        ("b" eval-buffer)
-        ("s" eval-last-sexp))
+          (defhydra hydra-lisp (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+              "
+                                                                                ╭──────┐
+            Elisp              Bug hunter                                       │ Lisp │
+        ╭───────────────────────────────────────────────────────────────────────┴──────╯
+          [_r_] eval region    [_f_] file
+          [_s_] eval sexp      [_i_] init-file
+          [_b_] eval buffer
+        --------------------------------------------------------------------------------
+              "
+              ("f" bug-hunter-file)
+              ("i" bug-hunter-init-file)
+              ("r" eval-region)
+              ("b" eval-buffer)
+              ("s" eval-last-sexp))
 
-    (defhydra hydra-narrow (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
-        "
-                                                                        ╭────────┐
-      Narrow                                                            │ Narrow │
-  ╭─────────────────────────────────────────────────────────────────────┴────────╯
-    [_f_] narrow to defun
-    [_p_] narrow to page
-    [_r_] narrow to region
-    [_w_] widen
-  --------------------------------------------------------------------------------
-        "
-        ("f" narrow-to-defun)
-        ("p" narrow-to-page)
-        ("r" narrow-to-region)
-        ("w" widen))
+          (defhydra hydra-narrow (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+              "
+                                                                              ╭────────┐
+            Narrow                                                            │ Narrow │
+        ╭─────────────────────────────────────────────────────────────────────┴────────╯
+          [_f_] narrow to defun
+          [_p_] narrow to page
+          [_r_] narrow to region
+          [_w_] widen
+        --------------------------------------------------------------------------------
+              "
+              ("f" narrow-to-defun)
+              ("p" narrow-to-page)
+              ("r" narrow-to-region)
+              ("w" widen))
 
-    (defhydra hydra-project (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
-        "
-                                                                    ╭────────────┐
-    Files             Search          Buffer             Do         │ Projectile │
-  ╭─────────────────────────────────────────────────────────────────┴────────────╯
-    [_f_] file          [_a_] ag          [_b_] switch         [_g_] magit
-    [_l_] file dwim     [_A_] grep        [_v_] show all       [_p_] commander
-    [_r_] recent file   [_s_] occur       [_V_] ibuffer        [_i_] info
-    [_d_] dir           [_S_] replace     [_K_] kill all
-    [_o_] other         [_t_] find tag
-    [_u_] test file     [_T_] make tags
-    [_h_] root
-                                                                        ╭────────┐
-    Other Window      Run             Cache              Do             │ Fixmee │
-  ╭──────────────────────────────────────────────────╯ ╭────────────────┴────────╯
-    [_F_] file          [_U_] test        [_kc_] clear         [_x_] TODO & FIXME
-    [_L_] dwim          [_m_] compile     [_kk_] add current   [_X_] toggle
-    [_D_] dir           [_c_] shell       [_ks_] cleanup
-    [_O_] other         [_C_] command     [_kd_] remove
-    [_B_] buffer
-  --------------------------------------------------------------------------------
-        "
-        ("a"   projectile-ag)
-        ("A"   projectile-grep)
-        ("b"   projectile-switch-to-buffer)
-        ("B"   projectile-switch-to-buffer-other-window)
-        ("c"   projectile-run-async-shell-command-in-root)
-        ("C"   projectile-run-command-in-root)
-        ("d"   projectile-find-dir)
-        ("D"   projectile-find-dir-other-window)
-        ("f"   projectile-find-file)
-        ("F"   projectile-find-file-other-window)
-        ("g"   projectile-vc)
-        ("h"   projectile-dired)
-        ("i"   projectile-project-info)
-        ("kc"  projectile-invalidate-cache)
-        ("kd"  projectile-remove-known-project)
-        ("kk"  projectile-cache-current-file)
-        ("K"   projectile-kill-buffers)
-        ("ks"  projectile-cleanup-known-projects)
-        ("l"   projectile-find-file-dwim)
-        ("L"   projectile-find-file-dwim-other-window)
-        ("m"   projectile-compile-project)
-        ("o"   projectile-find-other-file)
-        ("O"   projectile-find-other-file-other-window)
-        ("p"   projectile-commander)
-        ("r"   projectile-recentf)
-        ("s"   projectile-multi-occur)
-        ("S"   projectile-replace)
-        ("t"   projectile-find-tag)
-        ("T"   projectile-regenerate-tags)
-        ("u"   projectile-find-test-file)
-        ("U"   projectile-test-project)
-        ("v"   projectile-display-buffer)
-        ("V"   projectile-ibuffer)
-        ("X"   fixmee-mode)
-        ("x"   fixmee-view-listing))
+          (defhydra hydra-project (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+              "
+                                                                          ╭────────────┐
+          Files             Search          Buffer             Do         │ Projectile │
+        ╭─────────────────────────────────────────────────────────────────┴────────────╯
+          [_f_] file          [_a_] ag          [_b_] switch         [_g_] magit
+          [_l_] file dwim     [_A_] grep        [_v_] show all       [_p_] commander
+          [_r_] recent file   [_s_] occur       [_V_] ibuffer        [_i_] info
+          [_d_] dir           [_S_] replace     [_K_] kill all
+          [_o_] other         [_t_] find tag
+          [_u_] test file     [_T_] make tags
+          [_h_] root
+                                                                              ╭────────┐
+          Other Window      Run             Cache              Do             │ Fixmee │
+        ╭──────────────────────────────────────────────────╯ ╭────────────────┴────────╯
+          [_F_] file          [_U_] test        [_kc_] clear         [_x_] TODO & FIXME
+          [_L_] dwim          [_m_] compile     [_kk_] add current   [_X_] toggle
+          [_D_] dir           [_c_] shell       [_ks_] cleanup
+          [_O_] other         [_C_] command     [_kd_] remove
+          [_B_] buffer
+        --------------------------------------------------------------------------------
+              "
+              ("a"   projectile-ag)
+              ("A"   projectile-grep)
+              ("b"   projectile-switch-to-buffer)
+              ("B"   projectile-switch-to-buffer-other-window)
+              ("c"   projectile-run-async-shell-command-in-root)
+              ("C"   projectile-run-command-in-root)
+              ("d"   projectile-find-dir)
+              ("D"   projectile-find-dir-other-window)
+              ("f"   projectile-find-file)
+              ("F"   projectile-find-file-other-window)
+              ("g"   projectile-vc)
+              ("h"   projectile-dired)
+              ("i"   projectile-project-info)
+              ("kc"  projectile-invalidate-cache)
+              ("kd"  projectile-remove-known-project)
+              ("kk"  projectile-cache-current-file)
+              ("K"   projectile-kill-buffers)
+              ("ks"  projectile-cleanup-known-projects)
+              ("l"   projectile-find-file-dwim)
+              ("L"   projectile-find-file-dwim-other-window)
+              ("m"   projectile-compile-project)
+              ("o"   projectile-find-other-file)
+              ("O"   projectile-find-other-file-other-window)
+              ("p"   projectile-commander)
+              ("r"   projectile-recentf)
+              ("s"   projectile-multi-occur)
+              ("S"   projectile-replace)
+              ("t"   projectile-find-tag)
+              ("T"   projectile-regenerate-tags)
+              ("u"   projectile-find-test-file)
+              ("U"   projectile-test-project)
+              ("v"   projectile-display-buffer)
+              ("V"   projectile-ibuffer)
+              ("X"   fixmee-mode)
+              ("x"   fixmee-view-listing))
 
-    (defhydra hydra-exit (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
-        "
-                                                                          ╭──────┐
-     Quit                                                                 │ Exit │
-  ╭───────────────────────────────────────────────────────────────────────┴──────╯
-    [_c_] exit emacs (standalone or client)
-    [_s_] shutdown the emacs daemon
-  --------------------------------------------------------------------------------
-        "
-        ("c" save-buffers-kill-terminal)
-        ("s" save-buffers-kill-emacs))
+          (defhydra hydra-exit (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+              "
+                                                                                ╭──────┐
+           Quit                                                                 │ Exit │
+        ╭───────────────────────────────────────────────────────────────────────┴──────╯
+          [_c_] exit emacs (standalone or client)
+          [_s_] shutdown the emacs daemon
+        --------------------------------------------------------------------------------
+              "
+              ("c" save-buffers-kill-terminal)
+              ("s" save-buffers-kill-emacs))
 
-    (defhydra hydra-register (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
-        "
-                                                                      ╭──────────┐
-     Logs                        Registers                Undo        │ Register │
-  ╭───────────────────────────────────────────────────────────────────┴──────────╯
-    [_c_] commands history       [^e^] emacs registers    [_u_] undo tree
-    [_o_] messages               [_r_] evil registers
-    [_l_] lossage (keystrokes)   [_m_] evil marks
-    [_d_] diff buffer with file  [_k_] kill ring
-  --------------------------------------------------------------------------------
-        "
-        ("d" antares-diff-buffer-with-file)
-        ("k" counsel-yank-pop)
-        ("l" view-lossage)
-        ("c" counsel-command-history)
-        ("m" evil-show-marks)
-        ("o" view-echo-area-messages)
-        ("r" evil-show-registers)
-        ("u" undo-tree-visualize))
+          (defhydra hydra-register (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+              "
+                                                                            ╭──────────┐
+           Logs                        Registers                Undo        │ Register │
+        ╭───────────────────────────────────────────────────────────────────┴──────────╯
+          [_c_] commands history       [^e^] emacs registers    [_u_] undo tree
+          [_o_] messages               [_r_] evil registers
+          [_l_] lossage (keystrokes)   [_m_] evil marks
+          [_d_] diff buffer with file  [_k_] kill ring
+        --------------------------------------------------------------------------------
+              "
+              ("d" antares-diff-buffer-with-file)
+              ("k" counsel-yank-pop)
+              ("l" view-lossage)
+              ("c" counsel-command-history)
+              ("m" evil-show-marks)
+              ("o" view-echo-area-messages)
+              ("r" evil-show-registers)
+              ("u" undo-tree-visualize))
 
-    (defhydra hydra-search (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
-        "
-                                                                        ╭────────┐
-     Files                             Buffer                           │ Search │
-  ╭─────────────────────────────────────────────────────────────────────┴────────╯
-    [_a_] regex search (Ag)           [_b_] by word
-    [_r_] regex search (rg)           [_o_] by word (opened buffers)
-    [_p_] regex search (pt)           [_w_] by word (multi)
-    [_g_] regex search (grep)         [_h_] by word (grep or swiper)
-    [^f^] find                        [_t_] tags & titles
-    [_l_] locate                      [_s_] semantic
-  --------------------------------------------------------------------------------
-        "
-        ("a" (let ((current-prefix-arg "-."))
-               (call-interactively 'counsel-ag)))
-        ("r" (let ((current-prefix-arg "-."))
-               (call-interactively 'counsel-rg)))
-        ("p" (let ((current-prefix-arg "-."))
-               (call-interactively 'counsel-pt)))
-        ("g" rgrep)
-        ("l" counsel-locate)
-        ("b" swiper)
-        ("o" swiper-all)
-        ("h" counsel-grep-or-swiper)
-        ("t" counsel-imenu)
-        ("s" counsel-semantic)
-        ("w" swiper-multi))
+          (defhydra hydra-search (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+              "
+                                                                              ╭────────┐
+           Files                             Buffer                           │ Search │
+        ╭─────────────────────────────────────────────────────────────────────┴────────╯
+          [_a_] regex search (Ag)           [_b_] by word
+          [_r_] regex search (rg)           [_o_] by word (opened buffers)
+          [_p_] regex search (pt)           [_w_] by word (multi)
+          [_g_] regex search (grep)         [_h_] by word (grep or swiper)
+          [^f^] find                        [_t_] tags & titles
+          [_l_] locate                      [_s_] semantic 
+        --------------------------------------------------------------------------------
+              "
+              ("a" (let ((current-prefix-arg "-."))
+                     (call-interactively 'counsel-ag)))
+              ("r" (let ((current-prefix-arg "-."))
+                     (call-interactively 'counsel-rg)))
+              ("p" (let ((current-prefix-arg "-."))
+                     (call-interactively 'counsel-pt)))
+              ("g" rgrep)
+              ("l" counsel-locate)
+              ("b" swiper)
+              ("o" swiper-all)
+              ("h" counsel-grep-or-swiper)
+              ("t" counsel-imenu)
+              ("s" counsel-semantic)
+              ("w" swiper-multi))
 
-    (defhydra hydra-system (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
-        "
-                                                                        ╭────────┐
-     Terminals                     System                               │ System │
-  ╭─────────────────────────────────────────────────────────────────────┴────────╯
-    [_s_] new multi-term           [_c_] shell command
-    [_n_] next multi-term          [_a_] aync shell command
-    [_p_] previous multi-term      [_m_] man page
-    [_d_] dedicated multi-term     [_l_] list system process
-    [_e_] eshell
-  --------------------------------------------------------------------------------
-        "
-        ("a" async-shell-command)
-        ("c" shell-command)
-        ("e" eshell)
-        ("m" man)
-        ("l" proced)
-        ("s" multi-term)
-        ("n" multi-term-next)
-        ("p" multi-term-previous)
-        ("d" multi-term-dedicated-toggle))
+          (defhydra hydra-system (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+              "
+                                                                              ╭────────┐
+           Terminals                     System                               │ System │
+        ╭─────────────────────────────────────────────────────────────────────┴────────╯
+          [_s_] new multi-term           [_c_] shell command
+          [_n_] next multi-term          [_a_] aync shell command
+          [_p_] previous multi-term      [_m_] man page
+          [_d_] dedicated multi-term     [_l_] list system process
+          [_e_] eshell
+        --------------------------------------------------------------------------------
+              "
+              ("a" async-shell-command)
+              ("c" shell-command)
+              ("e" eshell)
+              ("m" man)
+              ("l" proced)
+              ("s" multi-term)
+              ("n" multi-term-next)
+              ("p" multi-term-previous)
+              ("d" multi-term-dedicated-toggle))
 
-    (defhydra hydra-media (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
-        "
-                                                                         ╭───────┐
-     Mingus              Mpd                     Volume                  │ Media │
-  ╭──────────────────────────────────────────────────────────────────────┴───────╯
-   [_m_] mingus         [_n_] next song          [_-_] volume down
-   [_f_] search         [_p_] previous song      [_+_] volume up
-   [_l_] playlist       [_c_] clear playlist
-   [_a_] All            [_t_] pause
-    ^ ^                 [_s_] stop
-    ^ ^                 [_d_] start daemon
-  --------------------------------------------------------------------------------
-        "
-        ("m" mingus)
-        ("f" mingus-search)
-        ("c" mingus-clear)
-        ("n" mingus-next)
-        ("p" mingus-prev)
-        ("t" mingus-toggle)
-        ("s" mingus-stop)
-        ("d" mingus-start-daemon)
-        ("l" mingus-load-playlist)
-        ("a" mingus-load-all)
-        ("-" mingus-vol-down)
-        ("\+" mingus-vol-up))
+          (defhydra hydra-media (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+              "
+                                                                               ╭───────┐
+           Mingus              Mpd                     Volume                  │ Media │
+        ╭──────────────────────────────────────────────────────────────────────┴───────╯
+         [_m_] mingus         [_n_] next song          [_-_] volume down
+         [_f_] search         [_p_] previous song      [_+_] volume up
+         [_l_] playlist       [_c_] clear playlist
+         [_a_] All            [_t_] pause
+          ^ ^                 [_s_] stop
+          ^ ^                 [_d_] start daemon
+        --------------------------------------------------------------------------------
+              "
+              ("m" mingus)
+              ("f" mingus-search)
+              ("c" mingus-clear)
+              ("n" mingus-next)
+              ("p" mingus-prev)
+              ("t" mingus-toggle)
+              ("s" mingus-stop)
+              ("d" mingus-start-daemon)
+              ("l" mingus-load-playlist)
+              ("a" mingus-load-all)
+              ("-" mingus-vol-down)
+              ("\+" mingus-vol-up))
 
-    (defhydra hydra-organization (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
-        "
-                                                                  ╭──────────────┐
-       Tasks            Org mode               Comms      Others  │ Organization │
-  ╭───────────────────────────────────────────────────────────────┴──────────────╯
-    [_a_] agenda      [_c_] capture             [_m_] почта      [_x_] speed type
-    [_l_] agenda list [_p_] pomodoro            [_t_] контакты
-    [_d_] календарь   [_s_] search headings     [_h_] add location
-     ^ ^              [_g_] open location gmaps
-     ^ ^              [_f_] archive subtree
-  --------------------------------------------------------------------------------
-        "
-        ("a" org-agenda)
-        ("c" org-capture)
-        ("s" counsel-org-agenda-headlines)
-        ("d" calfw-org-open-calendar)
-        ("g" org-location-google-maps)
-        ("h" org-address-google-geocode-set)
-        ("l" org-agenda-list)
-        ("f" org-archive-subtree)
-        ("m" mu4e)
-        ("p" org-pomodoro)
-        ("t" org-contacts)
-        ("x" speed-type-text))
+          (defhydra hydra-organization (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+              "
+                                                                        ╭──────────────┐
+             Tasks            Org mode               Comms      Others  │ Organization │
+        ╭───────────────────────────────────────────────────────────────┴──────────────╯
+          [_a_] agenda      [_c_] capture             [_m_] почта      [_x_] speed type
+          [_l_] agenda list [_p_] pomodoro            [_t_] контакты
+          [_d_] календарь   [_s_] search headings     [_h_] add location
+           ^ ^              [_g_] open location gmaps
+           ^ ^              [_f_] archive subtree
+        --------------------------------------------------------------------------------
+              "
+              ("a" org-agenda)
+              ("c" org-capture)
+              ("s" counsel-org-agenda-headlines)
+              ("d" cfw:open-org-calendar)
+              ("g" org-location-google-maps)
+              ("h" org-address-google-geocode-set)
+              ("l" org-agenda-list)
+              ("f" org-archive-subtree)
+              ("m" mu4e)
+              ("p" org-pomodoro)
+              ("t" org-contacts)
+              ("x" speed-type-text))
 
-     (defhydra hydra-leader ( :color blue :hint nil :idle 0.4)
-         "
-                                                                        ╭───────┐
-     Переключить                   Сделать                              │ Лидер │
-  ╭─────────────────────────────────────────────────────────────────────┴───────╯
-    [_c_] comment                  [_a_] align with regex
-    [_f_] fill column              [_p_] показать код символа
-    [_h_] непечатуемые символы     [_i_] вставить символ unicode
-    [_e_] trailing whitespace      [_<SPC>_] remove trailing whitespaces
-    [_v_] font space               [_u_] дерево отмен
-     ^ ^                           [_j_] jump word
-     ^ ^                           [_x_] comment box
-     ^ ^                           [_r_] expand region
-     ^ ^                           [_m_] iedit (multiple edit)
-     ^ ^                           [_g_] google translate
-     ^ ^                           [_s_] swiper
-     ^ ^                           [_t_] counsel imenu
-     ^ ^                           [_q_] quick-calc
-  -------------------------------------------------------------------------------
-        "
-        ("<escape>" nil "выход")
-        ("a" align-regexp)
-        ("c" comment-lines)
-        ("r" er/expand-region)
-        ("f" fci-mode)
-        ("g" google-translate-smooth-translate)
-        ("h" whitespace-mode)
-        ("i" counsel-unicode-char)
-        ("j" avy-goto-word-1)
-        ("m" iedit-mode)
-        ("n" count-words)
-        ("p" describe-char)
-        ("e" antares-toggle-show-trailing-whitespace)
-        ("u" undo-tree-visualize)
-        ("v" variable-pitch-mode)
-        ("<SPC>" whitespace-cleanup)
-        ("s" antares-swiper)
-        ("t" counsel-imenu)
-        ("q" (quick-calc t))
-        ("x" comment-box)))
+           (defhydra hydra-leader ( :color blue :hint nil :idle 0.4)
+               "
+                                                                              ╭───────┐
+           Переключить                   Сделать                              │ Лидер │
+        ╭─────────────────────────────────────────────────────────────────────┴───────╯
+          [_c_] comment                  [_a_] align with regex
+          [_f_] fill column              [_p_] показать код символа
+          [_h_] непечатуемые символы     [_i_] вставить символ unicode
+          [_e_] trailing whitespace      [_<SPC>_] remove trailing whitespaces
+          [_v_] font space               [_u_] дерево отмен
+           ^ ^                           [_j_] jump word
+           ^ ^                           [_x_] comment box
+           ^ ^                           [_r_] expand region
+           ^ ^                           [_m_] iedit (multiple edit)
+           ^ ^                           [_g_] google translate
+           ^ ^                           [_s_] swiper
+           ^ ^                           [_t_] counsel imenu
+           ^ ^                           [_q_] quick-calc
+        -------------------------------------------------------------------------------
+              "
+              ("<escape>" nil "выход")
+              ("a" align-regexp)
+              ("c" comment-lines)
+              ("r" er/expand-region)
+              ("f" fci-mode)
+              ("g" google-translate-smooth-translate)
+              ("h" whitespace-mode)
+              ("i" counsel-unicode-char)
+              ("j" avy-goto-word-1)
+              ("m" iedit-mode)
+              ("n" count-words)
+              ("p" describe-char)
+              ("e" antares-toggle-show-trailing-whitespace)
+              ("u" undo-tree-visualize)
+              ("v" variable-pitch-mode)
+              ("<SPC>" whitespace-cleanup)
+              ("s" antares-swiper)
+              ("t" counsel-imenu)
+              ("q" (quick-calc t))
+              ("x" comment-box)))
 #+END_SRC
+#+begin_src emacs-lisp :tangle no
+  (use-package hydra
+    :ensure t
+    :defer 0.1
+    :init
+    (bind-key "\\" 'hydra-master/body)
+    :config
+    (setq lv-use-separator t)
+    (set-face-attribute 'hydra-face-blue nil :foreground "deep sky blue" :weight 'bold)
+    
+    (eval-and-compile
+      (defhydra hydra-common (:color blue)
+                ("<ESC>" nil "quit")))
+    
+    (defhydra hydra-master (:color blue :idle 0.4)
+ "  
+                                                                        ╭───────┐
+                                                                        │ Старт │
+ ╭──────────────────────────────────────────────────────────────────────┴───────╯
+ │ [^a^]               [^h^]  [^o^]  [^v^]
+ │ [^A^]               [^H^]  [^O^]  [^V^]
+ │ [^b^]               [^i^]  [^p^]  [^w^]
+ │ [^B^]               [^I^]  [^P^]  [^W^]
+ │ [^c^] flycheck      [^j^]  [^q^]  [^x^]
+ │ [^C^]               [^J^]  [^Q^]  [^X^]
+ │ [^d^]               [^k^]  [^r^]  [^y^]
+ │ [^D^]               [^K^]  [^R^]  [^Y^]
+ │ [_e_] emacs         [^l^]  [^s^]  [^z^]
+ │ [^E^]               [^L^]  [^S^]  [^Z^]
+ │ [^f^]               [^m^]  [^t^]
+ │ [^F^]               [^M^]  [^T^]
+ │ [^g^]               [^n^]  [^u^]
+ │ [^G^]               [^N^]  [^U^]
+ ╰────
+ "
+              ;;      "
+              ;;                                                                         ╭───────┐
+              ;;                                                                         │ Index │
+              ;;  ╭──────────────────────────────────────────────────────────────────────┴───────╯
+              ;;    [_a_] bookmarks    [^h^]               [_o_] organization  [^v^]
+              ;;    [_b_] buffers      [_i_] интернет      [_p_] project       [_w_] window
+              ;;    [_c_] flycheck     [_j_] jump          [_q_] exit          [_x_] shell
+              ;;    [_d_] development  [_k_] spell         [_r_] register      [^y^]
+              ;;    [_e_] emacs        [_l_] lisp          [_s_] поиск         [^z^]
+              ;;    [_f_] file         [_m_] media         [_t_] text
+              ;;    [_g_] git          [_n_] narrow        [^u^]
+              ;;  --------------------------------------------------------------------------------
+              ;;      "
+              ;;("<SPC>" antares-alternate-buffers "альтернативный буфер")
+              ;;("<ESC>" nil "выход")
+              ;;("\\" (insert "\\") "\\")
+              ;;            ("a"     hydra-bookmarks/body nil)
+              ;;            ("b"     hydra-buffers/body nil)
+              ;;("c"     hydra-flycheck/body nil)
+              ;;            ("d"     hydra-development/body nil)
+              ("e" hydra-emacs/body nil)
+              ;;            ("f"     hydra-file/body nil)
+              ;;            ("g"     hydra-git/body nil)
+              ;;            ("i"     hydra-internet/body nil)
+              ;;            ("j"     hydra-jump/body nil)
+              ;;            ("k"     hydra-spell/body nil)
+              ;;            ("l"     hydra-lisp/body nil)
+              ;;            ("m"     hydra-media/body nil)
+              ;;            ("n"     hydra-narrow/body nil)
+              ;;            ("o"     hydra-organization/body nil)
+              ;;            ("p"     hydra-project/body nil)
+              ;;            ("q"     hydra-exit/body nil)
+              ;;            ("r"     hydra-register/body nil)
+              ;;            ("s"     hydra-search/body nil)
+              ;;            ("t"     hydra-text/body nil)
+              ;; ("v"     hydra-games/body nil)
+              ;;            ("w"     ace-window nil)
+              ;;            ("x"     hydra-system/body nil)
+              )
+    
+    ;;            (defhydra hydra-bookmarks (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+    ;;              "
+    ;;                                                                             ╭───────────┐
+    ;;                 List                          Do                            │ Bookmarks │
+    ;;          ╭──────────────────────────────────────────────────────────────────┴───────────╯
+    ;;            [_l_] list bookmarks            [_j_] jump to a bookmark
+    ;;             ^ ^                            [_m_] set bookmark at point
+    ;;             ^ ^                            [_s_] save bookmarks
+    ;;             ^ ^                            [_d_] delete bookmark
+    ;;             ^ ^                            [_D_] delete all bookmarks
+    ;;          --------------------------------------------------------------------------------
+    ;;              "
+    ;;              ("j" bookmark-jump)
+    ;;              ("l" list-bookmarks)
+    ;;              ("m" bookmark-set)
+    ;;              ("s" bookmark-save)
+    ;;              ("d" bookmark-delete)
+    ;;              ("D" bookmark-delete-all))
+
+    ;;              (defhydra hydra-buffers (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+    ;;                "
+    ;;                                                                                 ╭─────────┐
+    ;;              Switch                 Do                                          │ Buffers │
+    ;;            ╭────────────────────────────────────────────────────────────────────┴─────────╯
+    ;;              [_b_] switch             [_d_] kill the buffer
+    ;;              [_i_] ibuffer            [_r_] toggle read-only mode
+    ;;              [_a_] alternate          [_u_] revert buffer changes
+    ;;               ^ ^                     [_w_] save buffer
+    ;;            --------------------------------------------------------------------------------
+    ;;                "
+    ;;                ("a" antares-alternate-buffers)
+    ;;                ("b" ivy-switch-buffer)
+    ;;                ("d" kill-this-buffer)
+    ;;                ("i" ibuffer)
+    ;;                ("r" read-only-mode)
+    ;;                ("u" antares-revert-buffer)
+    ;;                ("w" save-buffer))
+
+    ;;                (defhydra hydra-flycheck (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+    ;;                  "
+    ;;                                                                                ╭──────────┐
+    ;;               Navigate          Show Errors                  Do                │ Flycheck │
+    ;;            ╭───────────────────────────────────────────────────────────────────┴──────────╯
+    ;;               ^_p_^revious     [_l_] list errors           [_t_] toggle Flycheck
+    ;;                  ^^↑^^         [_d_] clear all errors      [_c_] select checker
+    ;;                ^_f_^irst        ^ ^                        [_r_] run via compile
+    ;;                  ^^↓^^          ^ ^                        [_h_] describe checker
+    ;;                ^_n_^ext
+    ;;            --------------------------------------------------------------------------------
+    ;;                  "
+    ;;                  ("c" flycheck-select-checker)
+    ;;                  ("h" flycheck-describe-checker)
+    ;;                  ("d" flycheck-clear)
+    ;;                  ("f" flycheck-first-error)
+    ;;                  ("l" flycheck-list-errors)
+    ;;                  ("n" flycheck-next-error :color red)
+    ;;                  ("p" flycheck-previous-error :color red)
+    ;;                  ("r" flycheck-compile)
+    ;;                  ("t" flycheck-mode))
+
+    ;;                (defhydra hydra-development (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+    ;;                  "
+    ;;                                                                             ╭─────────────┐
+    ;;                 Code                   Web                 Quickrun         │ Development │
+    ;;            ╭────────────────────────────────────────────────────────────────┴─────────────╯
+    ;;              [_d_] search docs (at point) [_c_] Web Colors          [_q_] buffer
+    ;;               ^ ^                         [_h_] HTTP header         [_v_] region
+    ;;               ^ ^                         [_m_] HTTP method         [_x_] shell
+    ;;               ^ ^                         [_r_] HTTP relation       [_p_] with arg
+    ;;               ^ ^                         [_s_] HTTP status code    [_o_] only compile
+    ;;               ^ ^                         [_t_] Media types         [_R_] replace
+    ;;               ^ ^                         [_g_] RESTclient          [_e_] eval/print
+    ;;               ^ ^                         [_f_] RFC doc
+    ;;              [_l_] lines of code          [_F_] RFC index
+    ;;            --------------------------------------------------------------------------------
+    ;;                  "
+    ;;                  ("d" devdocs-search)
+    ;;                  ("c" counsel-colors-web)
+    ;;                  ("g" restclient-mode)
+    ;;                  ("f" irfc-visit)
+    ;;                  ("F" irfc-index)
+    ;;                  ("q" quickrun)
+    ;;                  ("v" quickrun-region)
+    ;;                  ("x" quickrun-shell)
+    ;;                  ("p" quickrun-with-arg)
+    ;;                  ("o" quickrun-compile-only)
+    ;;                  ("R" quickrun-replace-region)
+    ;;                  ("e" quickrun-eval-print)
+    ;;                  ("h" http-header)
+    ;;                  ("m" http-method)
+    ;;                  ("r" http-relation)
+    ;;                  ("s" http-status-code)
+    ;;                  ("t" media-type)
+    ;;                  ("l" cloc))
+
+                  (defhydra hydra-emacs (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+                      "
+                                                                                       ╭───────┐
+                   Execute       Packages         Help                     Misc        │ Emacs │
+                ╭──────────────────────────────────────────────────────────────────────┴───────╯
+                  [_x_] counsel M-x [_p_] list      [_f_] describe function [_t_] change theme
+                   ^ ^              [_i_] install   [_v_] describe variable [_l_] list emacs process
+                   ^ ^              [_u_] upgrade   [_m_] info manual       [_c_] init time
+                   ^ ^               ^ ^            [_k_] bindings          [_e_] benchmark init
+                   ^ ^               ^ ^            [_b_] personal bindings [_o_] unbound commands
+                   ^ ^               ^ ^             ^ ^                    [_y_] emacs colors
+                   ^ ^               ^ ^             ^ ^                    [_z_] list faces
+                   ^ ^               ^ ^             ^ ^                    [_s_] transparency
+                --------------------------------------------------------------------------------
+                      "
+                      ("C-h b" counsel-descbinds "bindings")
+                      ("f" counsel-describe-function)
+                      ("v" counsel-describe-variable)
+                      ("b" describe-personal-keybindings)
+                      ("c" emacs-init-time)
+                      ("i" package-install)
+                      ("k" counsel-descbinds)
+                      ("l" list-processes)
+                      ("m" info-display-manual)
+                      ("p" paradox-list-packages)
+                      ("s" transparency)
+                      ("t" counsel-load-theme)
+                      ("u" paradox-upgrade-packages)
+                      ("e" esup)
+                      ("o" smex-show-unbound-commands)
+                      ("y" counsel-colors-emacs)
+                      ("z" counsel-faces)
+                      ("x" counsel-M-x))
+
+    ;;              (defhydra hydra-file (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+    ;;                  "
+    ;;                                                                                    ╭──────┐
+    ;;                 Ivy                    Dired        Ztree                          │ File │
+    ;;            ╭───────────────────────────────────────────────────────────────────────┴──────╯
+    ;;              [_o_] open file        [_d_] dired         [_z_] diff dirs
+    ;;              [_e_] open file extern [_r_] ranger
+    ;;            --------------------------------------------------------------------------------
+    ;;                  "
+    ;;                  ("o" counsel-find-file)
+    ;;                  ("e" counsel-find-file-extern)
+    ;;                  ("z" ztree-diff)
+    ;;                  ("d" dired)
+    ;;                  ("r" ranger))
+
+    ;;              (defhydra hydra-text (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+    ;;                  "
+    ;;                                                                                    ╭──────┐
+    ;;             Size  Toggle              Unicode                        Do            │ Text │
+    ;;            ╭───────────────────────────────────────────────────────────────────────┴──────╯
+    ;;              _k_  [_f_] fill column     [_d_] unicode character           [_a_] align with regex
+    ;;              ^↑^  [_h_] hidden chars    [_e_] evil digraphs table         [_w_] remove trailing ' '
+    ;;              ^ ^  [_l_] line numbers    [_s_] specific code block         [_n_] count words
+    ;;              ^↓^  [_t_] trailing ' '    [_u_] unicode character           [_i_] lorem ipsum
+    ;;              _j_  [_v_] font space      [_p_] character code              [_x_] comment box
+    ;;              ^ ^  [_c_] comment          ^ ^                              [_q_] boxquote
+    ;;              ^ ^  [_b_] multibyte chars  ^ ^                              [_m_] iedit (multiple)
+    ;;              ^ ^   ^ ^                   ^ ^                              [_r_] expand region
+    ;;              ^ ^   ^ ^                   ^ ^                              [_U_] tabs to spaces
+    ;;            --------------------------------------------------------------------------------
+    ;;                  "
+    ;;                  ("a" align-regexp)
+    ;;                  ("b" toggle-enable-multibyte-characters)
+    ;;                  ("c" comment-line)
+    ;;                  ("d" insert-char)
+    ;;                  ("e" evil-ex-show-digraphs)
+    ;;                  ("f" fci-mode)
+    ;;                  ("h" whitespace-mode)
+    ;;                  ("i" lorem-ipsum-insert-paragraphs)
+    ;;                  ("k" text-scale-increase :color red)
+    ;;                  ("j" text-scale-decrease :color red)
+    ;;                  ("l" linum-mode)
+    ;;                  ("n" count-words)
+    ;;                  ("m" iedit)
+    ;;                  ("p" describe-char)
+    ;;                  ("r" er/expand-region)
+    ;;                  ("s" charmap)
+    ;;                  ("t" antares-toggle-show-trailing-whitespace)
+    ;;                  ("u" counsel-unicode-char)
+    ;;                  ("v" variable-pitch-mode)
+    ;;                  ("w" whitespace-cleanup)
+    ;;                  ("U" untabify)
+    ;;                  ("q" hydra-boxquote/body)
+    ;;                  ("x" comment-box))
+
+    ;;              (defhydra hydra-git (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+    ;;                  "
+    ;;                                                                                     ╭─────┐
+    ;;               Magit                          VC                    Timemachine      │ Git │
+    ;;            ╭────────────────────────────────────────────────────────────────────────┴─────╯
+    ;;              [_s_] status              [_d_] diffs between revisions  [_t_] timemachine
+    ;;              [_B_] blame mode          [_b_] edition history
+    ;;              [_l_] file log
+    ;;            --------------------------------------------------------------------------------
+    ;;                  "
+    ;;                  ("B" magit-blame-mode)
+    ;;                  ("b" vc-annotate)
+    ;;                  ("d" vc-diff)
+    ;;                  ("l" magit-file-log)
+    ;;                  ("s" magit-status)
+    ;;                  ("t" git-timemachine))
+
+    ;;              (defhydra hydra-internet (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+    ;;                  "
+    ;;                                                                                ╭──────────┐
+    ;;                Browse       Search              Social               Post      │ Internet │
+    ;;            ╭───────────────────────────────────────────────────────────────────┴──────────╯
+    ;;              [_w_] eww      [_b_] DuckDuckGo       [_f_] elfeed            [_i_] imgur
+    ;;              [_u_] url      [_e_] DuckDuckGo (eww) [_x_] stack overflow
+    ;;               ^ ^           [_m_] google maps
+    ;;               ^ ^           [_d_] wordnik
+    ;;            --------------------------------------------------------------------------------
+    ;;                  "
+    ;;                  ("w" eww)
+    ;;                  ("u" browse-url-at-point)
+    ;;                  ("b" (antares-duckduckgo-search t))
+    ;;                  ("e" (antares-duckduckgo-search nil))
+    ;;                  ("m" google-maps)
+    ;;                  ("d" define-word-at-point)
+    ;;                  ("f" elfeed)
+    ;;                  ("x" sx-tab-newest)
+    ;;                  ("i" imgur-post))
+
+    ;;              (defhydra hydra-jump (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+    ;;                  "
+    ;;                                                                                    ╭──────┐
+    ;;              Window          Word/Char        Line         iSearch                 │ Jump │
+    ;;            ╭───────────────────────────────────────────────────────────────────────┴──────╯
+    ;;              [_w_] jump        [_j_] word         [_l_] jump     [_i_] jump
+    ;;              [_d_] close       [_p_] all words    [_y_] copy
+    ;;              [_z_] maximize    [_b_] subword      [_m_] move
+    ;;              [_s_] swap        [_c_] char         [_v_] copy region
+    ;;               ^ ^              [_a_] two chars
+    ;;            --------------------------------------------------------------------------------
+    ;;                  "
+    ;;                  ("w" ace-window)
+    ;;                  ("d" ace-delete-window)
+    ;;                  ("z" ace-maximize-window)
+    ;;                  ("s" ace-swap-window)
+    ;;                  ("j" avy-goto-word-1)
+    ;;                  ("p" avy-goto-word-0)
+    ;;                  ("b" avy-goto-subword-0)
+    ;;                  ("c" avy-goto-char)
+    ;;                  ("a" avy-goto-char-2)
+    ;;                  ("l" avy-goto-line)
+    ;;                  ("y" avy-copy-line)
+    ;;                  ("m" avy-move-line)
+    ;;                  ("v" avy-copy-region)
+    ;;                  ("i" avy-isearch))
+    ;;
+    ;;              (defhydra hydra-spell (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+    ;;                  "
+    ;;                                                                                   ╭───────┐
+    ;;                Flyspell               Ispell                      Gtranslate      │ Spell │
+    ;;            ╭──────────────────────────────────────────────────────────────────────┴───────╯
+    ;;              [_k_] correct word       [_w_] check word            [_g_] en ⇆ ru
+    ;;              [_n_] next error         [_t_] toggle dictionary     [_G_] any lang
+    ;;              [_f_] toggle flyspell    [_d_] change dictionary
+    ;;              [_p_] toggle prog mode
+    ;;            --------------------------------------------------------------------------------
+    ;;                  "
+    ;;                  ("w" ispell-word)
+    ;;                  ("d" ispell-change-dictionary)
+    ;;                  ("t" antares-switch-dictionary)
+    ;;                  ("g" google-translate-smooth-translate)
+    ;;                  ("G" google-translate-query-translate)
+    ;;                  ("f" flyspell-mode)
+    ;;                  ("p" flyspell-prog-mode)
+    ;;                  ("k" flyspell-correct-word-generic)
+    ;;                  ("n" flyspell-goto-next-error))
+    ;;
+    ;;              (defhydra hydra-lisp (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+    ;;                  "
+    ;;                                                                                    ╭──────┐
+    ;;                Elisp              Bug hunter                                       │ Lisp │
+    ;;            ╭───────────────────────────────────────────────────────────────────────┴──────╯
+    ;;              [_r_] eval region    [_f_] file
+    ;;              [_s_] eval sexp      [_i_] init-file
+    ;;              [_b_] eval buffer
+    ;;            --------------------------------------------------------------------------------
+    ;;                  "
+    ;;                  ("f" bug-hunter-file)
+    ;;                  ("i" bug-hunter-init-file)
+    ;;                  ("r" eval-region)
+    ;;                  ("b" eval-buffer)
+    ;;                  ("s" eval-last-sexp))
+    ;;
+    ;;              (defhydra hydra-narrow (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+    ;;                  "
+    ;;                                                                                  ╭────────┐
+    ;;                Narrow                                                            │ Narrow │
+    ;;            ╭─────────────────────────────────────────────────────────────────────┴────────╯
+    ;;              [_f_] narrow to defun
+    ;;              [_p_] narrow to page
+    ;;              [_r_] narrow to region
+    ;;              [_w_] widen
+    ;;            --------------------------------------------------------------------------------
+    ;;                  "
+    ;;                  ("f" narrow-to-defun)
+    ;;                  ("p" narrow-to-page)
+    ;;                  ("r" narrow-to-region)
+    ;;                  ("w" widen))
+    ;;
+    ;;              (defhydra hydra-project (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+    ;;                  "
+    ;;                                                                              ╭────────────┐
+    ;;              Files             Search          Buffer             Do         │ Projectile │
+    ;;            ╭─────────────────────────────────────────────────────────────────┴────────────╯
+    ;;              [_f_] file          [_a_] ag          [_b_] switch         [_g_] magit
+    ;;              [_l_] file dwim     [_A_] grep        [_v_] show all       [_p_] commander
+    ;;              [_r_] recent file   [_s_] occur       [_V_] ibuffer        [_i_] info
+    ;;              [_d_] dir           [_S_] replace     [_K_] kill all
+    ;;              [_o_] other         [_t_] find tag
+    ;;              [_u_] test file     [_T_] make tags
+    ;;              [_h_] root
+    ;;                                                                                  ╭────────┐
+    ;;              Other Window      Run             Cache              Do             │ Fixmee │
+    ;;            ╭──────────────────────────────────────────────────╯ ╭────────────────┴────────╯
+    ;;              [_F_] file          [_U_] test        [_kc_] clear         [_x_] TODO & FIXME
+    ;;              [_L_] dwim          [_m_] compile     [_kk_] add current   [_X_] toggle
+    ;;              [_D_] dir           [_c_] shell       [_ks_] cleanup
+    ;;              [_O_] other         [_C_] command     [_kd_] remove
+    ;;              [_B_] buffer
+    ;;            --------------------------------------------------------------------------------
+    ;;                  "
+    ;;                  ("a"   projectile-ag)
+    ;;                  ("A"   projectile-grep)
+    ;;                  ("b"   projectile-switch-to-buffer)
+    ;;                  ("B"   projectile-switch-to-buffer-other-window)
+    ;;                  ("c"   projectile-run-async-shell-command-in-root)
+    ;;                  ("C"   projectile-run-command-in-root)
+    ;;                  ("d"   projectile-find-dir)
+    ;;                  ("D"   projectile-find-dir-other-window)
+    ;;                  ("f"   projectile-find-file)
+    ;;                  ("F"   projectile-find-file-other-window)
+    ;;                  ("g"   projectile-vc)
+    ;;                  ("h"   projectile-dired)
+    ;;                  ("i"   projectile-project-info)
+    ;;                  ("kc"  projectile-invalidate-cache)
+    ;;                  ("kd"  projectile-remove-known-project)
+    ;;                  ("kk"  projectile-cache-current-file)
+    ;;                  ("K"   projectile-kill-buffers)
+    ;;                  ("ks"  projectile-cleanup-known-projects)
+    ;;                  ("l"   projectile-find-file-dwim)
+    ;;                  ("L"   projectile-find-file-dwim-other-window)
+    ;;                  ("m"   projectile-compile-project)
+    ;;                  ("o"   projectile-find-other-file)
+    ;;                  ("O"   projectile-find-other-file-other-window)
+    ;;                  ("p"   projectile-commander)
+    ;;                  ("r"   projectile-recentf)
+    ;;                  ("s"   projectile-multi-occur)
+    ;;                  ("S"   projectile-replace)
+    ;;                  ("t"   projectile-find-tag)
+    ;;                  ("T"   projectile-regenerate-tags)
+    ;;                  ("u"   projectile-find-test-file)
+    ;;                  ("U"   projectile-test-project)
+    ;;                  ("v"   projectile-display-buffer)
+    ;;                  ("V"   projectile-ibuffer)
+    ;;                  ("X"   fixmee-mode)
+    ;;                  ("x"   fixmee-view-listing))
+    ;;
+    ;;              (defhydra hydra-exit (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+    ;;                  "
+    ;;                                                                                    ╭──────┐
+    ;;               Quit                                                                 │ Exit │
+    ;;            ╭───────────────────────────────────────────────────────────────────────┴──────╯
+    ;;              [_c_] exit emacs (standalone or client)
+    ;;              [_s_] shutdown the emacs daemon
+    ;;            --------------------------------------------------------------------------------
+    ;;                  "
+    ;;                  ("c" save-buffers-kill-terminal)
+    ;;                  ("s" save-buffers-kill-emacs))
+    ;;
+    ;;              (defhydra hydra-register (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+    ;;                  "
+    ;;                                                                                ╭──────────┐
+    ;;               Logs                        Registers                Undo        │ Register │
+    ;;            ╭───────────────────────────────────────────────────────────────────┴──────────╯
+    ;;              [_c_] commands history       [^e^] emacs registers    [_u_] undo tree
+    ;;              [_o_] messages               [_r_] evil registers
+    ;;              [_l_] lossage (keystrokes)   [_m_] evil marks
+    ;;              [_d_] diff buffer with file  [_k_] kill ring
+    ;;            --------------------------------------------------------------------------------
+    ;;                  "
+    ;;                  ("d" antares-diff-buffer-with-file)
+    ;;                  ("k" counsel-yank-pop)
+    ;;                  ("l" view-lossage)
+    ;;                  ("c" counsel-command-history)
+    ;;                  ("m" evil-show-marks)
+    ;;                  ("o" view-echo-area-messages)
+    ;;                  ("r" evil-show-registers)
+    ;;                  ("u" undo-tree-visualize))
+    ;;
+    ;;              (defhydra hydra-search (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+    ;;                  "
+    ;;                                                                                  ╭────────┐
+    ;;               Files                             Buffer                           │ Search │
+    ;;            ╭─────────────────────────────────────────────────────────────────────┴────────╯
+    ;;              [_a_] regex search (Ag)           [_b_] by word
+    ;;              [_r_] regex search (rg)           [_o_] by word (opened buffers)
+    ;;              [_p_] regex search (pt)           [_w_] by word (multi)
+    ;;              [_g_] regex search (grep)         [_h_] by word (grep or swiper)
+    ;;              [^f^] find                        [_t_] tags & titles
+    ;;              [_l_] locate                      [_s_] semantic
+    ;;            --------------------------------------------------------------------------------
+    ;;                  "
+    ;;                  ("a" (let ((current-prefix-arg "-."))
+    ;;                         (call-interactively 'counsel-ag)))
+    ;;                  ("r" (let ((current-prefix-arg "-."))
+    ;;                         (call-interactively 'counsel-rg)))
+    ;;                  ("p" (let ((current-prefix-arg "-."))
+    ;;                         (call-interactively 'counsel-pt)))
+    ;;                  ("g" rgrep)
+    ;;                  ("l" counsel-locate)
+    ;;                  ("b" swiper)
+    ;;                  ("o" swiper-all)
+    ;;                  ("h" counsel-grep-or-swiper)
+    ;;                  ("t" counsel-imenu)
+    ;;                  ("s" counsel-semantic)
+    ;;                  ("w" swiper-multi))
+    ;;
+    ;;              (defhydra hydra-system (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+    ;;                  "
+    ;;                                                                                  ╭────────┐
+    ;;               Terminals                     System                               │ System │
+    ;;            ╭─────────────────────────────────────────────────────────────────────┴────────╯
+    ;;              [_s_] new multi-term           [_c_] shell command
+    ;;              [_n_] next multi-term          [_a_] aync shell command
+    ;;              [_p_] previous multi-term      [_m_] man page
+    ;;              [_d_] dedicated multi-term     [_l_] list system process
+    ;;              [_e_] eshell
+    ;;            --------------------------------------------------------------------------------
+    ;;                  "
+    ;;                  ("a" async-shell-command)
+    ;;                  ("c" shell-command)
+    ;;                  ("e" eshell)
+    ;;                  ("m" man)
+    ;;                  ("l" proced)
+    ;;                  ("s" multi-term)
+    ;;                  ("n" multi-term-next)
+    ;;                  ("p" multi-term-previous)
+    ;;                  ("d" multi-term-dedicated-toggle))
+    ;;
+    ;;              (defhydra hydra-media (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+    ;;                  "
+    ;;                                                                                   ╭───────┐
+    ;;               Mingus              Mpd                     Volume                  │ Media │
+    ;;            ╭──────────────────────────────────────────────────────────────────────┴───────╯
+    ;;             [_m_] mingus         [_n_] next song          [_-_] volume down
+    ;;             [_f_] search         [_p_] previous song      [_+_] volume up
+    ;;             [_l_] playlist       [_c_] clear playlist
+    ;;             [_a_] All            [_t_] pause
+    ;;              ^ ^                 [_s_] stop
+    ;;              ^ ^                 [_d_] start daemon
+    ;;            --------------------------------------------------------------------------------
+    ;;                  "
+    ;;                  ("m" mingus)
+    ;;                  ("f" mingus-search)
+    ;;                  ("c" mingus-clear)
+    ;;                  ("n" mingus-next)
+    ;;                  ("p" mingus-prev)
+    ;;                  ("t" mingus-toggle)
+    ;;                  ("s" mingus-stop)
+    ;;                  ("d" mingus-start-daemon)
+    ;;                  ("l" mingus-load-playlist)
+    ;;                  ("a" mingus-load-all)
+    ;;                  ("-" mingus-vol-down)
+    ;;                  ("\+" mingus-vol-up))
+    ;;
+    ;;              (defhydra hydra-organization (:color blue :hint nil :idle 0.4 :inherit (hydra-common/heads))
+    ;;                  "
+    ;;                                                                            ╭──────────────┐
+    ;;                 Tasks            Org mode               Comms      Others  │ Organization │
+    ;;            ╭───────────────────────────────────────────────────────────────┴──────────────╯
+    ;;              [_a_] agenda      [_c_] capture             [_m_] почта      [_x_] speed type
+    ;;              [_l_] agenda list [_p_] pomodoro            [_t_] контакты
+    ;;              [_d_] календарь   [_s_] search headings     [_h_] add location
+    ;;               ^ ^              [_g_] open location gmaps
+    ;;               ^ ^              [_f_] archive subtree
+    ;;            --------------------------------------------------------------------------------
+    ;;                  "
+    ;;                  ("a" org-agenda)
+    ;;                  ("c" org-capture)
+    ;;                  ("s" counsel-org-agenda-headlines)
+    ;;                  ("d" calfw-org-open-calendar)
+    ;;                  ("g" org-location-google-maps)
+    ;;                  ("h" org-address-google-geocode-set)
+    ;;                  ("l" org-agenda-list)
+    ;;                  ("f" org-archive-subtree)
+    ;;                  ("m" mu4e)
+    ;;                  ("p" org-pomodoro)
+    ;;                  ("t" org-contacts)
+    ;;                  ("x" speed-type-text))
+    ;;
+    ;;               (defhydra hydra-leader ( :color blue :hint nil :idle 0.4)
+    ;;                   "
+    ;;                                                                                  ╭───────┐
+    ;;               Переключить                   Сделать                              │ Лидер │
+    ;;            ╭─────────────────────────────────────────────────────────────────────┴───────╯
+    ;;              [_c_] comment                  [_a_] align with regex
+    ;;              [_f_] fill column              [_p_] показать код символа
+    ;;              [_h_] непечатуемые символы     [_i_] вставить символ unicode
+    ;;              [_e_] trailing whitespace      [_<SPC>_] remove trailing whitespaces
+    ;;              [_v_] font space               [_u_] дерево отмен
+    ;;               ^ ^                           [_j_] jump word
+    ;;               ^ ^                           [_x_] comment box
+    ;;               ^ ^                           [_r_] expand region
+    ;;               ^ ^                           [_m_] iedit (multiple edit)
+    ;;               ^ ^                           [_g_] google translate
+    ;;               ^ ^                           [_s_] swiper
+    ;;               ^ ^                           [_t_] counsel imenu
+    ;;               ^ ^                           [_q_] quick-calc
+    ;;            -------------------------------------------------------------------------------
+    ;;                  "
+    ;;                  ("<escape>" nil "выход")
+    ;;                  ("a" align-regexp)
+    ;;                  ("c" comment-lines)
+    ;;                  ("r" er/expand-region)
+    ;;                  ("f" fci-mode)
+    ;;                  ("g" google-translate-smooth-translate)
+    ;;                  ("h" whitespace-mode)
+    ;;                  ("i" counsel-unicode-char)
+    ;;                  ("j" avy-goto-word-1)
+    ;;                  ("m" iedit-mode)
+    ;;                  ("n" count-words)
+    ;;                  ("p" describe-char)
+    ;;                  ("e" antares-toggle-show-trailing-whitespace)
+    ;;                  ("u" undo-tree-visualize)
+    ;;                  ("v" variable-pitch-mode)
+    ;;                  ("<SPC>" whitespace-cleanup)
+    ;;                  ("s" antares-swiper)
+    ;;                  ("t" counsel-imenu)
+    ;;                  ("q" (quick-calc t))
+    ;;                  ("x" comment-box))
+    )
+#+end_src
 
 ** projectile
 
@@ -2326,7 +3060,7 @@ Unite работал в качестве интерфейса для неско�
 поиска (но ради производительности используется внешний механизм индексирования
 с помощью внешних команд).
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package projectile
     :ensure t
     :diminish projectile-mode
@@ -2336,7 +3070,7 @@ Unite работал в качестве интерфейса для неско�
       projectile-known-projects-file (concat antares-emacs-temporal-directory "projectile-bookmarks.eld")
       projectile-enable-caching t)
       (projectile-global-mode)))
-#+END_SRC
+#+end_src
 
 ** org-mode
 #+begin_src emacs-lisp
@@ -2592,7 +3326,7 @@ Unite работал в качестве интерфейса для неско�
     :ensure t)
 #+end_src
 
-** TODO otg-transclusion
+** TODO org-transclusion
 #+begin_src emacs-lisp
   (use-package org-transclusion
     :ensure t
@@ -2625,7 +3359,7 @@ Unite работал в качестве интерфейса для неско�
 кода.
 
 Так выглядит boxquote:
-#+BEGIN_EXAMPLE
+#+begin_example
 ╭────[ Lorem ipsum ]
 │ Nullam eu ante vel est convallis dignissim.  Fusce suscipit, wisi nec facilisis
 │ facilisis, est dui fermentum leo, quis tempor ligula erat quis odio.  Nunc porta
@@ -2634,61 +3368,62 @@ Unite работал в качестве интерфейса для неско�
 │ varius mi purus non odio.  Pellentesque condimentum, magna ut suscipit
 │ hendrerit, ipsum augue ornare nulla, non luctus diam neque sit amet urna.
 ╰────
-#+END_EXAMPLE
+#+end_example
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package boxquote
     :ensure t
     :config
+    (progn
     (setq-default  boxquote-bottom-corner "╰"      ; U+2570
                    boxquote-side          "│ "     ; U+2572 + space
                    boxquote-top-and-tail  "────"   ; U+2500 (×4)
                    boxquote-top-corner    "╭")     ; U+256F
-  ;;   (when (package-installed-p 'hydra)
-  ;;     (eval-and-compile
-  ;;       (defhydra hydra-boxquote (:color blue :hint nil)
-  ;;        "
-  ;;                                                                     ╭──────────┐
-  ;;   Текст          External           Apropos         Do              │ Boxquote │
-  ;; ╭───────────────────────────────────────────────────────────────────┴──────────╯
-  ;;   [_r_] region        [_f_] file      [_K_] describe-key        [_t_] title
-  ;;   [_p_] paragraph     [_b_] buffer    [_F_] describe-function   [_u_] unbox
-  ;;   [_a_] buffer        [_s_] shell     [_V_] describe-variable   [_w_] fill-paragraph
-  ;;   [_e_] text           ^ ^            [_W_] where-is            [_n_] narrow
-  ;;   [_d_] defun         [_y_] yank       ^ ^                      [_c_] narrow to content
-  ;;   [_q_] boxquote      [_Y_] yanked     ^ ^                      [_x_] kill
-  ;; --------------------------------------------------------------------------------
-  ;;        "
-  ;;       ("<esc>" nil "quit")
-  ;;       ("x" boxquote-kill)
-  ;;       ("Y" boxquote-yank)
-  ;;       ("e" boxquote-text)
-  ;;       ("u" boxquote-unbox)
-  ;;       ("d" boxquote-defun)
-  ;;       ("t" boxquote-title)
-  ;;       ("r" boxquote-region)
-  ;;       ("a" boxquote-buffer)
-  ;;       ("q" boxquote-boxquote)
-  ;;       ("W" boxquote-where-is)
-  ;;       ("p" boxquote-paragraph)
-  ;;       ("f" boxquote-insert-file)
-  ;;       ("K" boxquote-describe-key)
-  ;;       ("s" boxquote-shell-command)
-  ;;       ("b" boxquote-insert-buffer)
-  ;;       ("y" boxquote-kill-ring-save)
-  ;;       ("w" boxquote-fill-paragraph)
-  ;;       ("F" boxquote-describe-function)
-  ;;       ("V" boxquote-describe-variable)
-  ;;       ("n" boxquote-narrow-to-boxquote)
-  ;;       ("c" boxquote-narrow-to-boxquote-content))))
-    )
-#+END_SRC
+     (when (package-installed-p 'hydra)
+       (eval-and-compile
+         (defhydra hydra-boxquote (:color blue :hint nil)
+          "
+                                                                                   ╭──────────┐
+     Текст               External        Apropos                   Do              │ Boxquote │
+   ╭───────────────────────────────────────────────────────────────────────────────┴──────────╯
+     [_r_] region        [_f_] file      [_K_] describe-key        [_t_] title
+     [_p_] paragraph     [_b_] buffer    [_F_] describe-function   [_u_] unbox
+     [_a_] buffer        [_s_] shell     [_V_] describe-variable   [_w_] fill-paragraph
+     [_e_] text           ^ ^            [_W_] where-is            [_n_] narrow
+     [_d_] defun         [_y_] yank       ^ ^                      [_c_] narrow to content
+     [_q_] boxquote      [_Y_] yanked     ^ ^                      [_x_] kill
+   --------------------------------------------------------------------------------------------
+          "
+         ("<esc>" nil "quit")
+         ("x" boxquote-kill)
+         ("Y" boxquote-yank)
+         ("e" boxquote-text)
+         ("u" boxquote-unbox)
+         ("d" boxquote-defun)
+         ("t" boxquote-title)
+         ("r" boxquote-region)
+         ("a" boxquote-buffer)
+         ("q" boxquote-boxquote)
+         ("W" boxquote-where-is)
+         ("p" boxquote-paragraph)
+         ("f" boxquote-insert-file)
+         ("K" boxquote-describe-key)
+         ("s" boxquote-shell-command)
+         ("b" boxquote-insert-buffer)
+         ("y" boxquote-kill-ring-save)
+         ("w" boxquote-fill-paragraph)
+         ("F" boxquote-describe-function)
+         ("V" boxquote-describe-variable)
+         ("n" boxquote-narrow-to-boxquote)
+         ("c" boxquote-narrow-to-boxquote-content))))
+)    )
+#+end_src
 
 ** beacon
 
 [[https://github.com/Malabarba/beacon][Beacon]] дополнительный режим, который помогает в поиске курсора.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package beacon
     :ensure t
     :demand t
@@ -2697,7 +3432,7 @@ Unite работал в качестве интерфейса для неско�
     (setq beacon-push-mark 35
           beacon-blink-when-focused t
           beacon-color "deep sky blue"))
-#+END_SRC
+#+end_src
 
 ** async
 
@@ -2842,12 +3577,12 @@ Unite работал в качестве интерфейса для неско�
 #+end_src
 ** TODO CIDER
    [[https://github.com/clojure-emacs/cider][CIDER]] интерактивная среда разработки для Clojure
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package cider
     :defer t
     :ensure t
   )
-#+END_SRC
+#+end_src
 
 ** cloc
 
@@ -2957,7 +3692,7 @@ Unite работал в качестве интерфейса для неско�
 | M-n     | fixmee-goto-next-by-position     | Go to the next TODO/FIXME (above a TODO) |
 | M-p     | fixmee-goto-previous-by-position | Go to the next TODO/FIXME (above a TODO) |
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package fixmee
     :ensure t
     ;; :elpaca ignore-maybe
@@ -2968,13 +3703,13 @@ Unite работал в качестве интерфейса для неско�
     (add-hook 'prog-mode-hook 'fixmee-mode))
   (use-package button-lock
     :diminish button-lock-mode)
-#+END_SRC
+#+end_src
 
 ** ibuffer-vc
 
 [[https://github.com/purcell/ibuffer-vc][ibuffer-vc]] поакзывает буферы сгруппированные по системам контроля версий.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package ibuffer-vc
     :ensure t
     :commands ibuffer
@@ -2996,53 +3731,53 @@ Unite работал в качестве интерфейса для неско�
                   (vc-status 16 16 :left)
                   " "
                   filename-and-process))))
-#+END_SRC
+#+end_src
 
 ** lorem-ipsum
 
 [[https://github.com/jschaf/emacs-lorem-ipsum][lorem-ipsum]] добавляет текст-рыбу lorem ipsum для Emacs.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package lorem-ipsum
     :ensure t
     :commands lorem-ipsum-insert-paragraphs)
-#+END_SRC
+#+end_src
 
 ** multi-term
 
 [[http://www.emacswiki.org/emacs/multi-term.el][multi-term]] для создания и управления множеством терминальных буферов в Emacs.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package multi-term
   :ensure t
   :after (tramp)
   :commands (multi-term multi-term-next)
   :config
   (setq multi-term-program "/bin/zsh"))
-#+END_SRC
+#+end_src
 
 ** org-pomodoro
 
 [[https://github.com/lolownia/org-pomodoro][org-pomodoro]] добавляет очень простую поддержку техники Pomodoro в org-mode Emacs'а.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package org-pomodoro
     :ensure t
     :commands org-pomodoro)
-#+END_SRC
+#+end_src
 
 ** ox-pandoc
 
 [[https://github.com/kawabata/ox-pandoc][ox-pandoc]] переводит файлы org-mode в различные форматы, используя Pandoc.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package ox-pandoc
     :ensure t)
-#+END_SRC
+#+end_src
 
 ** parinfer
    [[https://github.com/DogLooksGood/parinfer-mode][parinfer]] умное расставление скобок
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
 (use-package parinfer-rust-mode
   :ensure t
   :bind
@@ -3057,49 +3792,49 @@ Unite работал в качестве интерфейса для неско�
             smart-yank))   ; Yank behavior depend on mode.
     (add-hook 'clojure-mode-hook #'parinfer-mode)
     (add-hook 'emacs-lisp-mode-hook #'parinfer-mode)))
-#+END_SRC
+#+end_src
 
 ** password-store
 
 Поддержка [[http://www.zx2c4.com/projects/password-store/][Password store (pass)]] в Emacs.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package password-store
     :ensure t)
-#+END_SRC
+#+end_src
 
 ** pcache
 
 [[https://github.com/sigma/pcache][pcache]] персистентное кэширование для Emacs. Необходимо для других пакетов таких как =fixmee=.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package pcache
     :ensure t
     :init
     (setq pcache-directory (concat antares-emacs-temporal-directory "pcache" )))
-#+END_SRC
+#+end_src
 
 ** speed-type
 
 [[https://github.com/hagleitn/speed-type][speed-type]] is for practice touch/speed typing in Emacs.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package speed-type
     :ensure t)
-#+END_SRC
+#+end_src
 
 ** smartparens
 
 [[https://github.com/Fuco1/smartparens][smartparens]] is a minor mode for Emacs that deals with parens pairs and tries to
 be smart about it.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package smartparens
     :ensure t
     :diminish smartparens-mode
     :config
     (smartparens-global-mode))
-#+END_SRC
+#+end_src
 ** WAIT popper
 #+begin_src emacs-lisp :tangle no
 (use-package popper
@@ -3122,7 +3857,7 @@ be smart about it.
 [[https://github.com/m2ym/popwin-el][Popwin]] это менеджер всплывающих окон Emacs, который освобождает вас от ада раздражающих буферов,
 таких как *Help*, *Completions*, *compilation*, и так далее.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package popwin
     :ensure t
     :config
@@ -3172,13 +3907,13 @@ be smart about it.
     (bind-keys :map popwin:window-map
                ((kbd "<escape>") . popwin:close-popup-window))
     )
-#+END_SRC
+#+end_src
 
 ** flycheck
 
 [[https://github.com/yasuyk/helm-flycheck][helm-flycheck]] показ ошибок flycheck с помощью helm.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
     (use-package flycheck
       :ensure t
       :defer t
@@ -3189,25 +3924,25 @@ be smart about it.
       ;;   :ensure t
       ;;   :ensure helm
       ;;   :commands helm-flycheck))
-#+END_SRC
+#+end_src
 
 ** mingus
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package mingus
     :ensure t)
 (use-package mingus-stays-home
   :ensure t
   :disabled t
   :after mingus)
-#+END_SRC
+#+end_src
 
 ** paradox
 
 [[https://github.com/Bruce-Connor/paradox][Paradox]] проект модернизации Emacs'овского меню пакетов. С оценками пакетов,
 статистикой использования, настраиваемостью и многим другим.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package paradox
     :ensure t
     :defer t
@@ -3216,7 +3951,7 @@ be smart about it.
     (setq paradox-github-token t
           paradox-automatically-star nil
           paradox-execute-asynchronously t))
-#+END_SRC
+#+end_src
 
 ** winum
 [[https://github.com/deb0ch/emacs-winum][winum]]
@@ -3535,7 +4270,7 @@ curl -X POST https://site.address/rest/pat/latest/tokens -H "Content-Type: appli
 
 Это актуальная схема текущей конфигурации (отрисованная с помощью =graphviz=)
 
-#+BEGIN_SRC dot :file ./img/mu4e_scheme.png :cmdline -Kdot -Tpng :tangle no
+#+begin_src dot :file ./img/mu4e_scheme.png :cmdline -kdot -tpng :tangle no
   digraph G {
       // General properties
       size="6,5"
@@ -3794,7 +4529,7 @@ curl -X POST https://site.address/rest/pat/latest/tokens -H "Content-Type: appli
       mail_gpg -> gpg_agent [dir=back, label="decrypt", minlen=3.0]
       mail_gpg -> mu4e [label="read user's info"]
   }
-#+END_SRC
+#+end_src
 
 #+ATTR_HTML: title="mu4e scheme"
 #+RESULTS:
@@ -3811,7 +4546,7 @@ curl -X POST https://site.address/rest/pat/latest/tokens -H "Content-Type: appli
   The SPAM messages are already checked by my account servers, so I only use the SPAM fields already present to filter them.
   So, is as simple as that:
 
-    #+BEGIN_EXAMPLE
+    #+begin_example
         ## By using the f and w flags and no condition, spamassassin is going add the
         ## X-Spam headers to every single mail, and then process other recipes.
         ## No lockfile is used.
@@ -3834,17 +4569,17 @@ curl -X POST https://site.address/rest/pat/latest/tokens -H "Content-Type: appli
         :0:
         * ^X-Spam-Level: \*\*\*\*\*
         Spam/
-    #+END_EXAMPLE
+    #+end_example
 
   I use a =procmail= rule to send ~notifications~ to the desktop via =notify-send=. I'm using it for almost all of them (spam and some others are skipped, to not distract me) and is like this:
 
-    #+BEGIN_EXAMPLE
+    #+begin_example
         ## Notification
         ## None of the above categories sends any notification at all
 
         :0 ic:
         | notify-send -a 'Correo nuevo: ' "$(grep "^From:\|^To:\|^Subject:")"
-    #+END_EXAMPLE
+    #+end_example
 
 + Daily, a script, [[https://github.com/joedicastro/cleanup-maildir][cleanup-maildir]], deletes all mails older than 14 days from several folders in the POP3's Maildir.
 + Each two minutes, Emacs orders to [[http://www.djcbsoftware.nl/code/mu/][mu]] to index all emails in both Maildirs. *Mu* is the main key of all the configuration.
@@ -3889,26 +4624,28 @@ curl -X POST https://site.address/rest/pat/latest/tokens -H "Content-Type: appli
   
 *** Включаем mu4e
 
-#+BEGIN_SRC emacs-lisp
-(use-package mu4e
-  :ensure (:host github :repo "djcb/mu" :files ("mu4e/*.el"))
-  :commands mu4e
-  :config
-  (add-to-list 'mu4e-bookmarks
-               '(:query "flag:flagged" :name "Помеченные" :key ?f))
-  (add-to-list 'mu4e-bookmarks
-               '(:query "date:48h..now" :name "Последние 2 дня" :key ?l))
-  (add-to-list 'mu4e-bookmarks
-               '(:query "date:1h..now" :name "Последний час" :key ?h))
-  (add-to-list 'mu4e-bookmarks
-               '(:query "flag:attach" :name "С вложениями" :key ?a) t)
-  (add-to-list 'mu4e-bookmarks
-               '(:query "mime:application/pdf" :name "С документами PDF" :key ?d) t)
-  (add-to-list 'mu4e-bookmarks
-               '(:query "size:3M..500M" :name "Большие сообщения" :key ?b) t)
-  (setq mu4e-maildir-shortcuts '((:maildir "/antares@antares.me/INBOX" :key ?i :name "Входящие"))) ;; :hide nil :hide-unread nil
-  )
-#+END_SRC
+#+begin_src emacs-lisp
+  (use-package mu4e
+    :ensure (:host github :repo "djcb/mu" :files ("mu4e/*.el"))
+    :pin manual
+    :commands mu4e
+    :config
+    (add-to-list 'mu4e-bookmarks
+                 '(:query "flag:flagged" :name "Помеченные" :key ?f))
+    (add-to-list 'mu4e-bookmarks
+                 '(:query "date:48h..now" :name "Последние 2 дня" :key ?l))
+    (add-to-list 'mu4e-bookmarks
+                 '(:query "date:1h..now" :name "Последний час" :key ?h))
+    (add-to-list 'mu4e-bookmarks
+                 '(:query "flag:attach" :name "С вложениями" :key ?a) t)
+    (add-to-list 'mu4e-bookmarks
+                 '(:query "mime:application/pdf" :name "С документами PDF" :key ?d) t)
+    (add-to-list 'mu4e-bookmarks
+                 '(:query "size:3M..500M" :name "Большие сообщения" :key ?b) t)
+    (setq mu4e-maildir-shortcuts '((:maildir "/antares@antares.me/INBOX" :key ?i :name "Входящие"))
+          mu4e-mu-binary "/usr/bin/mu") ;; :hide nil :hide-unread nil
+    )
+#+end_src
 
 *** Current keybindings
 **** Main view
@@ -4135,19 +4872,19 @@ This load the =mail.el.gpg= file where I store the email information
 that I prefer to keep private (since I share this config in GitHub) to
 inquisitive eyes.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
   (defvar antares-mu4e-user-info nil
     "This var is to only load this info once.")
   (add-hook 'mu4e-main-mode-hook (lambda ()
       (unless antares-mu4e-user-info
         (load-library (concat user-emacs-directory "mail.el.gpg"))
                       (setq antares-mu4e-user-info t))))
-#+END_SRC
+#+end_src
 
 Even when I keep this information private, I still going to share with
 you the current code stored in that file with make up data.
 
-#+BEGIN_EXAMPLE emacs-lisp :tangle no
+#+begin_example emacs-lisp :tangle no
     ;; a list of current and past email accounts to display correctly
     ;; the From/To field in view mode with sent emails.
     (setq mu4e-user-mail-address-list (list "default_account@example.com"
@@ -4200,7 +4937,7 @@ you the current code stored in that file with make up data.
           (mu4e-sent-messages-behavior 'delete)
           (message-signature "John Doe"))
     ))
-#+END_EXAMPLE
+#+end_example
 
 **** The rest of the SMTP configuration
 
@@ -4208,7 +4945,7 @@ This is the config needed to choose the right smtp configuration for
 the proper account in each moment (for new messages, replies, forwards
 & drafts editing).
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
   ;; set a stronger TLS configuration than the default to avoid nasty
   ;; warnings and for a little more secure configuration
   (setq gnutls-min-prime-bits 2048)
@@ -4249,36 +4986,36 @@ the proper account in each moment (for new messages, replies, forwards
         (error "No email account found"))))
 
   (add-hook 'mu4e-compose-pre-hook 'antares-mu4e-set-account)
-#+END_SRC
+#+end_src
 
 *** Queuing emails
 
 When offline or when you want do delay a message, you can go to the
 queuing mode and send them all turning it off.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
   ;; Allow queuing mails
   (setq smtpmail-queue-mail nil ;; start in non-queuing mode
       smtpmail-queue-dir "~/MEGA/org/mail/mails/Queue")
-#+END_SRC
+#+end_src
 
 *** Signature
 
 Add the signature by default when a new email is composed.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
   (setq mu4e-compose-signature-auto-include t)
   (setq
           message-signature t
           mu4e-compose-signature t)
-#+END_SRC
+#+end_src
 
 *** Sending emails asynchronous
 
 This is useful to send emails with attachments and do not block emacs
 until end the transmission.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
   (use-package smtpmail-async
     :ensure (:host github :repo "jwiegley/emacs-async")
     :config
@@ -4286,13 +5023,13 @@ until end the transmission.
      auth-sources '("~/.authinfo.gpg" "~/.netrc")
      send-mail-function 'async-smtpmail-send-it
      message-send-mail-function 'async-smtpmail-send-it))
-#+END_SRC
+#+end_src
 
 *** Setup maildir & folders
 
 The default Maildir path and subfolders.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
   (setq
       mu4e-maildir       "~/MEGA/org/mail"        ;; top-level Maildir
       mu4e-sent-folder   "/mails/Sent"       ;; folder for sent messages
@@ -4302,13 +5039,13 @@ The default Maildir path and subfolders.
 
   ;; where store the saved attachments
   (setq mu4e-attachment-dir  "~/tmp")
-#+END_SRC
+#+end_src
 
 *** General Options
 
 mu4e's general options.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
   ;; use 'fancy' non-ascii characters in various places in mu4e
   (setq mu4e-use-fancy-chars t)
 
@@ -4336,20 +5073,20 @@ mu4e's general options.
   ;; only personal messages get in the address book
   (setq mu4e-compose-complete-only-personal t)
 
-#+END_SRC
+#+end_src
 
 *** org-mode integration
 
 Integrate with org-mode
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package mu4e-org
     :ensure (:host github :repo "djcb/mu" :files ("mu4e/*.el"))
     :config
     (progn
       (setq org-mu4e-convert-to-html t)
       (defalias 'org-mail 'org-mu4e-compose-org-mode)))
-#+END_SRC
+#+end_src
 
 #+RESULTS:
 
@@ -4358,17 +5095,17 @@ Integrate with org-mode
 Update the index every 2 minutes but don't retrieve the email via
 Emacs.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (setq
     mu4e-get-mail-command "mbsync -a" ;; or fetchmail, or ...
     mu4e-update-interval 300)         ;; update every 5 minutes
-#+END_SRC
+#+end_src
 
 *** Header's view config
 
 The headers view configuration.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
   ;; more cool and practical than the default
   (setq mu4e-headers-from-or-to-prefix '("" . "➜ "))
   ;; to list a lot of mails, more than the default 500
@@ -4383,13 +5120,13 @@ The headers view configuration.
         (:size . 6)
         (:from-or-to . 22)
         (:subject)))
-#+END_SRC
+#+end_src
 
 *** Message view config
 
 Config for view mode.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
   ;; visible fields
   (setq mu4e-view-fields
       '(
@@ -4421,13 +5158,13 @@ Config for view mode.
   ;; use imagemagick if available
   (when (fboundp 'imagemagick-register-types)
     (imagemagick-register-types))
-#+END_SRC
+#+end_src
 
 *** Editor view config
 
 The editor view configuration.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp
   ;; kill the buffer when is no needed any more
   (setq message-kill-buffer-on-exit t)
 
@@ -4435,13 +5172,13 @@ The editor view configuration.
   (add-hook 'mu4e-compose-mode-hook (lambda ()
                                       (set-fill-column 80)
                                       (flyspell-mode)))
-#+END_SRC
+#+end_src
 
 *** Message view actions
 
 Define actions for message view.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
   ;; add the action to open an HTML message in the browser
   (add-to-list 'mu4e-view-actions
     '("browse mail" . mu4e-action-view-in-browser) t)
@@ -4489,16 +5226,16 @@ Define actions for message view.
   (add-to-list 'mu4e-view-actions
                '("get PGP keys" . antares-mu4e-view-snarf-pgp-key) t)
 
-#+END_SRC
+#+end_src
 
 *** Deal with HTML messages
 
 Try to visualize as best as possible the HTML messages in text mode.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (setq mu4e-view-prefer-html t)
   (setq mu4e-html2text-command "w3m -dump -cols 110 -T text/html")
-#+END_SRC
+#+end_src
 
 *** Smileys (emoticons)
 
@@ -4508,7 +5245,7 @@ Show emoticons when viewing and editing messages.
 
 [[http://www.emacswiki.org/emacs/autosmiley.el][autosmiley.el]] by Damyan Pepper
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
     (use-package smiley
       :config
       (progn
@@ -4584,25 +5321,25 @@ Show emoticons when viewing and editing messages.
                               ("\\(:-?\\$\\)\\W" 1 "face-embarrassed")
                               ("\\(:-?O\\)\\W" 1 "face-surprise")))
     (add-to-list 'gnus-smiley-file-types "png"))
-#+END_SRC
+#+end_src
 
 **** View emoticons in mu4e
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   ;; Show Smileys
   ;; (add-hook 'mu4e-view-mode-hook 'autosmiley-mode)
   (add-hook 'mu4e-view-mode-hook 'emojify-mode)
   ;; Test smileys:  :-] :-o :-) ;-) :-\ :-| :-d :-P 8-| :-(
-#+END_SRC
+#+end_src
 
 *** Shortcuts
 
 My defined shortcuts
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
   ;; Folder shortcuts
   (setq mu4e-maildir-shortcuts '((:maildir "/antares@antares.me/INBOX" :key ?i :name "Входящие"))) ;; :hide nil :hide-unread nil
-#+END_SRC
+#+end_src
 
 *** Dired integration
 
@@ -4613,7 +5350,7 @@ directly from Dired.
 |-------------+-------------------+------------------------------|
 | C-c RET C-a | gnus-dired-attach | Attach a file to a new email |
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
   (use-package gnus-dired
     :config
     (progn
@@ -4632,13 +5369,13 @@ directly from Dired.
 
       (setq gnus-dired-mail-mode 'mu4e-user-agent)
       (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode)))
-#+END_SRC
+#+end_src
 
 *** Encrypt/Decrypt
 
 Config for encrypt/decrypt emails
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
   (setq mu4e-decryption-policy t)
 
 ;; ; Sign the messages by default
@@ -4649,14 +5386,14 @@ Config for encrypt/decrypt emails
 ;;     (search-backward "Content-Type: application/pgp-signature")
 ;;     (goto-char (point-at-eol))
 ;;     (insert "; name=\"signature.asc\"; description=\"Digital signature\"")))
-#+END_SRC
+#+end_src
 
 *** Attachment reminder
 
 To avoid memory faults, as forget to attach a file after mention it
 in the message's body.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
   ;; simple regexp used to check the message. Tweak to your own need.
   (defvar antares-message-attachment-regexp "\\(adjunto\\|attach\\)")
   ;; the function that checks the message
@@ -4672,20 +5409,20 @@ in the message's body.
     (error "No message sent")))))
     ;; check is done just before sending the message
     (add-hook 'message-send-hook 'antares-message-check-attachment)
-#+END_SRC
+#+end_src
 *** Open a mu4e search in a new frame
 
 This is useful when you are composing a new email and need to do a
 search in your emails to get a little context in the conversation.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
   (defun antares-mu4e-headers-search-in-new-frame
       (&optional expr prompt edit ignore-history)
           "Execute `mu4e-headers-search' in a new frame."
           (interactive)
           (select-frame (make-frame))
           (mu4e-headers-search expr prompt edit ignore-history))
-#+END_SRC
+#+end_src
 ** Confluence-el
 #+begin_src emacs-lisp :tangle no
 (use-package confluence
@@ -4709,8 +5446,8 @@ search in your emails to get a little context in the conversation.
 #+end_src
 ** Bitrix24
 #+begin_src emacs-lisp :tangle no
-(use-package bitrix24
-  :elpaca (:repo "~/tmp/bitrix24-mode/" :file))
+  (use-package bitrix24
+    :elpaca (:repo "/home/antares/bitrix24-mode/"))
 #+end_src
 ** Emoticons
 #+begin_src emacs-lisp
@@ -4734,7 +5471,7 @@ search in your emails to get a little context in the conversation.
 
 [[./img/elfeed_show.png]]
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package elfeed
     :ensure t
     :commands elfeed
@@ -4849,7 +5586,7 @@ search in your emails to get a little context in the conversation.
           ("S-SPC" scroll-down :color red)
           ("TAB"   shr-next-link :color red)
           ("S-TAB" shr-previous-link :color red))))
-#+END_SRC
+#+end_src
 ** jetbrains
 #+begin_src emacs-lisp
 (use-package jetbrains
@@ -4857,7 +5594,7 @@ search in your emails to get a little context in the conversation.
 #+end_src
 ** wakatime
 Статистика использования редактора
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package wakatime-mode
     :ensure t
     :custom
@@ -5000,5 +5737,180 @@ search in your emails to get a little context in the conversation.
 ** Which-key
 #+begin_src emacs-lisp
   (use-package which-key
+    :ensure t)
+#+end_src
+** Linum-relative
+#+begin_src emacs-lisp
+  (use-package linum-relative
+    :ensure t)
+#+end_src
+** Enlight
+Пакет- альтернатива =Dashboard=
+#+begin_src emacs-lisp :tangle no
+  (use-package enlight
+  :custom
+  (enlight-content
+   (concat
+    (propertize "MENU" 'face 'highlight)
+    "\n"
+    (enlight-menu
+     '(("Org Mode"
+	("Org-Agenda (current day)" (org-agenda nil "a") "a"))
+       ("Downloads"
+	("Transmission" transmission "t")
+	("Downloads folder" (dired "~/Downloads") "a"))
+       ("Other"
+	("Projects" project-switch-project "p")))))))
+#+end_src
+** Greed
+#+begin_src emacs-lisp :tangle no
+  (use-package grid
+  :init
+  (unless (package-installed-p 'grid)
+    (package-vc-install
+     '(grid
+       :vc-backend Git
+       :url "https://github.com/ichernyshovvv/grid.el"
+       :branch "master"))))
+#+end_src
+** Inhibit-mouse
+#+begin_src emacs-lisp
+  (use-package inhibit-mouse
+  :ensure t
+  :custom
+  ;; Disable highlighting of clickable text such as URLs and hyperlinks when
+  ;; hovered by the mouse pointer.
+  (inhibit-mouse-adjust-mouse-highlight t)
+
+  ;; Disables the use of tooltips (show-help-function) during mouse events.
+  (inhibit-mouse-adjust-show-help-function t)
+
+  :config
+  (if (daemonp)
+      (add-hook 'server-after-make-frame-hook #'inhibit-mouse-mode)
+    (inhibit-mouse-mode 1)))
+#+end_src
+** Line-reminder
+#+begin_src emacs-lisp
+  (use-package line-reminder
+    :ensure t)
+#+end_src
+** centaur-tabs
+#+begin_src emacs-lisp
+    (use-package centaur-tabs
+    :init
+    (setq centaur-tabs-enable-key-bindings t)
+    :config
+    (setq centaur-tabs-style "bar"
+          centaur-tabs-height 32
+          centaur-tabs-set-icons t
+          centaur-tabs-show-new-tab-button t
+          centaur-tabs-set-modified-marker t
+          centaur-tabs-show-navigation-buttons t
+          centaur-tabs-set-bar 'under
+          centaur-tabs-show-count nil
+          ;; centaur-tabs-label-fixed-length 15
+          ;; centaur-tabs-gray-out-icons 'buffer
+          ;; centaur-tabs-plain-icons t
+          x-underline-at-descent-line t
+          centaur-tabs-left-edge-margin nil)
+    (centaur-tabs-change-fonts (face-attribute 'default :font) 110)
+    (centaur-tabs-headline-match)
+    ;; (centaur-tabs-enable-buffer-alphabetical-reordering)
+    ;; (setq centaur-tabs-adjust-buffer-order t)
+    (centaur-tabs-mode t)
+    (setq uniquify-separator "/")
+    (setq uniquify-buffer-name-style 'forward)
+    (defun centaur-tabs-buffer-groups ()
+      "`centaur-tabs-buffer-groups' control buffers' group rules.
+
+  Group centaur-tabs with mode if buffer is derived from `eshell-mode' `emacs-lisp-mode' `dired-mode' `org-mode' `magit-mode'.
+  All buffer name start with * will group to \"Emacs\".
+  Other buffer group by `centaur-tabs-get-group-name' with project name."
+      (list
+       (cond
+        ;; ((not (eq (file-remote-p (buffer-file-name)) nil))
+        ;; "Remote")
+        ((or (string-equal "*" (substring (buffer-name) 0 1))
+             (memq major-mode '(magit-process-mode
+                                magit-status-mode
+                                magit-diff-mode
+                                magit-log-mode
+                                magit-file-mode
+                                magit-blob-mode
+                                magit-blame-mode
+                                )))
+         "Emacs")
+        ((derived-mode-p 'prog-mode)
+         "Editing")
+        ((derived-mode-p 'dired-mode)
+         "Dired")
+        ((memq major-mode '(helpful-mode
+                            help-mode))
+         "Help")
+        ((memq major-mode '(org-mode
+                            org-agenda-clockreport-mode
+                            org-src-mode
+                            org-agenda-mode
+                            org-beamer-mode
+                            org-indent-mode
+                            org-bullets-mode
+                            org-cdlatex-mode
+                            org-agenda-log-mode
+                            diary-mode))
+         "OrgMode")
+        (t
+         (centaur-tabs-get-group-name (current-buffer))))))
+    :hook
+    (dashboard-mode . centaur-tabs-local-mode)
+    (term-mode . centaur-tabs-local-mode)
+    (calendar-mode . centaur-tabs-local-mode)
+    (org-agenda-mode . centaur-tabs-local-mode)
+    :bind
+    ("C-<prior>" . centaur-tabs-backward)
+    ("C-<next>" . centaur-tabs-forward)
+    ("C-S-<prior>" . centaur-tabs-move-current-tab-to-left)
+    ("C-S-<next>" . centaur-tabs-move-current-tab-to-right)
+    ;;(:map evil-normal-state-map
+    ;;      ("g t" . centaur-tabs-forward)
+    ;;      ("g T" . centaur-tabs-backward))
+    )
+#+end_src
+** Pro-tabs
+#+begin_src emacs-lisp :tangle no
+  (use-package pro-tabs
+    :ensure (:host github :repo "gnu-emacs-ru/pro-tabs"))
+#+end_src
+** Knockknock
+#+begin_src emacs-lisp
+  (use-package knockknock
+    :ensure (:fetcher github :repo "konrad1977/knockknock"))
+#+end_src
+** Minimap
+#+begin_src emacs-lisp
+  (use-package minimap
+    :ensure t)
+#+end_src
+** Indent-bars
+#+begin_src emacs-lisp
+  (use-package indent-bars
+  :custom
+  (indent-bars-no-descend-lists t) ; no extra bars in continued func arg lists
+  (indent-bars-treesit-support t)
+  (indent-bars-treesit-ignore-blank-lines-types '("module"))
+  ;; Add other languages as needed
+  (indent-bars-treesit-scope '((python function_definition class_definition for_statement
+	  if_statement with_statement while_statement)))
+  ;; Note: wrap may not be needed if no-descend-list is enough
+  ;;(indent-bars-treesit-wrap '((python argument_list parameters ; for python, as an example
+  ;;				      list list_comprehension
+  ;;				      dictionary dictionary_comprehension
+  ;;				      parenthesized_expression subscript)))
+  :hook ((python-base-mode yaml-mode prog-mode) . indent-bars-mode))
+#+end_src
+** iedit
+Множественные изменения
+#+begin_src emacs-lisp
+  (use-package iedit
     :ensure t)
 #+end_src

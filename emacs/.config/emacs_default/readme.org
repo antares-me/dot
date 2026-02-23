@@ -1192,6 +1192,15 @@ Emacs версия Vim powerline.
   (use-package lsp-treemacs
     :ensure t)
 #+end_src
+**** LSP-bridge
+#+begin_src emacs-lisp
+  (use-package lsp-bridge
+    :ensure (
+             :fetcher github
+             :repo "manateelazycat/lsp-bridge"
+             )
+    :config (global-lsp-bridge-mode))
+#+end_src
 *** Go
 **** Go-mode
 #+begin_src emacs-lisp
@@ -5919,4 +5928,25 @@ search in your emails to get a little context in the conversation.
 #+begin_src emacs-lisp
   (use-package iedit
     :ensure t)
+#+end_src
+** EWM
+#+begin_src emacs-lisp
+  (use-package ewm
+    :ensure (:host codeberg :repo "ezemtsov/ewm")
+    ;;:custom
+    ;; Optional: configure output modes
+    ;;(ewm-output-config '(("DP-1" :width 2560 :height 1440)))
+    :bind (:map ewm-mode-map
+                ;; Override defaults with your preferred commands
+                ("s-d" . consult-buffer)))
+#+end_src
+** EWM-Consult
+#+begin_src emacs-lisp
+    (use-package ewm-consult
+    :ensure (:host github :repo "Kirth/ewm-consult")
+    :after ewm
+    ;;:config (
+    ;;         (setq ewm-consult-annotate-application-buffers t)
+    ;;         (setq ewm-consult-separate-application-source t))
+    )
 #+end_src

@@ -4259,7 +4259,7 @@ curl -X POST https://site.address/rest/pat/latest/tokens -H "Content-Type: appli
 
 ** TODO mu4e
 #+begin_example bash
-        $yay mu mbsync-git cyrus-sasl-xoauth2-git sasl-xoauth2-git
+        $yay -S mu mbsync-git cyrus-sasl-xoauth2-git sasl-xoauth2-git
 #+end_example
 
 [[http://www.djcbsoftware.nl/code/mu/mu4e.html][mu4e]] основанный на emacs e-mail клиент, который использует mu как бэкенд.

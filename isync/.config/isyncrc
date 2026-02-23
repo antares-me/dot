@@ -1,3 +1,4 @@
+# Gmail
 IMAPAccount antares@antares.me
 Host imap.gmail.com
 Port 993
@@ -29,32 +30,33 @@ Create Both
 SyncState *
 
 # Yandex
-#IMAPAccount a.salnikov@notamedia.ru
-#Host imap.yandex.ru
+IMAPAccount a.salnikov@notamedia.ru
+Host imap.yandex.ru
 #Port 993
-#AuthMechs LOGIN
-#User a.salnikov@notamedia.ru
-#PassCmd "pass Work/nota/yandex.ru/a.salnikov@notamedia.ru"
+AuthMechs LOGIN
+User a.salnikov@notamedia.ru
+PassCmd "pass Work/nota/yandex.ru/mu4e"
 ##PassCmd "emacsclient -e '(password-store-get-field \"fastmail.com/myaccount@fastmail.com\" \"smtp\)'"
-#TLSType IMAPS
-#TLSVersions +1.2
+TLSType IMAPS
+TLSVersions +1.2 +1.3
+Timeout 120
 #CertificateFile /etc/ssl/certs/ca-certificates.crt
-#
-#IMAPStore a.salnikov@notamedia.ru-remote
-#Account a.salnikov@notamedia.ru
-#
-#MaildirStore a.salnikov@notamedia.ru-local
-#Path ~/Maildir/a.salnikov@notamedia.ru/
-#Inbox ~/Maildir/a.salnikov@notamedia.ru/INBOX
-#SubFolders Verbatim
-#
-#Channel a.salnikov@notamedia.ru
-#Far :a.salnikov@notamedia.ru-remote:
-#Near :a.salnikov@notamedia.ru-local:
-#Patterns *
+
+IMAPStore a.salnikov@notamedia.ru-remote
+Account a.salnikov@notamedia.ru
+
+MaildirStore a.salnikov@notamedia.ru-local
+Path ~/Maildir/a.salnikov@notamedia.ru/
+Inbox ~/Maildir/a.salnikov@notamedia.ru/INBOX
+SubFolders Verbatim
+
+Channel a.salnikov@notamedia.ru
+Far :a.salnikov@notamedia.ru-remote:
+Near :a.salnikov@notamedia.ru-local:
+Patterns *
 ## Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail" "[Gmail]/Trash"
-#Expunge Both
-#CopyArrivalDate yes
+Expunge Both
+CopyArrivalDate yes
 #Sync All
-#Create Both
-#SyncState *
+Create Both
+SyncState *

@@ -1019,38 +1019,39 @@ Emacs версия Vim powerline.
 ** Мессенджеры
 *** Telegram
 #+begin_src emacs-lisp
-  (use-package telega
-    :ensure t
-    :pin manual
-    :demand t
-    :hook (telega-load-hook . telega-notifications-mode)
-    :config
-    (progn
-      (define-key global-map (kbd "C-c t") telega-prefix-map)
-      (setq telega-use-docker t
-            telega-adblock-mode t
-            telega-notifications-mode t
-            telega-mode-line-mode t
-            ;;telega-alert-mode t
-            telega-language "ru")
-      ;;(require 'telega-alert)
-      (require 'telega-adblock)
-      (require 'telega-dashboard)
-;;      (add-hook 'telega-load-hook (lambda () (add-to-list 'dashboard-items '(telega-chats . 5))))
-      (add-to-list 'dashboard-items '(telega-chats . 5))
-      (require 'ol-telega)
-      (require 'telega-url-shorten)
-      (add-hook 'telega-load-hook 'global-telega-url-shorten-mode)
-      (require 'telega-mnz)
-      (add-hook 'telega-load-hook 'global-telega-mnz-mode)
-      (setq telega-url-shorten-use-images t)
-      (require 'telega-transient)
-      (telega-transient-keymaps-mode t)
-      (setq telega-transient-keymaps '(telega-prefix-map telega-sort-map telega-filter-map
-                   telega-describe-map telega-folder-map
-                   telega-voip-map telega-root-fastnav-map
-                   telega-root-view-map telega-chatbuf-fastnav-map))
-      ))
+    (use-package telega
+      :ensure t
+      :pin manual
+      :demand t
+      :hook (telega-load-hook . telega-notifications-mode)
+      :config
+      (progn
+        (define-key global-map (kbd "C-c t") telega-prefix-map)
+        (setq telega-use-docker t
+              telega-adblock-mode t
+              telega-notifications-mode t
+              telega-mode-line-mode t
+              ;;telega-alert-mode t
+              telega-language "ru")
+        ;;(require 'telega-alert)
+        (require 'telega-adblock)
+        (require 'telega-dashboard)
+        (setq dashboard-banner-length 90)
+  ;;      (add-hook 'telega-load-hook (lambda () (add-to-list 'dashboard-items '(telega-chats . 5))))
+        (add-to-list 'dashboard-items '(telega-chats . 5))
+        (require 'ol-telega)
+        (require 'telega-url-shorten)
+        (add-hook 'telega-load-hook 'global-telega-url-shorten-mode)
+        (require 'telega-mnz)
+        (add-hook 'telega-load-hook 'global-telega-mnz-mode)
+        (setq telega-url-shorten-use-images t)
+        (require 'telega-transient)
+        (telega-transient-keymaps-mode t)
+        (setq telega-transient-keymaps '(telega-prefix-map telega-sort-map telega-filter-map
+                     telega-describe-map telega-folder-map
+                     telega-voip-map telega-root-fastnav-map
+                     telega-root-view-map telega-chatbuf-fastnav-map))
+        ))
   #+end_src
 
 *** telega-export
@@ -5449,7 +5450,7 @@ search in your emails to get a little context in the conversation.
 #+end_src
 
 ** Guix
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package guix
     :ensure t
     :defer t)
@@ -6052,4 +6053,44 @@ search in your emails to get a little context in the conversation.
     ;;         (setq ewm-consult-annotate-application-buffers t)
     ;;         (setq ewm-consult-separate-application-source t))
     )
+#+end_src
+** Embark
+#+begin_src emacs-lisp
+  (use-package embark
+  :ensure t
+
+  :bind
+  (("C-." . embark-act)         ;; pick some comfortable binding
+   ;;("C-;" . embark-dwim)        ;; good alternative: M-.
+   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+
+  :init
+
+  ;; Optionally replace the key help with a completing-read interface
+  (setq prefix-help-command #'embark-prefix-help-command)
+
+  ;; Show the Embark target at point via Eldoc. You may adjust the
+  ;; Eldoc strategy, if you want to see the documentation from
+  ;; multiple providers. Beware that using this can be a little
+  ;; jarring since the message shown in the minibuffer can be more
+  ;; than one line, causing the modeline to move up and down:
+
+  ;; (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+  ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+
+  ;; Add Embark to the mouse context menu. Also enable `context-menu-mode'.
+  ;; (context-menu-mode 1)
+  ;; (add-hook 'context-menu-functions #'embark-context-menu 100)
+
+  :config
+
+  ;; Hide the mode line of the Embark live/completions buffers
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none)))))
+
+;; Consult users will also want the embark-consult package.
+(use-package embark-consult
+  :ensure t) ; only need to install it, embark loads it after consult if found
 #+end_src

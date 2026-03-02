@@ -1117,6 +1117,12 @@ Emacs версия Vim powerline.
   ;; or use aider-transient-menu-2cols / aider-transient-menu-1col, for narrow screen
   (aider-magit-setup-transients)) ;; add aider magit function to magit menu
 #+end_src
+*** Monet
+#+begin_src emacs-lisp
+  (use-package monet
+  :ensure (:host github :repo "stevemolitor/monet"))
+
+#+end_src
 *** TODO Copilot
 #+begin_src emacs-lisp
   (use-package copilot
@@ -1132,6 +1138,48 @@ Emacs версия Vim powerline.
   (use-package copilot-chat
     :ensure t)
 #+end_src
+
+*** Claude-code-ide
+#+begin_src emacs-lisp
+  (use-package claude-code-ide
+    :ensure (:host github :repo "manzaltu/claude-code-ide.el")
+    :bind ("C-c C-'" . claude-code-ide-menu)
+    :config (claude-code-ide-emacs-tools-setup))
+  (global-auto-revert-mode 1)
+  (setq claude-code-ide-use-side-window nil)
+  (global-set-key (kbd "C-c .") 'claude-code-ide)
+#+end_src
+
+*** Claude-code
+#+begin_src emacs-lisp
+  (use-package claude-code
+  :ensure (:type git :host github :repo "stevemolitor/claude-code.el" :branch "main" :depth 1
+                   :files ("*.el" (:exclude "images/*")))
+  :bind-keymap
+  ("C-c c" . claude-code-command-map) ;; or your preferred key
+  ;; Optionally define a repeat map so that "M" will cycle thru Claude auto-accept/plan/confirm modes after invoking claude-code-cycle-mode / C-c M.
+  :bind
+  (:repeat-map my-claude-code-map ("M" . claude-code-cycle-mode))
+  :config
+  ;; optional IDE integration with Monet
+  (add-hook 'claude-code-process-environment-functions #'monet-start-server-function)
+  (monet-mode 1)
+
+  (claude-code-mode))
+#+end_src
+
+*** 
+
+*** 
+
+*** 
+
+** Inheritenv
+#+begin_src emacs-lisp
+  (use-package inheritenv
+  :ensure (:type git :host github :repo "purcell/inheritenv"))
+#+end_src
+
 ** company-mode
 
 #+begin_src emacs-lisp
@@ -5618,16 +5666,6 @@ search in your emails to get a little context in the conversation.
     (wakatime-api-key "<api-key>")
     :init (global-wakatime-mode))
 #+end_src
-** claude-code-ide
-#+begin_src emacs-lisp
-  (use-package claude-code-ide
-    :ensure (:host github :repo "manzaltu/claude-code-ide.el")
-    :bind ("C-c C-'" . claude-code-ide-menu)
-    :config (claude-code-ide-emacs-tools-setup))
-  (global-auto-revert-mode 1)
-  (setq claude-code-ide-use-side-window nil)
-  (global-set-key (kbd "C-c .") 'claude-code-ide)
-#+end_src
 ** spacious-padding
 Отступ содержимого фрейма от границ
 #+begin_src emacs-lisp
@@ -5931,6 +5969,7 @@ search in your emails to get a little context in the conversation.
   (use-package iedit
     :ensure t)
 #+end_src
+
 ** Consult
 #+begin_src emacs-lisp
     (use-package consult
@@ -6033,6 +6072,13 @@ search in your emails to get a little context in the conversation.
     ;; (keymap-set consult-narrow-map (concat consult-narrow-key " ?") #'consult-narrow-help)
   )
 #+end_src
+
+** Emacs-websocket
+#+begin_src emacs-lisp
+  (use-package websocket
+    :ensure (:host github :repo "ahyatt/emacs-websocket"))
+#+end_src
+
 ** EWM
 #+begin_src emacs-lisp
   (use-package ewm

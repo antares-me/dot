@@ -1031,7 +1031,8 @@ Emacs версия Vim powerline.
               telega-notifications-mode t
               telega-mode-line-mode t
               ;;telega-alert-mode t
-              telega-language "ru")
+              telega-language "ru"
+              telega-proxies '(:server "mtproto.notamedia.ru" :port 443 :enable t :type '(:@type "proxyTypeMtproto" :secret "QS{guK8N_QtC*:d~`G{rtM/]C")))
         ;;(require 'telega-alert)
         (require 'telega-adblock)
         (require 'telega-dashboard)

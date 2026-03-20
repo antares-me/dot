@@ -1,7 +1,7 @@
 #+title: Readme
 #+author: Anton Salnikov
 #+email: antres@antares.me
-#+date:[2025-11-10 Пн]
+#+date:[2026-03-12 Ср]
 #+language: ru
 #+property: header-args :tangle init.el :comments org
 #+options: author:nil toc:nil title:nil e:nil
@@ -1080,14 +1080,30 @@ Emacs версия Vim powerline.
   (use-package gptel
     :ensure t
     :config
-    (setq gptel-model   'deepseek-chat
+    (setq gptel-model   'qwen3:8b
       gptel-backend
-      (gptel-make-openai "DeepSeek"
-        :host "api.deepseek.com"
-        :endpoint "/chat/completions"
-        :stream t
-        :key "your-api-key"
-        :models '(deepseek-chat deepseek-coder))))
+      (gptel-make-ollama "Ollama"             ;Any name of your choosing
+        :host "localhost:11434"               ;Where it's running
+        :stream t                             ;Stream responses
+        :models '(qwen3:8b codelama:7b))
+      ;;(gptel-make-openai "DeepSeek"
+      ;;  :host "api.deepseek.com"
+      ;;  :endpoint "/chat/completions"
+      ;;  :stream t
+      ;;  :key "your-api-key"
+      ;;  :models '(deepseek-chat deepseek-coder))
+      ))
+#+end_src
+*** Ellama
+#+begin_src emacs-lisp
+  (use-package ellama
+    :ensure t
+    :init
+    (setopt ellama-language "English")
+    (require 'llm-ollama)
+    (setopt ellama-provider
+            (make-llm-ollama
+             :chat-model "qwen3" :embedding-model "qwen3:8b")))
 #+end_src
 *** CodeGPT
 #+begin_src emacs-lisp :tangle no
@@ -1127,11 +1143,18 @@ Emacs версия Vim powerline.
 #+begin_src emacs-lisp
   (use-package copilot
     :after '(track-changes)
-    :ensure (
-    :host github
-    :repo "copilot-emacs/copilot.el"
-    :branch "main"
-    :files ("*.el")))
+    :ensure (:host github
+                   :repo "copilot-emacs/copilot.el"
+                   :branch "main"
+                   :files ("*.el"))
+    :hook (prog-mode . copilot-mode)
+    :bind (:map copilot-completion-map
+                ("<tab>" . copilot-accept-completion)
+                ("TAB" . copilot-accept-completion)
+                ("C-<tab>" . copilot-accept-completion-by-word)
+                ("C-TAB" . copilot-accept-completion-by-word)
+                ("C-n" . copilot-next-completion)
+                ("C-p" . copilot-previous-completion)))
 #+end_src
 *** Copilot-chat
 #+begin_src emacs-lisp
@@ -1419,6 +1442,23 @@ PHP-debugger (Устарел)
 #+begin_src emacs-lisp :tangle no
   (use-package geben
     :ensure t)
+#+end_src
+**** PhpUnit
+#+begin_src emacs-lisp
+  (use-package phpunit
+  :ensure t
+  :after php-mode)
+#+end_src
+**** Composer
+#+begin_src emacs-lisp
+  (use-package composer
+    :ensure t
+    ;;:config (progn
+    ;;          (setq composer-use-managed-phar t
+                  ;;(default-directory "/tmp")
+                  ;;(composer-install)
+   ;;               ))
+    )
 #+end_src
 *** Net
 **** Know-your-http-well
@@ -3321,7 +3361,7 @@ Unite работал в качестве интерфейса для неско�
 #+end_src
 
 ** org-bullets
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package org-bullets
     :ensure t
     ;; :defer t
@@ -3333,9 +3373,29 @@ Unite работал в качестве интерфейса для неско�
 #+end_src
 
 ** org-superstar
-#+begin_src emacs-lisp :tangle no
-  (use-package org-superstar-mode
-    :ensure t)
+#+begin_src emacs-lisp
+  (use-package org-superstar
+    :ensure t
+    :after (org all-the-icons)
+    :hook (org-mode . org-superstar-mode)
+    :commands
+    org-superstar-mode
+    org-superstar-toggle-lightweight-lists
+    :custom
+    ;; draw pretty unicode heading bullets
+    (org-superstar-headline-bullets-list '("⌾" "◈" "⚬" "▷"))
+    ;; don't hide leading stars
+    (org-hide-leading-stars nil)
+    ;; replace them with spaces!
+    (org-superstar-leading-bullet ?\s)
+    ;; draw pretty todo items
+    (org-superstar-special-todo-items t)
+    ;; draw pretty unicode list bullets
+    (org-superstar-prettify-item-bullets t)
+    ;;  (setq org-superstar-headline-bullets-list '("◉" "○" "✸" "✿" "☼" "⚬")
+    ;;        org-hide-leading-stars t
+    ;;        org-superstar-special-todo-items t)
+    )
 #+end_src
 
 ** TODO org-super-agenda
@@ -6139,4 +6199,9 @@ search in your emails to get a little context in the conversation.
 ;; Consult users will also want the embark-consult package.
 (use-package embark-consult
   :ensure t) ; only need to install it, embark loads it after consult if found
+#+end_src
+** OVPN
+#+begin_src emacs-lisp
+  (use-package ovpn-mode
+    :ensure t)
 #+end_src

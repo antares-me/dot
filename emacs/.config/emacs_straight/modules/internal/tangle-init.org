@@ -1,0 +1,59 @@
+#+title: tangle-init
+
+* Конфигурируем Emacs, используя Org-Babel
+
+*Конфиг совершенствуется и изменяется мной под себя, так что в нём могут появляться изменения*
+
+В данном репозитории содержатся настройки, которые используются мной для кастомизации Emacs.
+Конфигурация использует [[http://orgmode.org/][Org-Mode]], [[http://orgmode.org/worg/org-contrib/babel/][Org-Babel]] и [[http://orgmode.org/worg/org-contrib/babel/intro.html#literate-programming][Literate Programming]] для
+управления настройками в едином файле Org Mode.
+
+*Важно:* Для того, чтобы использовать эту конфигурацию вы должны сгенерировать
+~init.el~ файл из этого файла. В следующем разделе я расскажу как это сделать.
+
+** Как это работает
+
+Используется один из стандартных init файлов Emacs, =init.el= для загрузки всей
+конфигурации. Предпологается, что настройки хранятся в стандартном =~/.emacs.d=
+каталоге и для установки конфигурации вам нужна символическая ссылка с него на этот
+каталог =emacs= (автоматически создастся если вы используете stow).
+Файл =~/.emacs.d/init.el= собирается из всех блоков кода этого файла
+=~/emacs.d/readme.org=, экспортируемых в процессе, которыйназывается "tangling".
+Если блок помечен как =:tangle no=, он будет пропущен.
+Tangling происходит автоматически каждый раз при изменении =readme.org=, с
+помощью хука, чтобы быть уверенным в синхронизации файлов.
+
+Этот хук создаёт новый =~/.emacs.d/init.el= каждый раз при изменении этого файла.
+
+#+begin_src emacs-lisp
+  ;; Оригинал взят отсюда
+  ;; https://github.com/larstvei/dot-emacs/blob/master/init.org
+  (defun antares-tangle-init ()
+    "Если текущий буфер 'readme.org' блоки кода собираются и собранный файл компилируется."
+    (when (or
+           (equal (buffer-file-name)
+                  (expand-file-name (concat user-emacs-directory "readme.org")))
+           (equal (buffer-file-name)
+                  (expand-file-name "~/.dotfiles/emacs/.config/emacs_straight/readme.org")))
+      (call-process-shell-command
+       "/usr/bin/emacs ~/.dotfiles/emacs/.config/emacs_straight/readme.org --batch --eval='(org-babel-tangle)' && notify-send -a 'Emacs' 'Emacs' 'init-файл собран'" nil 0)))
+      ;; (byte-compile-file (concat user-emacs-directory "init.el")))
+
+  (add-hook 'after-save-hook 'antares-tangle-init)
+#+end_src
+
+Крутая фишка такой настройки в том, что этот файл можно достаточно легко
+экспортировать как документацию в HTML, PDF или LaTeX. Например сделать
+это из Org mode можно нажав =C-c C-e=, выберите =h= и после одну из опций
+для создания HTML. В то же время это позволяет с удовольствием настраивать
+конфигурацию и легко находить настройки и управлять ими.
+
+*** Как сгенерировать init.el-файл
+
+Таким образом, из кода выше вы, вероятно, уже поняли команду, необходимую для
+генерации ~/.emacs.d/init.el~ файла. В любом случае вам надо выполнить эту
+команду в терминале, чтобы получить elisp файл из текущего файла org-mode.
+
+#+begin_example bash
+  $ /usr/bin/emacs ~/.dotfiles/emacs/.config/emacs_straight/readme.org --batch --eval='(org-babel-tangle)'
+#+end_example

@@ -1,5 +1,8 @@
 (("default" . ((user-emacs-directory . "~/.config/emacs_default")
 	       (server-name . "emacs")))
+ ("straight" . ((user-emacs-directory . "~/.config/emacs_straight")
+		(straight-p . t)
+	    (server-name . "emacs-straight")))
  ("doom" . ((user-emacs-directory . "~/.config/emacs_doom")
 	    (env . (("DOOMDIR" . "~/.config/emacs_doom_config")))
 	    (straight-p . t)

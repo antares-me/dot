@@ -1,0 +1,10 @@
+#+title: Readme
+#+author: Anton Salnikov
+#+email: antres@antares.me
+#+date:[2026-03-21 Сб]
+#+language: ru
+#+property: header-args :tangle init.el :comments org
+#+options: author:nil toc:nil title:nil e:nil
+#+startup: fold
+
+#+INCLUDE: "~/.dotfiles/emacs/.config/emacs_straight/modules/internal/tangle-init.org" src emacs-lisp

@@ -19,6 +19,10 @@
     whitespace = trailing-space,space-before-tab,indent-with-non-tab
     eol = lf
     autocrlf = input
+    repositoryformatversion = 0
+    filemode = true
+    bare = false
+    logallrefupdates = true
 [merge]
     conflictstyle = diff3
     tool = meld
@@ -38,12 +42,18 @@
     changed = green
     untracked = cyan
 [alias]
-    st = status
+    st = status -u
     ci = commit
     br = branch
     co = checkout
     df = diff
+    unstage = reset HEAD --
+    last = log -1 HEAD
     lg = log --oneline --graph --decorate
+    slog = log --pretty=format:"%h %an (%ad) %s" --date=format:"%d-%m-%Y"
+    logall = log --oneline --all
+    commiter = log --pretty=format:"%h %s %nAuthor: %an %nCommitter: %cn%n"
+    ; Можно сказать, что Git просто заменяет эти команды на созданные вами псевдонимы (alias). Однако, возможно, вы захотите выполнить внешнюю команду, а не подкоманду Git. В этом случае, следует начать команду с символа !. Это полезно, если вы пишете свои утилиты для работы с Git-репозиторием. Продемонстрируем этот случай на примере создания псевдонима git visual для запуска gitk
     ; https://habrahabr.ru/company/mailru/blog/318508/
     ; graphical log
     grog = log --graph --abbrev-commit --decorate --all --format=format:\"%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(dim white) - %an%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n %C(white)%s%C(reset)\"

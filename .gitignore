@@ -27,5 +27,9 @@ mpd/.mpd/log
 /emacs/.config/emacs_default/.dap-breakpoints
 /emacs/.config/emacs_default/.extension/
 /emacs/.config/emacs_default/.lsp-session-v1
+/emacs/.config/emacs_default/lsp-cache/
 /emacs/.config/emacs_default/*.el
 /emacs/.config/emacs_default/eln-cache/
+/emacs/.config/emacs_default/elpaca/
+/emacs/.config/emacs_default/emojis/
+/emacs/.config/emacs_default/tmp/

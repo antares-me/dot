@@ -318,7 +318,7 @@ Tangling происходит автоматически каждый раз п�
 
   ;; Настройки браузера
     (setq browse-url-browser-function 'browse-url-generic
-          browse-url-generic-program "qutebrowser")
+          browse-url-generic-program "chromium")
 
     ;; Отключим предупреждения о тесноте
     (put 'narrow-to-region 'disabled nil)
@@ -1071,46 +1071,54 @@ Emacs версия Vim powerline.
 ** Мессенджеры
 *** Telegram
 #+begin_src emacs-lisp
-    (use-package telega
-      :ensure t
-      :pin manual
-      :demand t
-      :hook (telega-load-hook . telega-notifications-mode)
-      :config
-      (progn
-        (define-key global-map (kbd "C-c t") telega-prefix-map)
-        (setq telega-use-docker t
-              telega-adblock-mode t
-              telega-notifications-mode t
-              telega-mode-line-mode t
-              ;;telega-alert-mode t
-              telega-language "ru"
-              telega-proxies '(:server "mtproto.notamedia.ru" :port 443 :enable t :type '(:@type "proxyTypeMtproto" :secret "QS{guK8N_QtC*:d~`G{rtM/]C")))
-        ;;(require 'telega-alert)
-        (require 'telega-adblock)
-        (require 'telega-dashboard)
-        (setq dashboard-banner-length 90)
-  ;;      (add-hook 'telega-load-hook (lambda () (add-to-list 'dashboard-items '(telega-chats . 5))))
-        (add-to-list 'dashboard-items '(telega-chats . 5))
-        (require 'ol-telega)
-        (require 'telega-url-shorten)
-        (add-hook 'telega-load-hook 'global-telega-url-shorten-mode)
-        (require 'telega-mnz)
-        (add-hook 'telega-load-hook 'global-telega-mnz-mode)
-        (setq telega-url-shorten-use-images t)
-        (require 'telega-transient)
-        (telega-transient-keymaps-mode t)
-        (setq telega-transient-keymaps '(telega-prefix-map telega-sort-map telega-filter-map
-                     telega-describe-map telega-folder-map
-                     telega-voip-map telega-root-fastnav-map
-                     telega-root-view-map telega-chatbuf-fastnav-map))
-        ))
+  (use-package telega
+    :ensure t
+    :pin manual
+    :demand t
+    :hook (telega-load-hook . telega-notifications-mode)
+    :config
+    (progn
+      (define-key global-map (kbd "C-c t") telega-prefix-map)
+      (setq telega-use-docker t
+            telega-adblock-mode t
+            telega-notifications-mode t
+            telega-mode-line-mode t
+            telega-proxy-status-mode t
+            ;;telega-alert-mode t
+            telega-language "ru"
+            telega-proxies '((:server "127.0.0.1" :port 1443 :type '(:@type "proxyTypeMtproto" :secret "dd5f9e8a468b85abd1f647351a345fad32")))
+            )
+      (add-hook 'telega-load-hook 'telega-proxy-status-mode)
+      (add-hook 'telega-before-auth-hook 'telega-proxy-status-mode)
+      ;;(add-hook 'telega-before-auth-hook
+      ;;    (lambda ()
+      ;;       (telega--addProxy '((:server "127.0.0.1" :port 1443 :type '(:@type "proxyTypeMtproto" :secret "dd5f9e8a468b85abd1f647351a345fad32"))) 'enable)))
+      ;;(require 'telega-alert)
+      (require 'telega-adblock)
+      (require 'telega-dashboard)
+      (setq dashboard-banner-length 90)
+      ;;      (add-hook 'telega-load-hook (lambda () (add-to-list 'dashboard-items '(telega-chats . 5))))
+      (add-to-list 'dashboard-items '(telega-chats . 5))
+      (require 'ol-telega)
+      (require 'telega-url-shorten)
+      (add-hook 'telega-load-hook 'global-telega-url-shorten-mode)
+      (add-hook 'telega-load-hook 'telega-notifications-mode)
+      (require 'telega-mnz)
+      (add-hook 'telega-load-hook 'global-telega-mnz-mode)
+      (setq telega-url-shorten-use-images t)
+      (require 'telega-transient)
+      (telega-transient-keymaps-mode t)
+      (setq telega-transient-keymaps '(telega-prefix-map telega-sort-map telega-filter-map
+                                                         telega-describe-map telega-folder-map
+                                                         telega-voip-map telega-root-fastnav-map
+                                                         telega-root-view-map telega-chatbuf-fastnav-map))))
   #+end_src
 
 *** telega-export
 #+begin_src emacs-lisp
   (use-package telega-export
     :ensure (:host github :repo "gnu-emacs-ru/telega-export")
+    :defer t
     :after '(telega))
 #+end_src
 
@@ -1121,51 +1129,213 @@ Emacs версия Vim powerline.
   :defer t)
 #+end_src
 
+*** CLadder
+#+begin_src emacs-lisp
+  (use-package clatter
+    :ensure (
+             :inherit t
+                      :depth 1
+                      :host github
+                      :repo "parenworks/clatter.el")
+    :init
+    (setq clatter-networks
+          '(("libera"
+             :server "irc.libera.chat"
+             :port 6697
+             :tls t
+             :nick "Antares"
+             :sasl scram-sha-256  ;; or 'plain or 'external
+             :autojoin ("#emacs")))))
+#+end_src
+
+*** Jabber
+#+begin_src emacs-lisp :tangle no
+(use-package jabber
+    :ensure nil
+    :vc (:url "https://git.thanosapollo.org/emacs-jabber/"
+              :branch "master"
+              :rev :newest
+              :lisp-dir "lisp")
+    :custom
+    (jabber-account-list '(("user@example.org")))
+    :config
+    (jabber-modeline-mode 1)
+    :bind-keymap (("C-x C-j" . jabber-global-keymap))
+    :hook (kill-emacs . jabber-disconnect))
+#+end_src
+
 ** AI
 *** Codeium
+Бесплатный, сверхбыстрый и расширяемый инструмент для автодополнения кода на основе искусственного интеллекта для Emacs
 #+begin_src emacs-lisp :tangle no
-(use-package codeium
-  :ensure t
-  :recipe (:host github :repo "Exafunction/codeium.el"))
+  (use-package codeium
+    :ensure t
+    :init
+    (add-to-list 'completion-at-point-function #'codeium-complete-at-point)
+    :config
+    (setq use-dialog-box nil))
 #+end_src
 *** Gptel
 #+begin_src emacs-lisp
   (use-package gptel
     :ensure t
+    :bind (("C-c g" . gptel-send)      ; Отправить выделенное или весь буфер
+           ("C-c r" . gptel-rewrite))  ; Переписать выделенный регион
     :config
+    (setq gptel-default-mode 'org-mode) ; Чтобы ответы красиво форматировались
     (setq gptel-model 'qwen3.5:9b
       gptel-backend
       (gptel-make-ollama "Ollama"             ;Any name of your choosing
         :host "localhost:11434"               ;Where it's running
         :stream t                             ;Stream responses
-        :models '(qwen3.5:9b qwen3:8b codelama:7b))
+        :models '("qwen2.5-coder:7b"))
       ;;(gptel-make-openai "DeepSeek"
       ;;  :host "api.deepseek.com"
       ;;  :endpoint "/chat/completions"
       ;;  :stream t
       ;;  :key "your-api-key"
       ;;  :models '(deepseek-chat deepseek-coder))
-      ))
+      )
+    (require 'gptel-integrations))
 #+end_src
+*** MCP
+Интеграция с MCP серверами
+#+begin_src emacs-lisp
+  (use-package mcp
+    :ensure t
+    :after ellama
+    :demand t
+    ;;:defer t
+    :custom
+    (mcp-hub-servers
+     `(("ddg" . (:command "/home/antares/.local/bin/uvx"
+  			:args	("duckduckgo-mcp-server")))
+       ("go-mcp" . (:command "/home/antares/go/src/mcp/mcp" :args ()))
+       ("git-mcp" . (:command "/home/antares/.local/bin/uvx" :args ("mcp-server-git", "--repository", "/home/antares/Work/registr")))
+       ("bitrix" . (:url "https://mcp-dev.bitrix24.tech/mcp"))
+       ("chrome" . (:command "npx" :args ("chrome-devtools-mcp@latest" "--autoConnect" "--channel=beta")))
+       ("pandoc" . (:command "/home/antares/.local/bin/uvx" :args ("mcp-pandoc")))
+       ;;("OpenCode" . (:command "/home/antares/.opencode/bin/opencode"
+       ;;                        :args ("--model" "gemma4:e2b")))
+       ))
+    :hook (kill-emacs . mcp-hub-close-all-server)
+    :config
+    (require 'mcp-hub)
+    (mcp-hub-start-all-server
+     (lambda ()
+       (let ((tools (mcp-hub-get-all-tool :asyncp t :categoryp t)))
+         (mapcar #'(lambda (tool)
+                     (apply #'ellama-tools-define-tool
+                            (list tool)))
+                 tools)))))
+#+end_src
+
 *** Ellama
 #+begin_src emacs-lisp
   (use-package ellama
     :ensure t
     :bind ("C-c e" . ellama)
+    ;; send last message in chat buffer with C-c C-c
+    :hook (org-ctrl-c-ctrl-c-hook . ellama-chat-send-last-message)
     :init
     (setopt ellama-language "Russian")
     (setopt ellama-auto-scroll t)
+    (setopt ellama-user-nick "Antares")
+    (setopt ellama-assistant-nick "Jarvis")
+    (setopt ellama-enable-keymap t)
+    (setopt ellama-keymap-prefix "C-c E")
     (require 'llm-ollama)
     (setopt ellama-provider
             (make-llm-ollama
-             :chat-model "qwen3.5:9b" :embedding-model "qwen3.5:9b"))
+             :chat-model "qwen3.6"
+             :embedding-model "nomic-embed-text"
+             :default-chat-non-standard-params '(("num_ctx" . 60000)))) ;;262144
+    (setopt ellama-summarization-provider
+  	  (make-llm-ollama
+  	   :chat-model "qwen2.5:3b"
+  	   :embedding-model "nomic-embed-text"
+  	   :default-chat-non-standard-params '(("num_ctx" . 32768))))
+    (setopt ellama-coding-provider
+  	  (make-llm-ollama
+  	   :chat-model "qwen2.5-coder:7b"
+  	   :embedding-model "nomic-embed-text"
+  	   :default-chat-non-standard-params '(("num_ctx" . 10000))))
+    ;; Naming new sessions with llm
+    (setopt ellama-naming-provider
+            (make-llm-ollama
+             :chat-model "llama3:8b-instruct-q8_0"
+             :embedding-model "nomic-embed-text"
+             :default-chat-non-standard-params '(("stop" . ("\n")))))
+    ;; Translation llm provider
+    (setopt ellama-translation-provider
+            (make-llm-ollama
+             :chat-model "qwen2.5:3b"
+             :embedding-model "nomic-embed-text"
+             :default-chat-non-standard-params
+             '(("num_ctx" . 32768))))
+    (setopt ellama-extraction-provider
+            (make-llm-ollama
+             :chat-model "qwen2.5-coder:7b-instruct-q8_0"
+             :embedding-model "nomic-embed-text"
+             :default-chat-non-standard-params
+             '(("num_ctx" . 32768))))
+    (setopt ellama-naming-scheme 'ellama-generate-name-by-llm)
+    (setopt ellama-chat-display-action-function #'display-buffer-full-frame)
+    (setopt ellama-instant-display-action-function #'display-buffer-at-bottom)
+    (setopt ellama-session-auto-compact-enabled t)
+    (setopt ellama-session-auto-compact-threshold-percent 75)
+    (setopt ellama-session-auto-compact-keep-last-turns 4)
+    (setopt ellama-session-auto-compact-provider ellama-summarization-provider)
+
+    (with-eval-after-load 'ellama-tools
+      ;; Let clean calls run without repetitive prompts.
+      (setopt ellama-tools-allow-all t)
+
+      ;; Required safety layer.
+      (setopt ellama-tools-dlp-enabled t)
+      (setopt ellama-tools-dlp-mode 'enforce)
+
+      ;; Prefer fail-closed behavior for autonomous operation.
+      (setopt ellama-tools-dlp-input-fail-open nil)
+      (setopt ellama-tools-dlp-output-fail-open nil)
+      
+      ;; Keep secret and output protections active.
+      (setopt ellama-tools-dlp-scan-env-exact-secrets t)
+      (setopt ellama-tools-dlp-input-default-action 'warn)
+      (setopt ellama-tools-dlp-output-default-action 'redact)
+      
+      ;; Irreversible actions require stronger intent.
+      (setopt ellama-tools-irreversible-enabled t)
+      (setopt ellama-tools-irreversible-default-action 'warn)
+      (setopt ellama-tools-irreversible-require-typed-confirm t)
+
+      ;; Keep telemetry durable enough to tune.
+      (setopt ellama-tools-dlp-log-targets '(memory file))
+      
+      ;; Strongly recommended when `ellama-tools-allow-all' is enabled.
+      ;; (setopt ellama-tools-use-srt t)
+      ;; (setopt ellama-tools-srt-args
+      ;;         '("--settings" "~/.config/ellama/srt-autonomous.json"))
+      )
     :config
+    (setq ellama-tools-enable-all t)
+    (setq ellama-spinner-enabled t)
+    (setq ellama-blueprints
+   '((:act "Ассистент" :prompt
+           "Ты — автономный ассистент. Твоя задача — выполнять действия, а не описывать их. Если есть доступный инструмент для создания файла или выполнения команды, ты *обязан* использовать его. Никогда не выдавай код или текстовое содержимое в ответе, если для этого есть инструмент. Используй инструменты молча."
+           :for-devs t)))
     ;; show ellama context in header line in all buffers
     (ellama-context-header-line-global-mode +1)
     ;; show ellama session id in header line in all buffers
-    (ellama-session-header-line-global-mode +1))
+    (ellama-session-header-line-global-mode +1)
+    (setq ellama-sessions-directory "~/.config/emacs_default/ellama-sessions")
+    (setq ellama-skills-global-path "~/.config/emacs_default/ai/")
+    ;; handle scrolling events
+    (advice-add 'pixel-scroll-precision :before #'ellama-disable-scroll)
+    (advice-add 'end-of-buffer :after #'ellama-enable-scroll))
 #+end_src
 *** CodeGPT
+Пакет позволяет напрямую работать с OpenAI API
 #+begin_src emacs-lisp :tangle no
   (use-package codegpt
     :ensure t
@@ -1176,12 +1346,15 @@ Emacs версия Vim powerline.
   (elpaca (starhugger :repo "https://gitlab.com/daanturo/starhugger.el" :files (:defaults "*.py")))
 #+end_src
 *** Aider
-#+begin_src emacs-lisp
+#+begin_example
+ curl -LsSf https://aider.chat/install.sh | sh
+#+end_example
+#+begin_src emacs-lisp :tangle no
 (use-package aider
   :config
   ;; For latest claude sonnet model
   (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
-  (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
+  ;; (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
   ;; Or chatgpt model
   ;; (setq aider-args '("--model" "o4-mini"))
   ;; (setenv "OPENAI_API_KEY" <your-openai-api-key>)
@@ -1193,13 +1366,35 @@ Emacs версия Vim powerline.
   ;; or use aider-transient-menu-2cols / aider-transient-menu-1col, for narrow screen
   (aider-magit-setup-transients)) ;; add aider magit function to magit menu
 #+end_src
-*** Monet
+*** Aidermacs
 #+begin_src emacs-lisp
+  (use-package aidermacs
+    :ensure t
+    :bind (("C-c c a" . aidermacs-transient-menu))
+    :config
+    (setenv "OPENROUTER_API_KEY" (password-store-get "Personal/openrouter/api-key"))
+    (setenv "OLLAMA_API_BASE" "http://127.0.0.1:11434")
+    :custom
+    (aidermacs-default-chat-mode 'code)
+    (aidermacs-default-model "ollama/qwen2.5-coder:3b"))
+#+end_src
+*** ob-aider
+#+begin_src emacs-lisp
+  (use-package ob-aider
+  :ensure (:host github :repo "localredhead/ob-aider.el")
+  :after org
+  :config
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   (append org-babel-load-languages
+           '((aider . t)))))
+#+end_src
+*** Monet
+#+begin_src emacs-lisp :tangle no
   (use-package monet
   :ensure (:host github :repo "stevemolitor/monet"))
-
 #+end_src
-*** TODO Copilot
+*** Copilot
 Github Copilot временно отключен так как из России не работает
 #+begin_src emacs-lisp :tangle no
   (use-package copilot
@@ -1225,7 +1420,7 @@ Github Copilot Chat временно отключен так как из Рос�
 #+end_src
 
 *** Claude-code-ide
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package claude-code-ide
     :ensure (:host github :repo "manzaltu/claude-code-ide.el")
     :bind ("C-c C-'" . claude-code-ide-menu)
@@ -1236,7 +1431,7 @@ Github Copilot Chat временно отключен так как из Рос�
 #+end_src
 
 *** Claude-code
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package claude-code
   :ensure (:type git :host github :repo "stevemolitor/claude-code.el" :branch "main" :depth 1
                    :files ("*.el" (:exclude "images/*")))
@@ -1272,15 +1467,67 @@ Github Copilot Chat временно отключен так как из Рос�
     ;;(ollama-buddy-host "http://<remote-server>")
     ;;(ollama-buddy-port 11400)
     :config
+    (require 'ollama-buddy-provider)
     (setq ollama-buddy-default-model "qwen3.5:9b"))
 #+end_src
 
-*** 
+*** LLM
+#+begin_src emacs-lisp
+  (use-package llm
+    :ensure t)
+#+end_src
 
-** Inheritenv
+*** Minuet
+#+begin_src emacs-lisp
+  (use-package minuet
+  :ensure t                  ; Установить пакет, если он еще не установлен
+  :bind (("M-i" . #'minuet-show-suggestion)        ; Показать подсказку (призрачный текст)
+         ("M-m" . #'minuet-complete-with-minibuffer) ; Альтернативный режим (минибуфер)
+         :map minuet-active-mode-map               ; Клавиши, когда подсказка активна
+         ("M-p" . #'minuet-previous-suggestion)    ; Предыдущая подсказка
+         ("M-n" . #'minuet-next-suggestion)        ; Следующая подсказка
+         ("M-s" . #'minuet-accept-suggestion)      ; Принять всю подсказку
+         ("M-a" . #'minuet-accept-suggestion-line)) ; Принять одну строку
+  :init
+  ;; Включаем автоматический режим для всех режимов программирования
+  (add-hook 'prog-mode-hook #'minuet-auto-suggestion-mode)
+  :config
+  ;; --- Настройка для Ollama ---
+  (setq minuet-provider 'openai-fim-compatible) ; Используем FIM API
+  ;; Рекомендуется 1 для локальных моделей, чтобы экономить ресурсы
+  (setq minuet-n-completions 1)
+  ;; Ограничиваем контекст. Для 7b модели 2048 - хороший старт.
+  (setq minuet-context-window 2048)
+
+  ;; Настраиваем эндпоинт Ollama (стандартный порт 11434)
+  (plist-put minuet-openai-fim-compatible-options :end-point "http://localhost:11434/v1/completions")
+  ;; Плейсхолдер для API ключа (Ollama он не нужен)
+  (plist-put minuet-openai-fim-compatible-options :api-key "TERM")
+  ;; Указываем модель, которую вы скачали в Ollama
+  (plist-put minuet-openai-fim-compatible-options :model "qwen2.5-coder:1.5b")
+  ;; Настройка количества токенов (длина ответа)
+  (minuet-set-optional-options minuet-openai-fim-compatible-options :max_tokens 256)
+  ;; Небольшая задержка перед запросом, чтобы не дергать ИИ при каждом нажатии
+  (setq minuet-auto-suggestion-debounce-delay 0.3))
+#+end_src
+
+*** Agent-shell
+#+begin_src emacs-lisp
+  (use-package agent-shell
+    :ensure t)
+#+end_src
+
+** Переменные среды
+*** Inheritenv
 #+begin_src emacs-lisp
   (use-package inheritenv
   :ensure (:type git :host github :repo "purcell/inheritenv"))
+#+end_src
+
+*** Envrc
+#+begin_src emacs-lisp :tangl no
+  (use-package envrc
+  :hook (after-init . envrc-global-mode))
 #+end_src
 
 ** company-mode
@@ -2035,7 +2282,7 @@ Unite работал в качестве интерфейса для неско�
   (use-package hydra
     :defer 0.1
     :init
-    (bind-key "\\" 'hydra-master/body)
+    (bind-key "C-|" 'hydra-master/body)
     :config
     (setq lv-use-separator t)
     (set-face-attribute 'hydra-face-blue nil :foreground "deep sky blue" :weight 'bold)
@@ -2049,7 +2296,7 @@ Unite работал в качестве интерфейса для неско�
                                                                                ╭───────┐
                                                                                │ Старт │
         ╭──────────────────────────────────────────────────────────────────────┴───────╯
-        │  [^a^]              [^h^] Справка       [_o_] Орг           [^v^]
+        │  [_a_] AI           [^h^] Справка       [_o_] Орг           [^v^]
         │  [^b^]              [^i^]               [_p_] project       [_w_] window
         │  [_c_] Коммуникации [^j^]               [_q_] exit          [_x_] shell
         │  [_d_] Разработка   [^k^]               [_r_] Служебные     [^y^]
@@ -2574,7 +2821,7 @@ Unite работал в качестве интерфейса для неско�
               ("a" org-agenda)
               ("c" org-capture)
               ("s" counsel-org-agenda-headlines)
-              ("d" cfw:open-org-calendar)
+              ("d" calfw-org-open-calendar)
               ("g" org-location-google-maps)
               ("h" org-address-google-geocode-set)
               ("l" org-agenda-list)
@@ -3289,6 +3536,8 @@ Unite работал в качестве интерфейса для неско�
                           ;; org-toc
                           org-tempo
                           ox
+                          ox-org
+                          ob-tangle
                           ))
 
       ;; Настройка директории по умолчанию
@@ -3339,7 +3588,7 @@ Unite работал в качестве интерфейса для неско�
       ;; Планировщик и дневник
       (setq org-agenda-include-diary t)
       ;;(setq org-agenda-diary-file diary-file)
-      (setq org-agenda-files '("~/Dropbox/org/Agenda.org" "~/Dropbox/org/webinar.org"))
+      (setq org-agenda-files '("~/Dropbox/org/Agenda.org" "~/Dropbox/org/webinar.org" "~/Dropbox/org/workTasks.org"))
       (setq org-agenda-inhibit-startup t)
 
       ;; Отключим стандартные праздники
@@ -3434,8 +3683,7 @@ Unite работал в качестве интерфейса для неско�
 ** org-modern-indent
 #+begin_src emacs-lisp
   (use-package org-modern-indent
-    :ensure (
-             :repo "jdtsmith/org-modern-indent"
+    :ensure (:repo "jdtsmith/org-modern-indent"
              :fetcher github)
     :hook
     (org-mode . org-modern-indent-mode))
@@ -3541,20 +3789,23 @@ Unite работал в качестве интерфейса для неско�
 
 ** org-present
 #+begin_src emacs-lisp
-(use-package org-present
-  :ensure t
-  :after org)
+  (use-package org-present
+    :ensure t
+    :defer t
+    :after org)
 #+end_src
 ** RestClient
 #+begin_src emacs-lisp
-(use-package restclient
-  :ensure t
-  :mode (("\\.http\\'" . restclient-mode)))
+  (use-package restclient
+    :ensure t
+    :defer t
+    :mode (("\\.http\\'" . restclient-mode)))
 #+end_src
 ** TODOtxt
 #+begin_src emacs-lisp
-(use-package todotxt
-  :ensure t)
+  (use-package todotxt
+    :ensure t
+    :defer t)
 #+end_src
 
 ** TODO boxquote
@@ -3577,52 +3828,53 @@ Unite работал в качестве интерфейса для неско�
 #+end_example
 
 #+begin_src emacs-lisp
-  (use-package boxquote
-    :ensure t
-    :config
-    (progn
-    (setq-default  boxquote-bottom-corner "╰"      ; U+2570
-                   boxquote-side          "│ "     ; U+2572 + space
-                   boxquote-top-and-tail  "────"   ; U+2500 (×4)
-                   boxquote-top-corner    "╭")     ; U+256F
-     (when (package-installed-p 'hydra)
-       (eval-and-compile
-         (defhydra hydra-boxquote (:color blue :hint nil)
-          "
-                                                                                   ╭──────────┐
-     Текст               External        Apropos                   Do              │ Boxquote │
-   ╭───────────────────────────────────────────────────────────────────────────────┴──────────╯
-     [_r_] region        [_f_] file      [_K_] describe-key        [_t_] title
-     [_p_] paragraph     [_b_] buffer    [_F_] describe-function   [_u_] unbox
-     [_a_] buffer        [_s_] shell     [_V_] describe-variable   [_w_] fill-paragraph
-     [_e_] text           ^ ^            [_W_] where-is            [_n_] narrow
-     [_d_] defun         [_y_] yank       ^ ^                      [_c_] narrow to content
-     [_q_] boxquote      [_Y_] yanked     ^ ^                      [_x_] kill
-   --------------------------------------------------------------------------------------------
-          "
-         ("<esc>" nil "quit")
-         ("x" boxquote-kill)
-         ("Y" boxquote-yank)
-         ("e" boxquote-text)
-         ("u" boxquote-unbox)
-         ("d" boxquote-defun)
-         ("t" boxquote-title)
-         ("r" boxquote-region)
-         ("a" boxquote-buffer)
-         ("q" boxquote-boxquote)
-         ("W" boxquote-where-is)
-         ("p" boxquote-paragraph)
-         ("f" boxquote-insert-file)
-         ("K" boxquote-describe-key)
-         ("s" boxquote-shell-command)
-         ("b" boxquote-insert-buffer)
-         ("y" boxquote-kill-ring-save)
-         ("w" boxquote-fill-paragraph)
-         ("F" boxquote-describe-function)
-         ("V" boxquote-describe-variable)
-         ("n" boxquote-narrow-to-boxquote)
-         ("c" boxquote-narrow-to-boxquote-content))))
-)    )
+    (use-package boxquote
+      :ensure t
+      :defer t
+      :config
+      (progn
+      (setq-default  boxquote-bottom-corner "╰"      ; U+2570
+                     boxquote-side          "│ "     ; U+2572 + space
+                     boxquote-top-and-tail  "────"   ; U+2500 (×4)
+                     boxquote-top-corner    "╭")     ; U+256F
+       (when (package-installed-p 'hydra)
+         (eval-and-compile
+           (defhydra hydra-boxquote (:color blue :hint nil)
+            "
+                                                                                     ╭──────────┐
+       Текст               External        Apropos                   Do              │ Boxquote │
+     ╭───────────────────────────────────────────────────────────────────────────────┴──────────╯
+       [_r_] region        [_f_] file      [_K_] describe-key        [_t_] title
+       [_p_] paragraph     [_b_] buffer    [_F_] describe-function   [_u_] unbox
+       [_a_] buffer        [_s_] shell     [_V_] describe-variable   [_w_] fill-paragraph
+       [_e_] text           ^ ^            [_W_] where-is            [_n_] narrow
+       [_d_] defun         [_y_] yank       ^ ^                      [_c_] narrow to content
+       [_q_] boxquote      [_Y_] yanked     ^ ^                      [_x_] kill
+     --------------------------------------------------------------------------------------------
+            "
+           ("<esc>" nil "quit")
+           ("x" boxquote-kill)
+           ("Y" boxquote-yank)
+           ("e" boxquote-text)
+           ("u" boxquote-unbox)
+           ("d" boxquote-defun)
+           ("t" boxquote-title)
+           ("r" boxquote-region)
+           ("a" boxquote-buffer)
+           ("q" boxquote-boxquote)
+           ("W" boxquote-where-is)
+           ("p" boxquote-paragraph)
+           ("f" boxquote-insert-file)
+           ("K" boxquote-describe-key)
+           ("s" boxquote-shell-command)
+           ("b" boxquote-insert-buffer)
+           ("y" boxquote-kill-ring-save)
+           ("w" boxquote-fill-paragraph)
+           ("F" boxquote-describe-function)
+           ("V" boxquote-describe-variable)
+           ("n" boxquote-narrow-to-boxquote)
+           ("c" boxquote-narrow-to-boxquote-content))))
+  )    )
 #+end_src
 
 ** beacon
@@ -3697,6 +3949,7 @@ Unite работал в качестве интерфейса для неско�
 #+begin_src emacs-lisp
   (use-package aria2
     :ensure t
+    :defer t
     ;; :config
     ;; (setq aria2-add-evil-quirks t)
     )
@@ -3720,7 +3973,7 @@ Unite работал в качестве интерфейса для неско�
 
 #+begin_src emacs-lisp
   (use-package calfw
-    ;;:commands cfw:open-org-calendar
+    ;;:commands calfw-org-open-calendar
     :defer 0.5
     :ensure t
     :config
@@ -3797,6 +4050,7 @@ Unite работал в качестве интерфейса для неско�
 #+begin_src emacs-lisp
   (use-package cloc
     :ensure t
+    :defer t
     :commands cloc
     :ensure-system-package (cloc . cloc))
 #+end_src
@@ -3822,9 +4076,10 @@ Unite работал в качестве интерфейса для неско�
 |---------+-------------------------+------------------------------------------------------------------------|
 
 #+begin_src emacs-lisp
-(use-package csv-mode
-  :ensure t
-  :mode (("\\.csv\\'" . csv-mode)))
+  (use-package csv-mode
+    :ensure t
+    :defer t
+    :mode (("\\.csv\\'" . csv-mode)))
 #+end_src
 
 ** define-word
@@ -3946,6 +4201,7 @@ Unite работал в качестве интерфейса для неско�
 #+begin_src emacs-lisp
   (use-package lorem-ipsum
     :ensure t
+    :defer t
     :commands lorem-ipsum-insert-paragraphs)
 #+end_src
 
@@ -4026,6 +4282,7 @@ Unite работал в качестве интерфейса для неско�
 
 #+begin_src emacs-lisp
   (use-package speed-type
+    :defer t
     :ensure t)
 #+end_src
 
@@ -4041,7 +4298,7 @@ be smart about it.
     :config
     (smartparens-global-mode))
 #+end_src
-** WAIT popper
+** popper
 #+begin_src emacs-lisp :tangle no
 (use-package popper
   :ensure t
@@ -4270,15 +4527,16 @@ be smart about it.
 ** Emmet
 #+begin_src emacs-lisp
   (use-package emmet-mode
+    :defer t
     :ensure (:host github :repo "smihica/emmet-mode"))
 #+end_src
 ** git-sync-mode
 #+begin_src emacs-lisp
   (use-package git-sync-mode
     :ensure (:host github :repo "justinbarclay/git-sync-mode")
-    ;;:config
-    ;;(git-sync-global-mode)
-    ;;(add-to-list git-sync-allow-list '(/path/to/project))
+    :config
+    (git-sync-global-mode)
+    (add-to-list git-sync-allow-list '(~/Work/registr))
     ;;(add-to-list git-sync-deny-list '(/path/to/project/subdir))
   )
 #+end_src
@@ -5883,7 +6141,7 @@ search in your emails to get a little context in the conversation.
 [[https://github.com/capitaomorte/yasnippet][YASnippet]] - система шаблонов для Emacs. Она позволяет печатать 
 абривеатуру а автоматически раскрывать её в шаблоны функций.
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
   (use-package yasnippet
     :ensure t
     :defer 5
@@ -6285,4 +6543,102 @@ search in your emails to get a little context in the conversation.
 #+begin_src emacs-lisp
   (use-package ovpn-mode
     :ensure t)
+#+end_src
+** Org-newtab
+#+begin_src emacs-lisp
+  (use-package org-newtab
+    :ensure t
+    :config
+    (progn
+      (org-newtab-mode)))
+#+end_src
+** Chrome-emacs
+#+begin_src emacs-lisp
+    (use-package atomic-chrome
+      :ensure t
+      :init
+      (defvar km-atomic-chrome-first-frame-changed nil
+        "Non-nil if a frame focus change occurred after Emacs started.
+    Tracks whether to defer `atomic-chrome' server startup until the first focus
+    change.")
+      (defun km-atomic-chrome-run-server-after-focus-change (&rest _)
+        "Start Atomic Chrome server upon graphical frame focus change.
+
+    For GUI sessions:
+    - The server is started only on the second focus change event (the first one
+      is triggered immediately after Emacs starts).
+    - After starting the server, this function removes itself from
+      `after-focus-change-function' to avoid further overhead.
+
+    In terminal (`tty') environments, it disables itself immediately since focus
+    changes are not applicable."
+        (let ((frame (selected-frame)))
+          (if (tty-top-frame frame)
+              (remove-function after-focus-change-function
+                               'km-atomic-chrome-run-server-after-focus-change)
+            (when (frame-parameter frame 'last-focus-update)
+              (if (not km-atomic-chrome-first-frame-changed)
+                  (setq km-atomic-chrome-first-frame-changed t)
+                (remove-function after-focus-change-function
+                                 'km-atomic-chrome-run-server-after-focus-change)
+                (require 'atomic-chrome)
+                (when (fboundp 'atomic-chrome-start-server)
+                  (atomic-chrome-start-server)))))))
+      (add-function :after after-focus-change-function
+                    'km-atomic-chrome-run-server-after-focus-change)
+      :commands (atomic-chrome-start-server)
+      :config
+      :init
+      (defvar km-atomic-chrome-first-frame-changed nil
+      "Non-nil if a frame focus change occurred after Emacs started.
+  Tracks whether to defer `atomic-chrome' server startup until the first focus
+  change.")
+    (defun km-atomic-chrome-run-server-after-focus-change (&rest _)
+      "Start Atomic Chrome server upon graphical frame focus change.
+
+  For GUI sessions:
+  - The server is started only on the second focus change event (the first one
+    is triggered immediately after Emacs starts).
+  - After starting the server, this function removes itself from
+    `after-focus-change-function' to avoid further overhead.
+
+  In terminal (`tty') environments, it disables itself immediately since focus
+  changes are not applicable."
+      (let ((frame (selected-frame)))
+        (if (tty-top-frame frame)
+            (remove-function after-focus-change-function
+                             'km-atomic-chrome-run-server-after-focus-change)
+          (when (frame-parameter frame 'last-focus-update)
+            (if (not km-atomic-chrome-first-frame-changed)
+                (setq km-atomic-chrome-first-frame-changed t)
+              (remove-function after-focus-change-function
+                               'km-atomic-chrome-run-server-after-focus-change)
+              (require 'atomic-chrome)
+              (when (fboundp 'atomic-chrome-start-server)
+                (atomic-chrome-start-server)))))))
+    (add-function :after after-focus-change-function
+                  'km-atomic-chrome-run-server-after-focus-change)
+      (setq-default atomic-chrome-extension-type-list '(atomic-chrome))
+      (atomic-chrome-start-server))
+#+end_src
+** Crafterbin
+#+begin_src emacs-lisp
+  (use-package crafterbin
+    :ensure (
+             :inherit t
+                      :depth 1
+                      :host github
+                      :repo "glenneth1/crafterbin.el")
+    :commands (crafterbin-upload crafterbin-upload-file crafterbin-upload-region))
+;;  (global-set-key (kbd "C-c C-p") 'crafterbin-upload)
+;;  (global-set-key (kbd "C-c C-f") 'crafterbin-upload-file)
+;;  (setq crafterbin-url "https://crafterbin.glennstack.dev")
+#+end_src
+
+** Compat
+#+begin_src emacs-lisp
+      (use-package compat
+        :ensure (
+                 :host github
+                       :repo "emacs-compat/compat"))
 #+end_src

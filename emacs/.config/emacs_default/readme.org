@@ -1066,7 +1066,29 @@ Emacs версия Vim powerline.
 **** Календарь
 #+begin_src emacs-lisp
   (use-package russian-calendar
-    :ensure t)
+    :ensure t
+    :config (
+             progn (
+                    (setopt calendar-holidays (append russian-calendar-holidays
+                                                      ;; - uncomment if you need:
+                                                      ;; russian-calendar-general-holidays
+                                                      ;; russian-calendar-orthodox-christian-holidays
+                                                      ;; russian-calendar-old-slavic-fests
+                                                      ;; russian-calendar-open-source-confs
+                                                      ;; russian-calendar-ai-confs
+                                                      ;; russian-calendar-russian-it-confs
+                                                      )
+                            )
+                    ;; - optional:
+                    (russian-calendar-localize)
+                    (russian-calendar-set-location-to-moscow)
+                    (russian-calendar-show-diary-holidays-in-calendar)
+                    (russian-calendar-enhance-calendar-movement)
+                    (russian-calendar-fix-list-holidays)
+                    (russian-calendar-check-year-not-obsolate)
+                    )
+                   )
+    )
 #+end_src
 ** Мессенджеры
 *** Telegram
@@ -1075,7 +1097,7 @@ Emacs версия Vim powerline.
     :ensure t
     :pin manual
     :demand t
-    :hook (telega-load-hook . telega-notifications-mode)
+    ;;:hook (telega-load-hook . telega-notifications-mode)
     :config
     (progn
       (define-key global-map (kbd "C-c t") telega-prefix-map)
@@ -1086,9 +1108,10 @@ Emacs версия Vim powerline.
             telega-proxy-status-mode t
             ;;telega-alert-mode t
             telega-language "ru"
-            telega-proxies '((:server "127.0.0.1" :port 1443 :type '(:@type "proxyTypeMtproto" :secret "dd5f9e8a468b85abd1f647351a345fad32")))
+            telega-proxies '((:server "127.0.0.1" :port 1443 :type '(:@type "proxyTypeMtproto" :secret "5f9e8a468b85abd1f647351a345fad32")))
             )
       (add-hook 'telega-load-hook 'telega-proxy-status-mode)
+      (add-hook 'telega-load-hook 'telega-notifications-mode)
       (add-hook 'telega-before-auth-hook 'telega-proxy-status-mode)
       ;;(add-hook 'telega-before-auth-hook
       ;;    (lambda ()
@@ -1517,6 +1540,16 @@ Github Copilot Chat временно отключен так как из Рос�
     :ensure t)
 #+end_src
 
+*** Ai-code-interface
+#+begin_src emacs-lisp
+  (use-package ai-code
+    :config
+    (ai-code-set-backend 'opencode)
+    ;; Optional: use a narrower transient menu on smaller frames
+    ;; (setq ai-code-menu-layout 'two-columns)
+    :bind ("C-c a" . ai-code-menu))
+#+end_src
+
 ** Переменные среды
 *** Inheritenv
 #+begin_src emacs-lisp
@@ -1786,6 +1819,12 @@ PHP-debugger (Устарел)
                   ;;(composer-install)
    ;;               ))
     )
+#+end_src
+**** ac-php
+#+begin_src emacs-lisp
+  (use-package ac-php
+    :ensure t
+    :mode ("\\.php'" . php-mode))
 #+end_src
 *** Net
 **** Know-your-http-well
@@ -3501,7 +3540,8 @@ Unite работал в качестве интерфейса для неско�
       (setq projectile-cache-file (concat antares-emacs-temporal-directory "projectile.cache")
       projectile-known-projects-file (concat antares-emacs-temporal-directory "projectile-bookmarks.eld")
       projectile-enable-caching t)
-      (projectile-global-mode)))
+      (projectile-mode)
+      ))
 #+end_src
 
 ** org-mode
@@ -3588,7 +3628,7 @@ Unite работал в качестве интерфейса для неско�
       ;; Планировщик и дневник
       (setq org-agenda-include-diary t)
       ;;(setq org-agenda-diary-file diary-file)
-      (setq org-agenda-files '("~/Dropbox/org/Agenda.org" "~/Dropbox/org/webinar.org" "~/Dropbox/org/workTasks.org"))
+      (setq org-agenda-files '("~/Dropbox/org/Agenda.org" "~/Dropbox/org/webinar.org" "~/Dropbox/org/workTasks.org" "~/Dropbox/org/yandex-calendar.org"))
       (setq org-agenda-inhibit-startup t)
 
       ;; Отключим стандартные праздники
@@ -3664,6 +3704,24 @@ Unite работал в качестве интерфейса для неско�
             org-html-validation-link nil)))
 #+end_src
 
+** org-roam
+#+begin_src emacs-lisp
+      (use-package org-roam
+        :ensure t
+        :init
+        (setq org-roam-v2-ack t)
+        :custom
+        (org-roam-directory "~/Dropbox/org-roam")
+        (org-roam-completion-everywhere t)
+        :bind (("C-c n l" . org-roam-buffer-toggle)
+               ("C-c n f" . org-roam-node-find)
+               ("C-c n i" . org-roam-node-insert)
+               :map org-mode-map
+               ("C-M-i" . completion-at-point))
+        :config
+        (org-roam-setup))
+#+end_src
+
 ** org-modern
 #+begin_src emacs-lisp
   (use-package org-modern
@@ -3727,6 +3785,37 @@ Unite работал в качестве интерфейса для неско�
     )
 #+end_src
 
+** org-caldav
+#+begin_src emacs-lisp
+  (use-package org-caldav
+    :ensure t
+    :config
+    (setq org-caldav-url "https://caldav.yandex.ru/calendars/a.salnikov@notamedia.ru"
+          org-caldav-username "a.salnikov@notamedia.ru"
+          org-caldav-calendar-id "events-32542711"
+          org-caldav-files nil
+          org-caldav-inbox "~/Dropbox/org/yandex-calendar.org"
+          org-caldav-sync-direction 'cal->org ;;'twoway
+          org-icalendar-timezone "Europe/Saratov"
+          org-icalendar-include-todo 'all
+          org-caldav-sync-todo t
+          ;;org-caldav-todo-priority
+          ;;org-caldav-todo-percent-states
+          ;;org-caldav-todo-deadline-schedule-warning-days
+          ;;org-icalendar-categories '(local-tags)
+          ;;org-caldav-calendars '(
+          ;;                       (:calendar-id "work@whatever"
+          ;;                        :files ("~/org/work.org")
+          ;;                        :inbox "~/org/fromwork.org")
+          ;;                       (:calendar-id "stuff@mystuff"
+          ;;                        :files ("~/org/sports.org" "~/org/play.org")
+          ;;                        :skip-conditions (regexp "soccer")
+          ;;                        :inbox "~/org/fromstuff.org")
+          ;;                      )
+    )
+  )
+#+end_src
+
 ** TODO org-super-agenda
 #+begin_src emacs-lisp
   (use-package org-super-agenda
@@ -3772,6 +3861,132 @@ Unite работал в качестве интерфейса для неско�
     :ensure (
              :repo "TobiasZawada/org-yt"
              :fetcher github))
+#+end_src
+#+begin_src emacs-lisp :tanrle no
+(require 'org)
+(require 'org-element)
+
+(defcustom org-yt-url-protocol "yt"
+  "Protocol identifier for youtube links."
+  :group 'org-yt
+  :type 'string)
+
+(defun org-yt-follow (video-id)
+  "Open youtube with VIDEO-ID."
+  (browse-url (concat "https://youtu.be/" video-id)))
+
+(org-link-set-parameters org-yt-url-protocol :follow #'org-yt-follow)
+
+(defun org-image-update-overlay (file link &optional data-p refresh)
+  "Create image overlay for FILE associtated with org-element LINK.
+        If DATA-P is non-nil FILE is not a file name but a string with the image data.
+        See also `create-image'.
+        This function is almost a duplicate of a part of `org-display-inline-images'."
+  (when (or data-p (file-exists-p file))
+    (let ((width
+           ;; Apply `org-image-actual-width' specifications.
+           (cond
+            ((not (image-type-available-p 'imagemagick)) nil)
+            ((eq org-image-actual-width t) nil)
+            ((listp org-image-actual-width)
+             (or
+              ;; First try to find a width among
+              ;; attributes associated to the paragraph
+              ;; containing link.
+              (let ((paragraph
+                     (let ((e link))
+                       (while (and (setq e (org-element-property
+                                            :parent e))
+                                   (not (eq (org-element-type e)
+                                            'paragraph))))
+                       e)))
+                (when paragraph
+                  (save-excursion
+                    (goto-char (org-element-property :begin paragraph))
+                    (when
+                        (re-search-forward
+                         "^[ \t]*#\\+attr_.*?: +.*?:width +\\(\\S-+\\)"
+                         (org-element-property
+                          :post-affiliated paragraph)
+                         t)
+                      (string-to-number (match-string 1))))))
+              ;; Otherwise, fall-back to provided number.
+              (car org-image-actual-width)))
+            ((numberp org-image-actual-width)
+             org-image-actual-width)))
+          (old (get-char-property-and-overlay
+                (org-element-property :begin link)
+                'org-image-overlay)))
+      (if (and (car-safe old) refresh)
+          (image-refresh (overlay-get (cdr old) 'display))
+        (let ((image (create-image file
+                                   (and width 'imagemagick)
+                                   data-p
+                                   :width width)))
+          (when image
+            (let* ((link
+                    ;; If inline image is the description
+                    ;; of another link, be sure to
+                    ;; consider the latter as the one to
+                    ;; apply the overlay on.
+                    (let ((parent
+                           (org-element-property :parent link)))
+                      (if (eq (org-element-type parent) 'link)
+                          parent
+                        link)))
+                   (ov (make-overlay
+                        (org-element-property :begin link)
+                        (progn
+                          (goto-char
+                           (org-element-property :end link))
+                          (skip-chars-backward " \t")
+                          (point)))))
+              (overlay-put ov 'display image)
+              (overlay-put ov 'face 'default)
+              (overlay-put ov 'org-image-overlay t)
+              (overlay-put
+               ov 'modification-hooks
+               (list 'org-display-inline-remove-overlay))
+              (push ov org-inline-image-overlays))))))))
+
+(defun org-yt-get-image (url)
+  "Retrieve image from url."
+  (let ((image-buf (url-retrieve-synchronously url)))
+    (when image-buf
+      (with-current-buffer image-buf
+        (goto-char (point-min))
+        (when (looking-at "HTTP/")
+          (delete-region (point-min)
+                         (progn (re-search-forward "\n[\n]+")
+                                (point))))
+        (setq image-data (buffer-substring-no-properties (point-min) (point-max)))))))
+
+(defconst org-yt-video-id-regexp "[-_[:alnum:]]\\{10\\}[AEIMQUYcgkosw048]"
+  "Regexp matching youtube video id's taken from `https://webapps.stackexchange.com/questions/54443/format-for-id-of-youtube-video'.")
+
+(defun org-yt-display-inline-images (&optional include-linked refresh beg end)
+  "Like `org-display-inline-images' but for yt-links."
+  (when (display-graphic-p)
+    (org-with-wide-buffer
+     (goto-char (or beg (point-min)))
+     (let ((re (format "\\[\\[%s:\\(%s\\)\\]\\]" org-yt-url-protocol org-yt-video-id-regexp)))
+       (while (re-search-forward re end t)
+         (let ((video-id (match-string 1))
+               (el (save-excursion (goto-char (match-beginning 1)) (org-element-context)))
+               image-data)
+           (when el
+             (setq image-data 
+                   (or (let ((old (get-char-property-and-overlay
+                                   (org-element-property :begin el)
+                                   'org-image-overlay)))
+                         (and old
+                              (car-safe old)
+                              (overlay-get (cdr old) 'display)))
+                       (org-yt-get-image (format "http://img.youtube.com/vi/%s/0.jpg" video-id))))
+             (when image-data
+               (org-image-update-overlay image-data el t t)))))))))
+
+(advice-add #'org-display-inline-images :after #'org-yt-display-inline-images)
 #+end_src
 
 ** TODO openwith-mode
@@ -4553,8 +4768,12 @@ be smart about it.
 #+end_src
 ** Leetcode
 #+begin_src emacs-lisp
-(use-package leetcode
-    :ensure t)
+  (use-package leetcode
+      :ensure t
+      :config
+      (setq leetcode-prefer-language "golang"
+            leetcode-save-solutions t
+            leetcode-directory "~/Dropbox/leetcode"))
 #+end_src
 ** Org-jira
 https://github.com/ahungry/org-jira
@@ -5495,7 +5714,7 @@ The default Maildir path and subfolders.
 
 #+begin_src emacs-lisp :tangle no
   (setq
-      mu4e-maildir       "~/MEGA/org/mail"        ;; top-level Maildir
+      mu4e-maildir       "~/MEGA/org/mail"   ;; top-level Maildir
       mu4e-sent-folder   "/mails/Sent"       ;; folder for sent messages
       mu4e-drafts-folder "/mails/Drafts"     ;; unfinished messages
       mu4e-trash-folder  "/mails/Trash"      ;; trashed messages
@@ -6250,7 +6469,7 @@ search in your emails to get a little context in the conversation.
     :ensure t)
 #+end_src
 ** centaur-tabs
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
     (use-package centaur-tabs
     :init
     (setq centaur-tabs-enable-key-bindings t)

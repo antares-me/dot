@@ -3,7 +3,7 @@
 #+email: antres@antares.me
 #+date:[2026-03-12 Ср]
 #+language: ru
-#+property: header-args :tangle init.el :comments org
+#+property: header-args :tangle init.el :comments org :lexical t
 #+options: author:nil toc:nil title:nil e:nil
 #+startup: fold
 
@@ -47,6 +47,37 @@ Tangling происходит автоматически каждый раз п�
       ;; (byte-compile-file (concat user-emacs-directory "init.el")))
 
   (add-hook 'after-save-hook 'antares-tangle-init)
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+(defun add-tangle-headers ()
+  (message "running in %s" (buffer-file-name))
+  (cond
+   ((f-ext? (buffer-file-name) "py")
+    (goto-char (point-min))
+    (insert "# This is a generated file do not edit\n"))
+   ((f-ext? (buffer-file-name) "el")
+    (goto-char (point-min))
+    (insert ";;; -*- lexical-binding: t -*-\n"))
+   (t
+    nil))
+  (save-buffer))
+
+(add-hook 'org-babel-post-tangle-hook 'add-tangle-headers)
+#+end_src
+
+#+begin_src emacs-lisp
+  (defun antares-ensure-lexical-binding-cookie ()
+    "Функция прочтавляет lexical-binding собираемым файлам"
+    (goto-char(point-min)) ;; beginning of tangled code
+    (insert ";; -*- coding: utf-8; lexical-binding: t -*-")
+    (newline)
+    (newline)
+    (let ((inhibit-message t)) ;; Don't show messages from these functions
+      (basic-save-buffer)
+      (kill-buffer) nil))
+
+  (add-hook 'org-babel-post-tangle-hook #'antares-ensure-lexical-binding-cookie)
 #+end_src
 
 Крутая фишка такой настройки в том, что этот файл можно достаточно легко
@@ -409,33 +440,55 @@ Recentf - это второстепенный режим, который стр�
 Desktop Save Mode - функция сохранения состояния Emacs от одного сеанса к другому.
 
 #+begin_src emacs-lisp
-;; У меня отключен пока эта конфигурация не стабильна
-(use-package desktop
-  :ensure t
-  :disabled t
-  :config
-  (progn
-    (setq desktop-path '("~/.emacs.d/tmp/"))
-    (setq desktop-dirname "~/.emacs.d/tmp/")
-    (setq desktop-base-file-name "emacs-desktop")
-    (setq desktop-globals-to-save
-          (append '((extended-command-history . 50)
-                    (file-name-history . 200)
-                    (grep-history . 50)
-                    (compile-history . 50)
-                    (minibuffer-history . 100)
-                    (query-replace-history . 100)
-                    (read-expression-history . 100)
-                    (regexp-history . 100)
-                    (regexp-search-ring . 100)
-                    (search-ring . 50)
-                    (shell-command-history . 50)
-                    tags-file-name
-                    register-alist)))
-    (desktop-save-mode 1)))
-
+  (use-package desktop
+    :ensure t
+    :hook
+  (elpaca-after-init-hook
+   . (lambda ()
+       (desktop-save-mode 1) ; Enable the mode right before
+       (let ((key "--no-desktop"))
+         (when (member key command-line-args)
+           (setq command-line-args (delete key command-line-args))
+           (desktop-save-mode 0)))
+       (when desktop-save-mode
+         (desktop-read)
+         (setq inhibit-startup-screen t))))
+    :config
+    (progn
+      (setq desktop-path '("~/.emacs.d/tmp/"))
+      (setq desktop-dirname "~/.emacs.d/tmp/")
+      (setq desktop-base-file-name "emacs-desktop")
+      (setq desktop-globals-to-save
+            (append '((extended-command-history . 50)
+                      (file-name-history . 200)
+                      (grep-history . 50)
+                      (compile-history . 50)
+                      (minibuffer-history . 100)
+                      (query-replace-history . 100)
+                      (read-expression-history . 100)
+                      (regexp-history . 100)
+                      (regexp-search-ring . 100)
+                      (search-ring . 50)
+                      (shell-command-history . 50)
+                      tags-file-name
+                      register-alist)))
+      ;;(desktop-save-mode 1)
+      ))
 #+end_src
 
+** Desktop+
+#+begin_src emacs-lisp :tangle no
+  (use-package Desktop+
+    :ensure t
+    :init
+    (setq desktop+-special-buffer-handlers
+      '(term-mode
+        compilation-mode
+        org-agenda-mode
+        indirect-buffer
+        Man-mode
+        shell-mode)))
+#+end_src
 ** Сохранение позиции курсора между сеансами
 
 Сохранить позицию курсора для каждого открытого файла. Так при повторном
@@ -1103,6 +1156,7 @@ Emacs версия Vim powerline.
       (define-key global-map (kbd "C-c t") telega-prefix-map)
       (setq telega-use-docker t
             telega-adblock-mode t
+            telega-emoji-use-images t
             telega-notifications-mode t
             telega-mode-line-mode t
             telega-proxy-status-mode t
@@ -1270,7 +1324,7 @@ Emacs версия Vim powerline.
     (require 'llm-ollama)
     (setopt ellama-provider
             (make-llm-ollama
-             :chat-model "qwen3.6"
+             :chat-model "qwen3.8:27b"
              :embedding-model "nomic-embed-text"
              :default-chat-non-standard-params '(("num_ctx" . 60000)))) ;;262144
     (setopt ellama-summarization-provider
@@ -1606,6 +1660,20 @@ Github Copilot Chat временно отключен так как из Рос�
 (use-package lsp-mode
   :ensure t)
 #+end_src
+***** PHP-lsp server
+#+begin_src emacs-lisp
+(with-eval-after-load 'lsp-mode
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-stdio-connection '("phpantom_lsp"))
+    :activation-fn (lsp-activate-on "php")
+    :server-id 'phpantom)))
+#+end_src
+#+begin_src emacs-lisp :tangle no
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               '(php-mode . ("phpantom_lsp"))))
+#+end_src
 **** LSP-ui
 #+begin_src emacs-lisp
 (use-package lsp-ui
@@ -1634,6 +1702,7 @@ Github Copilot Chat временно отключен так как из Рос�
              )
     :config (global-lsp-bridge-mode))
 #+end_src
+
 *** Go
 **** Go-mode
 #+begin_src emacs-lisp
@@ -2234,6 +2303,13 @@ Use [[https://github.com/pidu/git-timemachine][git-timemachine]] для прос
 (use-package smex
   :ensure t)
 #+end_src
+
+** good-scroll
+#+begin_src emacs-lisp
+  (use-package good-scroll
+    :ensure t)
+#+end_src
+
 ** swiper & ivy & counsel
 
 [[https://github.com/abo-abo/swiper][Ivy]] is a generic completion mechanism for Emacs that aims to be more efficient,
@@ -3704,6 +3780,38 @@ Unite работал в качестве интерфейса для неско�
             org-html-validation-link nil)))
 #+end_src
 
+** org-edna
+Добавляет trigger и blocker properties в хединги, делая чуть более удобным менеджмент тасков. еще удобный поиск и несколько других qol фич.
+#+begin_src emacs-lisp
+      (use-package org-edna
+        :ensure t
+        :defer t)
+#+end_src
+
+** org-drill
+  Позволяет добавть drill (и другие) теги и свойства, создавая карточки (анки-лайк) из заметок прямо в емаксе. - сама считает интервалы повторений и делает подборку карточек для повторения.
+#+begin_src emacs-lisp
+    (use-package org-drill
+      :ensure t
+      :defer t)
+#+end_src
+
+** org-remark
+Позволяет помечать плейн-текст внутри орг-заметок отдельным тегом, потом этим тегам можно локально (или внутри проекта) назначать face, искать их (выдавая список локаций в минибаффер) и тоже использовать для повторения.
+#+begin_src emacs-lisp
+  (use-package org-remark
+    :ensure t
+    :defer t)
+#+end_src
+
+** org-fragtog
+Авто-тоггл латек фрагментов в отрендеренные ин-лайн блоки.
+#+begin_src emacs-lisp
+  (use-package org-fragtog
+    :ensure t
+    :defer t)
+#+end_src
+
 ** org-roam
 #+begin_src emacs-lisp
       (use-package org-roam
@@ -3989,17 +4097,36 @@ Unite работал в качестве интерфейса для неско�
 (advice-add #'org-display-inline-images :after #'org-yt-display-inline-images)
 #+end_src
 
+** cdlatex
+Что-то типа транзиент меню для спец символов.
+#+begin_src emacs-lisp
+  (use-package cdlatex
+    :ensure t
+    :defer t)
+#+end_src
+
+** plantuml-mode
+#+begin_src emacs-lisp
+  (use-package plantuml-mode
+    :ensure t
+    :defer t)
+#+end_src
+
+** org-transclusion
+#+begin_src emacs-lisp
+    (use-package org-transclusion
+      :ensure t
+      :after org
+      :bind (
+             ("S-<f12>" . org-transclusion-add)
+             ("C-c t m" . org-transclusion-transient-menu)
+             ("C-n t t" . org-transclusion-mode)))
+#+end_src
+
 ** TODO openwith-mode
 #+begin_src emacs-lisp
   (use-package openwith
     :ensure t)
-#+end_src
-
-** TODO org-transclusion
-#+begin_src emacs-lisp
-  (use-package org-transclusion
-    :ensure t
-    :after org)
 #+end_src
 
 ** org-present
@@ -6132,6 +6259,25 @@ search in your emails to get a little context in the conversation.
   (use-package bitrix24
     :elpaca (:repo "/home/antares/bitrix24-mode/"))
 #+end_src
+#+begin_src emacs-lisp :tangle no
+(use-package bitrix24
+  :load-path "~/tmp/bitrix24"
+  :custom
+  (bitrix24-auth-backend 'plstore)
+  (bitrix24-sync-interval 15)       ;; авто-синхронизация каждые 15 минут, 0 = выкл
+  :config
+  ;; Регистрация порталов
+  (bitrix24-register-portal "main"
+    :webhook-url "https://main.bitrix24.com/rest/1/abc123/"
+    :auth-backend 'plstore)
+  (bitrix24-register-portal "dev"
+    :webhook-url "https://dev.bitrix24.com/rest/1/xyz789/"
+    :auth-backend 'pass)
+  :bind (:map bitrix24-mode-map
+         ("C-c b s" . bitrix24-sync))
+  :hook ((org-mode . bitrix24-mode)
+         (after-init . bitrix24-mode)))
+#+end_src
 ** Emoticons
 #+begin_src emacs-lisp
 (use-package emojify
@@ -6277,11 +6423,11 @@ search in your emails to get a little context in the conversation.
 #+end_src
 ** wakatime
 Статистика использования редактора
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
   (use-package wakatime-mode
     :ensure t
     :custom
-    (wakatime-api-key "<api-key>")
+    (wakatime-api-key (password-store-get "Personal/wakatime.com/api-key"))
     :init (global-wakatime-mode))
 #+end_src
 ** spacious-padding
@@ -6718,6 +6864,11 @@ search in your emails to get a little context in the conversation.
     ;;         (setq ewm-consult-separate-application-source t))
     )
 #+end_src
+** Emskin
+#+begin_src emacs-lisp
+  (use-package emskin
+    :ensure (:host github :repo "emskin/emskin" :files ("elisp/*.el")))
+#+end_src
 ** Embark
 #+begin_src emacs-lisp
   (use-package embark
@@ -6856,8 +7007,13 @@ search in your emails to get a little context in the conversation.
 
 ** Compat
 #+begin_src emacs-lisp
-      (use-package compat
-        :ensure (
-                 :host github
-                       :repo "emacs-compat/compat"))
+  (use-package compat
+    :ensure (
+             :host github
+             :repo "emacs-compat/compat"))
 #+end_src
+* Локальные переменные
+;; Local Variables: 
+;; eval: (add-hook 'after-save-hook (lambda ()(if (y-or-n-p "Reload?")(load-file user-init-file))) nil t) 
+;; eval: (add-hook 'after-save-hook (lambda ()(if (y-or-n-p "Tangle?")(org-babel-tangle))) nil t) 
+;; End:

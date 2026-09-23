@@ -1,7 +1,7 @@
-#+title: Readme
+#+title: Emacs literate configuration
 #+author: Anton Salnikov
 #+email: antres@antares.me
-#+date:[2026-03-12 Ср]
+#+date:[2026-09-22 Вт]
 #+language: ru
 #+property: header-args :tangle init.el :comments org :lexical t
 #+options: author:nil toc:nil title:nil e:nil
@@ -32,7 +32,7 @@ Tangling происходит автоматически каждый раз п�
 
 Этот хук создаёт новый =~/.emacs.d/init.el= каждый раз при изменении этого файла.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   ;; Оригинал взят отсюда
   ;; https://github.com/larstvei/dot-emacs/blob/master/init.org
   (defun antares-tangle-init ()
@@ -210,6 +210,7 @@ Tangling происходит автоматически каждый раз п�
   ;; Блокируем выполнение очереди до тех пор, пока текущие задачи не выполнятся.
   (elpaca-wait)
 #+end_src
+
 * Встроенные возможности
 ** Сообщения отладки с метками времени
 
@@ -441,7 +442,7 @@ Desktop Save Mode - функция сохранения состояния Emacs
 
 #+begin_src emacs-lisp
   (use-package desktop
-    :ensure t
+    :ensure nil
     :hook
   (elpaca-after-init-hook
    . (lambda ()
@@ -478,16 +479,49 @@ Desktop Save Mode - функция сохранения состояния Emacs
 
 ** Desktop+
 #+begin_src emacs-lisp :tangle no
-  (use-package Desktop+
-    :ensure t
-    :init
-    (setq desktop+-special-buffer-handlers
-      '(term-mode
-        compilation-mode
-        org-agenda-mode
-        indirect-buffer
-        Man-mode
-        shell-mode)))
+    (use-package desktop+
+      :ensure t
+      :after desktop
+      :init
+      (setq desktop+-special-buffer-handlers
+        '(term-mode
+          compilation-mode
+          org-agenda-mode
+          indirect-buffer
+          Man-mode
+          shell-mode))
+      :config
+      (progn
+        (define-key-after
+    global-map
+    [menu-bar desktopplusmenu]
+    (cons "Desktop+" (make-sparse-keymap "hey there"))
+    'file)
+  ;; Creating a menu item to a desktop+ command, under the menu by the id "[menu-bar desktopplusmenu]"
+  (define-key
+    global-map
+    [menu-bar desktopplusmenu ploadauto]
+    '("Load an auto named desktop - based on current directory" . desktop+-load-auto))
+  ;;
+  (define-key
+    global-map
+    [menu-bar desktopplusmenu pcreateauto]
+    '("Create an auto named desktop - based on current directory" . desktop+-create-auto))
+  ;;
+  (define-key
+    global-map
+    [menu-bar desktopplusmenu pcreate]
+    '("Create a named desktop" . desktop+-create))
+  ;;
+  (define-key
+    global-map
+    [menu-bar desktopplusmenu pload]
+    '("Load a named desktop" . desktop+-load))
+  ;; 
+  (define-key
+    global-map
+    [menu-bar desktopplusmenu psave]
+    '("Save the desktop to your own folder" . desktop-save))))
 #+end_src
 ** Сохранение позиции курсора между сеансами
 
@@ -939,6 +973,13 @@ Emacs версия Vim powerline.
     :custom (fira-code-mode-disabled-ligatures '("[]" "x"))  ; ligatures you don't want
     :hook prog-mode
     )                                         ; mode to enable fira-code-mode in
+#+end_src
+*** So-long
+#+begin_src emacs-lisp
+(use-package so-long
+  :ensure t
+  :hook
+  (after-init-hook . global-so-long-mode))
 #+end_src
 ** transient
 Библиотека для создания клавиатурно-ориентированного меню для *magit*, *docker*
@@ -1597,6 +1638,7 @@ Github Copilot Chat временно отключен так как из Рос�
 *** Ai-code-interface
 #+begin_src emacs-lisp
   (use-package ai-code
+    :after transient
     :config
     (ai-code-set-backend 'opencode)
     ;; Optional: use a narrower transient menu on smaller frames
@@ -2159,6 +2201,13 @@ Use [[https://github.com/pidu/git-timemachine][git-timemachine]] для прос
     ;;:load-path "russian-lisp-mode/"
     ;;:hook ((emacs-lisp-mode . russian-lisp-mode))
 )
+#+end_src
+
+*** Highlight-numbers
+#+begin_src emacs-lisp
+  (use-package highlight-numbers
+    :ensure t
+    :hook (prog-mode . highlight-numbers-mode))
 #+end_src
 
 ** HOLD NeoTree
@@ -6546,7 +6595,7 @@ search in your emails to get a little context in the conversation.
   (use-package dockerfile-mode
     :ensure t)
   (use-package docker-compose-mode
-    :ensure t)
+    :ensure nil)
 #+end_src
 ** Vterm
 #+begin_src emacs-lisp
@@ -6708,7 +6757,14 @@ search in your emails to get a little context in the conversation.
 ** Minimap
 #+begin_src emacs-lisp
   (use-package minimap
-    :ensure t)
+    :ensure t
+    :config
+  (setq minimap-window-location 'right)
+  (setq minimap-minimum-width 10)
+  (setq minimap-dedicated-window t)
+  (setq minimap-hide-cursor t)
+  (setq minimap-hide-scroll-bar t)
+  (setq minimap-hide-fringes t))
 #+end_src
 ** Indent-bars
 #+begin_src emacs-lisp
